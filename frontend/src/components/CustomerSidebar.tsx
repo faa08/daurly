@@ -53,7 +53,7 @@ export default function CustomerSidebar() {
           <div className="border-t border-surface-container my-3"></div>
           
           <Link
-            href="/login"
+            href="/masuk"
             className="flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-xs uppercase tracking-wider text-error hover:bg-error-container/20 transition"
           >
             <span className="material-symbols-outlined text-[18px]">logout</span>

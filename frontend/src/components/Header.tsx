@@ -74,8 +74,8 @@ export default function Header({
               </Link>
             ) : (
               <div className="flex items-center gap-4 text-xs font-bold text-secondary uppercase tracking-wider">
-                <Link href="/login" className="hover:text-primary transition">Daftar</Link>
-                <Link href="/login" className="hover:text-primary transition">Login</Link>
+                <Link href="/daftar" className="hover:text-primary transition">Daftar</Link>
+                <Link href="/masuk" className="hover:text-primary transition">Login</Link>
               </div>
             )}
           </div>

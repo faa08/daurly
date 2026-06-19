@@ -71,7 +71,7 @@ export default function AdminSidebar() {
           <span>Help Center</span>
         </Link>
         <Link
-          href="/login"
+          href="/masuk"
           className="flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm text-error hover:bg-error-container/20 transition"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
