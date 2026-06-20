@@ -61,7 +61,7 @@ export default function CustomerProfilePage() {
 
         <button 
           onClick={() => setIsEditing(!isEditing)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-container text-white font-bold text-xs rounded hover:brightness-95 transition"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold text-xs rounded hover:brightness-95 transition"
         >
           <span className="material-symbols-outlined text-[16px]">edit</span>
           {isEditing ? "Batal Edit" : "Edit Profil"}

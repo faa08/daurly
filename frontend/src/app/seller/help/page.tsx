@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 
@@ -142,7 +142,7 @@ export default function SellerHelpPage() {
             </div>
           </div>
 
-          <div className="bg-[#fff9f6] border border-orange-100 p-4 rounded-lg text-xs text-[#9e4200] font-medium leading-relaxed mt-4">
+          <div className="bg-[#EFF6FF] border border-orange-100 p-4 rounded-lg text-xs text-[#1E40AF] font-medium leading-relaxed mt-4">
             <strong>Tips:</strong> Cantumkan bukti screenshot error atau resi pengiriman untuk mempercepat tim kami memproses tiket bantuan Anda.
           </div>
         </section>

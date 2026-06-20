@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 
@@ -10,35 +10,7 @@ export default function SellerProductsPage() {
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newProductStock, setNewProductStock] = useState("");
   
-  const [products, setProducts] = useState([
-    {
-      sku: "BTK-TL-001",
-      nama: "Kemeja Batik Tulis Parang Indigo",
-      kategori: "Fashion Pria",
-      harga: 850000,
-      stok: 12,
-      status: "Aktif",
-      img: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=100&auto=format&fit=crop",
-    },
-    {
-      sku: "BTK-CP-042",
-      nama: "Kain Batik Cap Kawung Merah",
-      kategori: "Tekstil",
-      harga: 125000,
-      stok: 0,
-      status: "Stok Habis",
-      img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=100&auto=format&fit=crop",
-    },
-    {
-      sku: "ACC-BG-019",
-      nama: "Handbag Kulit Aksen Batik Sogan",
-      kategori: "Aksesoris",
-      harga: 450000,
-      stok: 45,
-      status: "Aktif",
-      img: "https://images.unsplash.com/photo-1627124765950-2a3b0b8d278b?q=80&w=100&auto=format&fit=crop",
-    }
-  ]);
+  const [products, setProducts] = useState<any[]>([]);
 
   const handleDelete = (sku: string, name: string) => {
     if (confirm(`Apakah Anda yakin ingin menghapus produk ${name}?`)) {
@@ -83,7 +55,7 @@ export default function SellerProductsPage() {
         </div>
         <button 
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary-container text-white font-bold text-sm rounded-lg hover:brightness-95 transition"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white font-bold text-sm rounded-lg hover:brightness-95 transition"
         >
           <span className="material-symbols-outlined text-[20px]">add_circle</span>
           Tambah Produk Baru
@@ -94,21 +66,32 @@ export default function SellerProductsPage() {
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white border border-surface-container p-6 rounded-xl space-y-1 shadow-sm">
           <p className="text-xs uppercase font-bold text-secondary tracking-wider">Total Produk</p>
-          <h3 className="font-headline text-2xl font-extrabold text-on-surface">124</h3>
+          <h3 className="font-headline text-2xl font-extrabold text-on-surface">{products.length}</h3>
         </div>
         <div className="bg-white border border-surface-container p-6 rounded-xl space-y-1 shadow-sm">
           <p className="text-xs uppercase font-bold text-secondary tracking-wider">Aktif</p>
-          <h3 className="font-headline text-2xl font-extrabold text-[#9e4200] flex items-center justify-between">
-            118 <span className="text-[10px] bg-green-50 border border-green-200 text-green-600 px-2 py-0.5 rounded uppercase">95%</span>
+          <h3 className="font-headline text-2xl font-extrabold text-[#1E40AF] flex items-center justify-between">
+            {products.filter(p => p.status === "Aktif").length}
+            {products.length > 0 ? (
+              <span className="text-[10px] bg-green-50 border border-green-200 text-green-600 px-2 py-0.5 rounded uppercase">
+                {Math.round((products.filter(p => p.status === "Aktif").length / products.length) * 100)}%
+              </span>
+            ) : (
+              <span className="text-[10px] bg-zinc-50 border border-zinc-200 text-zinc-600 px-2 py-0.5 rounded uppercase">0%</span>
+            )}
           </h3>
         </div>
         <div className="bg-white border border-surface-container p-6 rounded-xl space-y-1 shadow-sm">
           <p className="text-xs uppercase font-bold text-secondary tracking-wider">Stok Habis</p>
-          <h3 className="font-headline text-2xl font-extrabold text-error">4</h3>
+          <h3 className="font-headline text-2xl font-extrabold text-error">
+            {products.filter(p => p.stok === 0 || p.status === "Stok Habis").length}
+          </h3>
         </div>
         <div className="bg-white border border-surface-container p-6 rounded-xl space-y-1 shadow-sm">
           <p className="text-xs uppercase font-bold text-secondary tracking-wider">Dalam Review</p>
-          <h3 className="font-headline text-2xl font-extrabold text-secondary">2</h3>
+          <h3 className="font-headline text-2xl font-extrabold text-secondary">
+            {products.filter(p => p.status === "Dalam Review").length}
+          </h3>
         </div>
       </section>
 
@@ -205,7 +188,12 @@ export default function SellerProductsPage() {
 
         {/* Pagination */}
         <div className="px-6 py-4 bg-surface-container-low/40 border-t border-surface-container flex items-center justify-between text-xs font-semibold text-secondary">
-          <p>Menampilkan 1-{filteredProducts.length} dari {products.length} produk</p>
+          <p>
+            {products.length > 0 
+              ? `Menampilkan 1-${filteredProducts.length} dari ${products.length} produk`
+              : "Tidak ada produk"
+            }
+          </p>
           <div className="flex gap-1">
             <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition" disabled>
               <span className="material-symbols-outlined text-sm">chevron_left</span>

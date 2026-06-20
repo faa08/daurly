@@ -6,52 +6,7 @@ export default function SellerOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("Semua");
   
-  const [orders, setOrders] = useState([
-    {
-      id: "#ORD-2024-8812",
-      date: "12 Okt 2024, 09:45",
-      buyer: "Andi Darmawan",
-      avatar: "AD",
-      productName: "Batik Tulis Parang Kencana",
-      productDetail: "Size: XL, Qty: 1",
-      productImg: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=100&auto=format&fit=crop",
-      total: 450000,
-      status: "Perlu Dikirim",
-    },
-    {
-      id: "#ORD-2024-8811",
-      date: "11 Okt 2024, 15:20",
-      buyer: "Siti Nurhaliza",
-      avatar: "SN",
-      productName: "Syal Sutra Motif Kawung",
-      productDetail: "Blue-Orange, Qty: 2",
-      productImg: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=100&auto=format&fit=crop",
-      total: 820000,
-      status: "Belum Bayar",
-    },
-    {
-      id: "#ORD-2024-8810",
-      date: "11 Okt 2024, 11:05",
-      buyer: "Bambang Pamungkas",
-      avatar: "BP",
-      productName: "Kemeja Batik Modern Slim",
-      productDetail: "Size: L, Qty: 1",
-      productImg: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=100&auto=format&fit=crop",
-      total: 325000,
-      status: "Perlu Dikirim",
-    },
-    {
-      id: "#ORD-2024-8809",
-      date: "10 Okt 2024, 18:30",
-      buyer: "Rina Kusuma",
-      avatar: "RK",
-      productName: "Sarung Bantal Batik Cap",
-      productDetail: "Set of 4, Qty: 1",
-      productImg: "https://images.unsplash.com/photo-1627124765950-2a3b0b8d278b?q=80&w=100&auto=format&fit=crop",
-      total: 150000,
-      status: "Selesai",
-    }
-  ]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   const tabs = ["Semua", "Belum Bayar", "Perlu Dikirim", "Dikirim", "Selesai", "Dibatalkan"];
 
@@ -203,18 +158,24 @@ export default function SellerOrdersPage() {
 
         {/* Pagination */}
         <div className="px-6 py-4 bg-surface-container-low/40 border-t border-surface-container flex items-center justify-between text-xs font-semibold text-secondary">
-          <p>Menampilkan {filteredOrders.length} dari {orders.length} pesanan</p>
-          <div className="flex gap-1">
-            <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition" disabled>
-              <span className="material-symbols-outlined text-sm">chevron_left</span>
-            </button>
-            <button className="w-8 h-8 rounded bg-primary text-white flex items-center justify-center font-bold">1</button>
-            <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition">2</button>
-            <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition">3</button>
-            <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition">
-              <span className="material-symbols-outlined text-sm">chevron_right</span>
-            </button>
-          </div>
+          <p>
+            {orders.length > 0
+              ? `Menampilkan ${filteredOrders.length} dari ${orders.length} pesanan`
+              : "Tidak ada pesanan"}
+          </p>
+          {orders.length > 0 && (
+            <div className="flex gap-1">
+              <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition" disabled>
+                <span className="material-symbols-outlined text-sm">chevron_left</span>
+              </button>
+              <button className="w-8 h-8 rounded bg-primary text-white flex items-center justify-center font-bold">1</button>
+              <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition">2</button>
+              <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition">3</button>
+              <button className="w-8 h-8 rounded border border-surface-container hover:bg-surface-container flex items-center justify-center transition">
+                <span className="material-symbols-outlined text-sm">chevron_right</span>
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>

@@ -67,7 +67,7 @@ export default function CustomerSecurityPage() {
           </div>
           <button 
             onClick={() => alert("Membuka dialog Ganti Kata Sandi...")}
-            className="w-full py-2.5 bg-primary-container text-white font-bold text-xs rounded hover:brightness-95 transition"
+            className="w-full py-2.5 bg-primary text-white font-bold text-xs rounded hover:brightness-95 transition"
           >
             Ganti Kata Sandi
           </button>

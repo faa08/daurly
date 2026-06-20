@@ -11,6 +11,7 @@ const COMPANY_LINKS = [
 ];
 
 const HELP_LINKS = [
+  { label: "Pusat Bantuan", href: "/bantuan" },
   { label: "Syarat & Ketentuan", href: "/syarat" },
   { label: "Informasi Pengiriman", href: "/pengiriman" },
   { label: "FAQ", href: "/faq" },

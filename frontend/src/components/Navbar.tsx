@@ -1,17 +1,18 @@
-"use client";
+﻿"use client";
 
-import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
 import { 
-  ShoppingCart, 
   Bell, 
+  ShoppingCart, 
   Tag, 
   Check, 
   MessageSquare, 
   Trash2, 
   BellOff, 
-  RotateCcw 
+  RotateCcw, 
+  User 
 } from "lucide-react";
-import Link from "next/link";
 
 interface Notification {
   id: string;
@@ -61,8 +62,10 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const containerRef = useRef<HTMLDivElement>(null);
+  const profileContainerRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -71,15 +74,18 @@ export default function Navbar() {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
+      if (profileContainerRef.current && !profileContainerRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
     }
 
-    if (isOpen) {
+    if (isOpen || isProfileOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, isProfileOpen]);
 
   const handleMarkAllRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
@@ -129,6 +135,12 @@ export default function Navbar() {
           <Link href="/keranjang" className="nav-cart-btn" id="cart-btn">
             <ShoppingCart size={18} className="nav-icon-orange" />
             <span>Keranjang</span>
+          </Link>
+
+          {/* Chat Icon */}
+          <Link href="/chat" className="nav-cart-btn" id="chat-btn" title="Chat">
+            <MessageSquare size={18} className="nav-icon-orange" />
+            <span>Chat</span>
           </Link>
 
           {/* Notification Button and Dropdown Card */}
@@ -219,14 +231,44 @@ export default function Navbar() {
             Login
           </Link>
 
-          <div className="nav-profile-avatar">
-            <div className="avatar-circle">
-              <span className="avatar-icon">👤</span>
-            </div>
+          <div className="nav-profile-avatar relative" ref={profileContainerRef}>
+            <button 
+              className="avatar-circle" 
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              aria-expanded={isProfileOpen}
+            >
+              <User size={18} className="text-[#4C1D95] fill-[#4C1D95]" />
+            </button>
+            {isProfileOpen && (
+              <div className="absolute top-[calc(100%+14px)] right-0 w-[180px] bg-white border border-[#EAE5E0] rounded-[10px] shadow-lg z-50 overflow-hidden flex flex-col py-1.5">
+                <Link 
+                  href="/account/profile" 
+                  className="w-full px-4 py-2.5 text-[13px] font-semibold text-[#1F1B18] text-left transition-all duration-150 flex items-center gap-2 hover:bg-[#EFF6FF] hover:text-[#1D4ED8]" 
+                  onClick={() => setIsProfileOpen(false)}
+                >
+                  Akun saya
+                </Link>
+                <Link 
+                  href="/account/orders" 
+                  className="w-full px-4 py-2.5 text-[13px] font-semibold text-[#1F1B18] text-left transition-all duration-150 flex items-center gap-2 hover:bg-[#EFF6FF] hover:text-[#1D4ED8]" 
+                  onClick={() => setIsProfileOpen(false)}
+                >
+                  Pesanan saya
+                </Link>
+                <button 
+                  className="w-full px-4 py-2.5 text-[13px] font-semibold text-[#DC2626] text-left transition-all duration-150 flex items-center gap-2 border-t border-[#EAE5E0] mt-1 pt-3 hover:bg-[#FEE2E2]" 
+                  onClick={() => {
+                    setIsProfileOpen(false);
+                    alert("Anda telah logout.");
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </header>
   );
 }
-

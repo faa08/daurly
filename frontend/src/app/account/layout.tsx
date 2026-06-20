@@ -16,7 +16,7 @@ export default function CustomerAccountLayout({
       <Header cartCount={1} showProfile={true} />
 
       {/* Main Content viewport grid */}
-      <main className="flex-1 w-full max-w-[1280px] mx-auto px-6 md:px-12 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <main className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
         
         {/* Left Column (Customer Sidebar Menu Component) */}
         <CustomerSidebar />
@@ -29,7 +29,7 @@ export default function CustomerAccountLayout({
       </main>
 
       {/* Footer */}
-      <Footer isMinimalist={true} />
+      <Footer />
     </div>
   );
 }

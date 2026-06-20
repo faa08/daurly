@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -76,9 +76,9 @@ function fmtPrice(p: number) {
    Styles (shared tokens)
 ───────────────────────────────────────── */
 const C = {
-  primary: "#E8600A",
-  primaryDark: "#C24E08",
-  primaryPale: "#FFF3ED",
+  primary: "#1D4ED8",
+  primaryDark: "#1E40AF",
+  primaryPale: "#EFF6FF",
   surface: "#FCFCFA",
   card: "#FFFFFF",
   border: "#EAE5E0",
@@ -418,7 +418,7 @@ export default function CartPage() {
 
                 {/* Promo Banner */}
                 <div style={{
-                  background: "linear-gradient(135deg, #E8600A, #C24E08)",
+                  background: "linear-gradient(135deg, #1D4ED8, #1E40AF)",
                   borderRadius: 12, padding: "18px 20px",
                   display: "flex", flexDirection: "column", gap: 8,
                 }}>

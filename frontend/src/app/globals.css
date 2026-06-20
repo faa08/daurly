@@ -1,11 +1,41 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
+
+/* stylelint-disable-next-line */
+/* @tailwindcss/vscode: @theme is a Tailwind v4 directive */
+@theme {
+  --color-primary: #1D4ED8;
+  --color-primary-dark: #1E40AF;
+  --color-primary-light: #3B82F6;
+  --color-primary-pale: #EFF6FF;
+  --color-primary-container: #EFF6FF;
+  --color-on-primary-container: #1D4ED8;
+  
+  --color-surface: #FCFCFA;
+  --color-surface-card: #FFFFFF;
+  --color-border: #EAE5E0;
+  --color-border-strong: #D5CFC9;
+
+  --color-text-primary: #1F1B18;
+  --color-secondary: #3E3834;
+  --color-text-muted: #5C5550;
+  --color-text-on-primary: #FFFFFF;
+  
+  --color-surface-container: #F5F3F0;
+  --color-surface-container-low: #FAF9F6;
+  --color-surface-container-high: #EBE8E2;
+  --color-on-surface: #1F1B18;
+  --color-error: #DC2626;
+  --color-error-container: #FEE2E2;
+}
 
 :root {
   /* Brand Colors */
-  --primary: #E8600A;
-  --primary-dark: #C24E08;
-  --primary-light: #FF7B2E;
-  --primary-pale: #FFF3ED;
+  --primary: #1D4ED8;
+  --primary-dark: #1E40AF;
+  --primary-light: #3B82F6;
+  --primary-pale: #EFF6FF;
+  --primary-container: #EFF6FF;
+  --on-primary-container: #1D4ED8;
 
   /* Neutral / Warm */
   --surface: #FCFCFA;
@@ -15,8 +45,8 @@
 
   /* Text */
   --text-primary: #1F1B18;
-  --text-secondary: #5C5550;
-  --text-muted: #8E8680;
+  --text-secondary: #3E3834;
+  --text-muted: #5C5550;
   --text-on-primary: #FFFFFF;
 
   /* Shadow */
@@ -29,40 +59,42 @@
   --radius-lg: 12px;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-html {
-  scroll-behavior: smooth;
-}
+  html {
+    scroll-behavior: smooth;
+  }
 
-body {
-  font-family: var(--font-jakarta), -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--surface);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
-}
+  body {
+    font-family: var(--font-jakarta), -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--surface);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+  }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
 
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-  font-family: inherit;
-}
+  button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
 
-img {
-  display: block;
-  max-width: 100%;
+  img {
+    display: block;
+    max-width: 100%;
+  }
 }
 
 .container {
@@ -221,6 +253,57 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 180px;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  overflow: hidden;
+  animation: notif-slide-down 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+}
+
+.profile-dropdown-item {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: left;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-dropdown-item:hover {
+  background-color: var(--primary-pale);
+  color: var(--primary);
+}
+
+.profile-dropdown-item-logout {
+  color: var(--color-error, #DC2626);
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 12px;
+  width: 100%;
+  border-radius: 0;
+}
+
+.profile-dropdown-item-logout:hover {
+  background-color: #FEE2E2;
+  color: #DC2626;
 }
 
 .avatar-circle {
@@ -1703,11 +1786,11 @@ img {
 }
 
 .notif-item.unread {
-  background-color: #FFF9F5; /* subtle orange/warm tint for unread */
+  background-color: #EFF6FF; /* subtle orange/warm tint for unread */
 }
 
 .notif-item.unread:hover {
-  background-color: #FFF3EA;
+  background-color: #DBEAFE;
 }
 
 .notif-icon-box {
@@ -1766,7 +1849,7 @@ img {
   border-radius: 50%;
   align-self: center;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px #FFF9F5; /* subtle ring around unread dot */
+  box-shadow: 0 0 0 2px #EFF6FF; /* subtle ring around unread dot */
 }
 
 /* Empty state design */

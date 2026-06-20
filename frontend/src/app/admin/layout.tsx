@@ -9,7 +9,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-[#F5F5F5]">
+    <div className="flex min-h-screen bg-[#FCFCFA]">
       {/* Superadmin Sidebar */}
       <AdminSidebar />
 

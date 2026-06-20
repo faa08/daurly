@@ -49,7 +49,7 @@ export default function CustomerAddressPage() {
         </div>
         <button 
           onClick={() => alert("Membuka form Tambah Alamat Baru...")}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary-container text-white font-bold text-xs rounded hover:brightness-95 transition"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white font-bold text-xs rounded hover:brightness-95 transition"
         >
           <span className="material-symbols-outlined text-[16px]">add</span>
           Tambah Alamat Baru

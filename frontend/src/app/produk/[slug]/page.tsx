@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -10,6 +10,7 @@ import {
   Store,
   ShieldCheck,
   Tag,
+  MessageSquare,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
@@ -110,7 +111,7 @@ export default function ProductDetailPage() {
                       height: 72,
                       borderRadius: 8,
                       overflow: "hidden",
-                      border: activeImg === i ? "2px solid #E8600A" : "2px solid transparent",
+                      border: activeImg === i ? "2px solid #1D4ED8" : "2px solid transparent",
                       cursor: "pointer",
                       background: "#F8F6F4",
                       padding: 0,
@@ -129,7 +130,7 @@ export default function ProductDetailPage() {
               {/* Badge */}
               <span style={{
                 display: "inline-block",
-                background: "#E8600A",
+                background: "#1D4ED8",
                 color: "white",
                 fontSize: "0.65rem",
                 fontWeight: 800,
@@ -157,7 +158,7 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Price */}
-              <div style={{ fontSize: "1.875rem", fontWeight: 800, color: "#E8600A", letterSpacing: "-0.02em" }}>
+              <div style={{ fontSize: "1.875rem", fontWeight: 800, color: "#1D4ED8", letterSpacing: "-0.02em" }}>
                 Rp 125.000
               </div>
 
@@ -181,7 +182,7 @@ export default function ProductDetailPage() {
                         border: "2px solid transparent",
                         cursor: "pointer",
                         outline: "none",
-                        boxShadow: activeColor === i ? `0 0 0 3px white, 0 0 0 5px #E8600A` : "none",
+                        boxShadow: activeColor === i ? `0 0 0 3px white, 0 0 0 5px #1D4ED8` : "none",
                         transition: "transform 0.15s, box-shadow 0.15s",
                       }}
                     />
@@ -201,11 +202,11 @@ export default function ProductDetailPage() {
                         height: 34,
                         padding: "0 16px",
                         borderRadius: 6,
-                        border: activeSize === i ? "1.5px solid #E8600A" : "1.5px solid #D5CFC9",
+                        border: activeSize === i ? "1.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
                         fontSize: "0.8125rem",
                         fontWeight: 600,
-                        color: activeSize === i ? "#E8600A" : "#5C5550",
-                        background: activeSize === i ? "#FFF3ED" : "white",
+                        color: activeSize === i ? "#1D4ED8" : "#5C5550",
+                        background: activeSize === i ? "#EFF6FF" : "white",
                         cursor: "pointer",
                         transition: "all 0.15s",
                         fontFamily: "inherit",
@@ -222,6 +223,25 @@ export default function ProductDetailPage() {
 
               {/* CTA Buttons */}
               <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
+                <Link
+                  href="/chat"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "2px solid #D5CFC9",
+                    borderRadius: 8,
+                    color: "#5C5550",
+                    background: "white",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                  title="Chat dengan Penjual"
+                >
+                  <MessageSquare size={20} />
+                </Link>
                 <button
                   id="add-to-cart"
                   style={{
@@ -231,9 +251,9 @@ export default function ProductDetailPage() {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: 10,
-                    border: "2px solid #E8600A",
+                    border: "2px solid #1D4ED8",
                     borderRadius: 8,
-                    color: "#E8600A",
+                    color: "#1D4ED8",
                     fontSize: "0.9rem",
                     fontWeight: 700,
                     background: "white",
@@ -250,7 +270,7 @@ export default function ProductDetailPage() {
                   style={{
                     flex: 1,
                     height: 48,
-                    background: "#E8600A",
+                    background: "#1D4ED8",
                     color: "white",
                     borderRadius: 8,
                     fontSize: "0.9rem",
@@ -302,12 +322,12 @@ export default function ProductDetailPage() {
               <div style={{ background: "white", border: "1px solid #EAE5E0", borderRadius: 12, padding: 24 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                   <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#1F1B18", margin: 0 }}>Ulasan Pembeli</h2>
-                  <Link href="#" style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#E8600A", textDecoration: "none" }}>Lihat Semua</Link>
+                  <Link href="#" style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8", textDecoration: "none" }}>Lihat Semua</Link>
                 </div>
                 <div style={{ display: "flex", gap: 14 }}>
                   <div style={{
                     width: 40, height: 40, borderRadius: "50%",
-                    background: "linear-gradient(135deg, #E8600A, #C24E08)",
+                    background: "linear-gradient(135deg, #1D4ED8, #1E40AF)",
                     color: "white", fontSize: "0.875rem", fontWeight: 800,
                     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                   }}>BN</div>
@@ -345,41 +365,62 @@ export default function ProductDetailPage() {
                     <p style={{ fontSize: "0.75rem", color: "#8E8680", marginTop: 2, margin: "2px 0 0 0" }}>Aktif 5 menit yang lalu</p>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", fontWeight: 700, color: "#E8600A" }}>
-                  <ShieldCheck size={14} color="#E8600A" />
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", fontWeight: 700, color: "#1D4ED8" }}>
+                  <ShieldCheck size={14} color="#1D4ED8" />
                   <span>Pelapak Terverifikasi</span>
                 </div>
-                <Link
-                  href="/toko/griya-keramik"
-                  style={{
-                    display: "block",
-                    textAlign: "center",
-                    height: 38,
-                    lineHeight: "38px",
-                    border: "1.5px solid #D5CFC9",
-                    borderRadius: 6,
-                    fontSize: "0.8125rem",
-                    fontWeight: 700,
-                    color: "#1F1B18",
-                    textDecoration: "none",
-                  }}
-                >
-                  Kunjungi Toko
-                </Link>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <Link
+                    href="/chat"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
+                      height: 38,
+                      border: "1.5px solid #1D4ED8",
+                      borderRadius: 6,
+                      fontSize: "0.8125rem",
+                      fontWeight: 700,
+                      color: "#1D4ED8",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <MessageSquare size={14} />
+                    Chat
+                  </Link>
+                  <Link
+                    href="/toko/griya-keramik"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: 38,
+                      border: "1.5px solid #D5CFC9",
+                      borderRadius: 6,
+                      fontSize: "0.8125rem",
+                      fontWeight: 700,
+                      color: "#1F1B18",
+                      textDecoration: "none",
+                    }}
+                  >
+                    Kunjungi Toko
+                  </Link>
+                </div>
               </div>
 
               {/* Promo Card */}
               <div style={{ background: "white", border: "1px solid #EAE5E0", borderRadius: 12, padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18" }}>
-                  <Tag size={14} color="#E8600A" />
+                  <Tag size={14} color="#1D4ED8" />
                   <span>Promo Hari Ini</span>
                 </div>
                 <p style={{ fontSize: "0.8125rem", color: "#5C5550", lineHeight: 1.6, margin: 0 }}>
-                  Gunakan kode <strong style={{ color: "#E8600A" }}>LOKALBANGGA</strong> untuk diskon 10% khusus produk kerajinan tangan.
+                  Gunakan kode <strong style={{ color: "#1D4ED8" }}>LOKALBANGGA</strong> untuk diskon 10% khusus produk kerajinan tangan.
                 </p>
                 <button style={{
                   height: 38,
-                  background: "#E8600A",
+                  background: "#1D4ED8",
                   color: "white",
                   borderRadius: 6,
                   fontSize: "0.8125rem",
@@ -428,11 +469,11 @@ export default function ProductDetailPage() {
                       overflow: "hidden",
                       minHeight: "2.7em",
                     }}>{p.name}</h3>
-                    <p style={{ fontSize: "0.9375rem", fontWeight: 800, color: "#E8600A", marginBottom: 6, margin: "0 0 6px 0" }}>
+                    <p style={{ fontSize: "0.9375rem", fontWeight: 800, color: "#1D4ED8", marginBottom: 6, margin: "0 0 6px 0" }}>
                       {formatPrice(p.price)}
                     </p>
                     <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.7rem", color: "#8E8680" }}>
-                      <span style={{ color: "#E8600A", fontSize: "0.8rem" }}>★</span>
+                      <span style={{ color: "#1D4ED8", fontSize: "0.8rem" }}>★</span>
                       <span>{p.rating}</span>
                       <span style={{ color: "#D5CFC9" }}>·</span>
                       <span>{p.sold} terjual</span>

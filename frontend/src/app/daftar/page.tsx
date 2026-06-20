@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -6,11 +6,12 @@ import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, User, Users, Grid } from "lucide-react";
 
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const C = {
-  primary: "#E8600A",
-  primaryDark: "#C24E08",
-  primaryPale: "#FFF3ED",
+  primary: "#1D4ED8",
+  primaryDark: "#1E40AF",
+  primaryPale: "#EFF6FF",
   border: "#EAE5E0",
   borderStrong: "#D5CFC9",
   text: "#1F1B18",
@@ -235,9 +236,7 @@ export default function RegisterPage() {
       </main>
 
       {/* ── Footer ── */}
-      <footer style={{ textAlign: "center", padding: "20px 0", fontSize: "0.75rem", color: C.textMuted, borderTop: `1px solid ${C.border}`, background: "white" }}>
-        © 2024 Pelataran UMKM Digital. Supporting local businesses.
-      </footer>
+      <Footer />
     </div>
   );
 }

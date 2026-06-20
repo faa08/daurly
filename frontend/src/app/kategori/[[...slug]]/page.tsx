@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, use } from "react";
 import Image from "next/image";
@@ -22,9 +22,9 @@ import Footer from "@/components/Footer";
 
 // Brand Design Constants
 const C = {
-  primary: "#E8600A",
-  primaryDark: "#C24E08",
-  primaryPale: "#FFF3ED",
+  primary: "#1D4ED8",
+  primaryDark: "#1E40AF",
+  primaryPale: "#EFF6FF",
   border: "#EAE5E0",
   borderStrong: "#D5CFC9",
   text: "#1F1B18",

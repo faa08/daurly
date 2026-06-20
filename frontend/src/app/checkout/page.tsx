@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -178,13 +178,13 @@ export default function CheckoutPage() {
                       setTempAddress({ ...address });
                       setIsEditAddressOpen(true);
                     }}
-                    style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#E8600A", border: "none", cursor: "pointer", background: "none" }}
+                    style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8", border: "none", cursor: "pointer", background: "none" }}
                   >
                     Ubah
                   </button>
                 </div>
                 <div style={{ display: "flex", gap: 12 }}>
-                  <div style={{ color: "#E8600A", marginTop: 2 }}>
+                  <div style={{ color: "#1D4ED8", marginTop: 2 }}>
                     <MapPin size={18} />
                   </div>
                   <div>
@@ -221,7 +221,7 @@ export default function CheckoutPage() {
                         <p style={{ fontSize: "0.75rem", color: "#8E8680", marginBottom: 2 }}>
                           {item.quantity} Barang ({item.weight * item.quantity} gr)
                         </p>
-                        <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#E8600A" }}>
+                        <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8" }}>
                           Rp {item.price.toLocaleString("id-ID")}
                         </p>
                       </div>
@@ -298,10 +298,10 @@ export default function CheckoutPage() {
                         key={method.id}
                         onClick={() => setSelectedPayment(method.id)}
                         style={{
-                          border: isSelected ? "1.5px solid #E8600A" : "1.5px solid #EAE5E0",
+                          border: isSelected ? "1.5px solid #1D4ED8" : "1.5px solid #EAE5E0",
                           borderRadius: 8,
                           padding: 16,
-                          background: isSelected ? "#FFF3ED" : "white",
+                          background: isSelected ? "#EFF6FF" : "white",
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                           width: 18,
                           height: 18,
                           borderRadius: "50%",
-                          border: isSelected ? "5.5px solid #E8600A" : "1.5px solid #D5CFC9",
+                          border: isSelected ? "5.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
                           background: "white",
                           flexShrink: 0,
                           transition: "all 0.15s ease",
@@ -452,7 +452,7 @@ export default function CheckoutPage() {
 
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", fontSize: "0.875rem", fontWeight: 800 }}>
                     <span style={{ color: "#1F1B18" }}>Total Tagihan</span>
-                    <span style={{ color: "#E8600A", fontSize: "1.25rem", letterSpacing: "-0.02em" }}>
+                    <span style={{ color: "#1D4ED8", fontSize: "1.25rem", letterSpacing: "-0.02em" }}>
                       Rp {totalBill.toLocaleString("id-ID")}
                     </span>
                   </div>
@@ -464,7 +464,7 @@ export default function CheckoutPage() {
                   style={{
                     width: "100%",
                     height: 48,
-                    background: "#E8600A",
+                    background: "#1D4ED8",
                     color: "white",
                     border: "none",
                     borderRadius: 8,
@@ -490,7 +490,7 @@ export default function CheckoutPage() {
                 </button>
 
                 <p style={{ fontSize: "0.725rem", color: "#8E8680", textAlign: "center", lineHeight: 1.4, marginTop: 12, margin: "12px 0 0" }}>
-                  Dengan membayar, Anda menyetujui <span style={{ color: "#E8600A", cursor: "pointer" }}>Syarat & Ketentuan</span> Pelataran UMKM.
+                  Dengan membayar, Anda menyetujui <span style={{ color: "#1D4ED8", cursor: "pointer" }}>Syarat & Ketentuan</span> Pelataran UMKM.
                 </p>
               </div>
 
@@ -586,7 +586,7 @@ export default function CheckoutPage() {
                 </button>
                 <button
                   type="submit"
-                  style={{ height: 38, padding: "0 16px", background: "#E8600A", color: "white", border: "none", borderRadius: 6, fontSize: "0.8125rem", fontWeight: 700, cursor: "pointer" }}
+                  style={{ height: 38, padding: "0 16px", background: "#1D4ED8", color: "white", border: "none", borderRadius: 6, fontSize: "0.8125rem", fontWeight: 700, cursor: "pointer" }}
                 >
                   Simpan Alamat
                 </button>
@@ -654,14 +654,14 @@ export default function CheckoutPage() {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "#8E8680" }}>Total Dibayar</span>
-                <span style={{ fontWeight: 800, color: "#E8600A" }}>Rp {totalBill.toLocaleString("id-ID")}</span>
+                <span style={{ fontWeight: 800, color: "#1D4ED8" }}>Rp {totalBill.toLocaleString("id-ID")}</span>
               </div>
             </div>
 
             <Link href="/" style={{
               width: "100%",
               height: 44,
-              background: "#E8600A",
+              background: "#1D4ED8",
               color: "white",
               borderRadius: 8,
               fontSize: "0.875rem",

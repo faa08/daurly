@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -20,7 +20,7 @@ export default function SellerSidebar() {
       {/* Brand Header */}
       <Link href="/" className="mb-6 px-4 flex items-center gap-2 hover:opacity-90 transition">
         <div className="flex flex-col gap-0.5 w-4 flex-shrink-0">
-          <span className="h-0.5 w-full bg-[#E8600A] rounded-sm"></span>
+          <span className="h-0.5 w-full bg-[#1D4ED8] rounded-sm"></span>
           <span className="h-0.5 w-full bg-[#8E8680] rounded-sm"></span>
         </div>
         <span className="font-headline text-lg font-bold text-[#1F1B18]">Pelataran UMKM</span>
@@ -51,7 +51,7 @@ export default function SellerSidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm transition ${
                 isActive
-                  ? "bg-[#E8600A] text-white font-bold"
+                  ? "bg-[#1D4ED8] text-white font-bold"
                   : "text-[#5C5550] hover:bg-[#F5F3F0] hover:text-[#1F1B18]"
               }`}
             >
@@ -73,7 +73,7 @@ export default function SellerSidebar() {
         </Link>
         <Link
           href="/masuk"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm text-[#E8600A] hover:bg-[#FFF3ED] transition"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm text-[#1D4ED8] hover:bg-[#EFF6FF] transition"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
           <span>Logout</span>
