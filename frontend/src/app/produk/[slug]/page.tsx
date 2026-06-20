@@ -244,8 +244,9 @@ export default function ProductDetailPage() {
                   <ShoppingCart size={18} />
                   Tambah ke Keranjang
                 </button>
-                <button
+                <Link
                   id="buy-now"
+                  href="/checkout"
                   style={{
                     flex: 1,
                     height: 48,
@@ -257,10 +258,14 @@ export default function ProductDetailPage() {
                     cursor: "pointer",
                     border: "none",
                     fontFamily: "inherit",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textDecoration: "none",
                   }}
                 >
                   Beli Sekarang
-                </button>
+                </Link>
               </div>
             </div>
           </div>
