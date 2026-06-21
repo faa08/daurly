@@ -92,6 +92,28 @@ export const authService = {
     }
   },
 
+  // Google OAuth Login
+  async loginWithGoogle(): Promise<any> {
+    console.log("Calling authService.loginWithGoogle");
+    if (isPlaceholder()) {
+      alert("Google OAuth tidak aktif pada environment lokal tanpa konfigurasi Supabase.");
+      return null;
+    }
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error("Google OAuth sign in failed:", err);
+      return null;
+    }
+  },
+
   // Register new user
   async register(username: string, email: string, no_telp: string): Promise<User | null> {
     console.log("Calling authService.register for:", username);
