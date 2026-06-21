@@ -87,6 +87,9 @@ CREATE TABLE users (
     no_telp         VARCHAR(20),
     avatar          TEXT,                            -- URL foto profil
     role            user_role NOT NULL DEFAULT 'customer',
+    nama_toko       VARCHAR(150),
+    jenis_kelamin   VARCHAR(20),
+    tanggal_lahir   DATE,
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
