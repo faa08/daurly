@@ -89,7 +89,7 @@ export default function CustomerOrdersPage() {
               <span
                 className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
                   ord.status === "Dikirim"
-                    ? "bg-orange-50 text-orange-700 border-orange-200"
+                    ? "bg-blue-50 text-blue-700 border-blue-200"
                     : ord.status === "Selesai"
                     ? "bg-green-50 text-green-700 border-green-200"
                     : "bg-red-50 text-red-700 border-red-200"

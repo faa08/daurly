@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
@@ -11,7 +11,10 @@ import {
   Trash2, 
   BellOff, 
   RotateCcw, 
-  User 
+  User,
+  Ticket,
+  Briefcase,
+  LogOut 
 } from "lucide-react";
 
 interface Notification {
@@ -240,30 +243,58 @@ export default function Navbar() {
               <User size={18} className="text-[#4C1D95] fill-[#4C1D95]" />
             </button>
             {isProfileOpen && (
-              <div className="absolute top-[calc(100%+14px)] right-0 w-[180px] bg-white border border-[#EAE5E0] rounded-[10px] shadow-lg z-50 overflow-hidden flex flex-col py-1.5">
-                <Link 
-                  href="/account/profile" 
-                  className="w-full px-4 py-2.5 text-[13px] font-semibold text-[#1F1B18] text-left transition-all duration-150 flex items-center gap-2 hover:bg-[#EFF6FF] hover:text-[#1D4ED8]" 
-                  onClick={() => setIsProfileOpen(false)}
-                >
-                  Akun saya
-                </Link>
-                <Link 
-                  href="/account/orders" 
-                  className="w-full px-4 py-2.5 text-[13px] font-semibold text-[#1F1B18] text-left transition-all duration-150 flex items-center gap-2 hover:bg-[#EFF6FF] hover:text-[#1D4ED8]" 
-                  onClick={() => setIsProfileOpen(false)}
-                >
-                  Pesanan saya
-                </Link>
-                <button 
-                  className="w-full px-4 py-2.5 text-[13px] font-semibold text-[#DC2626] text-left transition-all duration-150 flex items-center gap-2 border-t border-[#EAE5E0] mt-1 pt-3 hover:bg-[#FEE2E2]" 
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    alert("Anda telah logout.");
-                  }}
-                >
-                  Logout
-                </button>
+              <div className="absolute top-[calc(100%+14px)] right-0 w-[290px] bg-white border border-[#EAE5E0] rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col py-3 px-3 text-[#1F1B18] normal-case tracking-normal">
+                {/* Profile Info Header */}
+                <div className="flex items-center justify-between pb-3 mb-2 border-b border-gray-100 px-1">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-lg font-bold">
+                      <User className="w-5 h-5 fill-white text-white" />
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <span className="text-sm font-bold leading-tight">57w3eiqd</span>
+                      <span className="text-[11px] text-gray-400">@57w3eiqd</span>
+                    </div>
+                  </div>
+                  <Link 
+                    href="/account/profile"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="px-3.5 py-1.5 bg-[#F5F3F0] hover:bg-[#EBE8E2] transition-colors rounded-full text-xs font-semibold text-gray-700"
+                  >
+                    Profil Saya
+                  </Link>
+                </div>
+
+                {/* Dropdown Items */}
+                <div className="flex flex-col gap-0.5 text-left font-body">
+                  <Link
+                    href="/promo"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Ticket className="w-4 h-4 text-gray-400" />
+                    <span>Kupon dan Diskon</span>
+                  </Link>
+
+                  <Link
+                    href="/account/seller"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Briefcase className="w-4 h-4 text-gray-400" />
+                    <span>Daftar menjadi Seller</span>
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      alert("Anda telah logout.");
+                    }}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors text-left w-full mt-1 border-t border-gray-100 pt-3"
+                  >
+                    <LogOut className="w-4 h-4 text-red-500" />
+                    <span>Logout</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

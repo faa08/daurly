@@ -11,6 +11,8 @@ export default function SellerSidebar() {
     { name: "Dashboard", href: "/seller/dashboard", icon: "grid_view" },
     { name: "Produk Saya", href: "/seller/products", icon: "inventory_2" },
     { name: "Pesanan Baru", href: "/seller/orders", icon: "shopping_bag" },
+    { name: "Pengiriman", href: "/seller/pengiriman", icon: "local_shipping" },
+    { name: "Saldo", href: "/seller/saldo", icon: "account_balance_wallet" },
     { name: "Statistik Penjualan", href: "/seller/analytics", icon: "analytics" },
     { name: "Pengaturan Toko", href: "/seller/settings", icon: "settings" },
   ];

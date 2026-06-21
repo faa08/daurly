@@ -7,14 +7,14 @@ import Link from "next/link";
 const COMPANY_LINKS = [
   { label: "Tentang Kami", href: "/tentang" },
   { label: "Hubungi Kami", href: "/kontak" },
-  { label: "Kebijakan Privasi", href: "/privasi" },
+  { label: "Kebijakan Privasi", href: "/kebijakan-privasi" },
 ];
 
 const HELP_LINKS = [
   { label: "Pusat Bantuan", href: "/bantuan" },
-  { label: "Syarat & Ketentuan", href: "/syarat" },
-  { label: "Informasi Pengiriman", href: "/pengiriman" },
-  { label: "FAQ", href: "/faq" },
+  { label: "Syarat & Ketentuan", href: "/bantuan/syarat-ketentuan" },
+  { label: "Informasi Pengiriman", href: "/bantuan/info-pengiriman" },
+  { label: "FAQ", href: "/bantuan/faq" },
 ];
 
 interface FooterProps {

@@ -11,6 +11,7 @@ export default function CustomerSidebar() {
     { name: "Biodata", href: "/account/profile", icon: "person" },
     { name: "Alamat", href: "/account/address", icon: "location_on" },
     { name: "Pesanan Saya", href: "/account/orders", icon: "receipt" },
+    { name: "Wishlist", href: "/account/wishlist", icon: "favorite" },
     { name: "Keamanan", href: "/account/security", icon: "shield" },
     { name: "Seller", href: "/account/seller", icon: "storefront" },
   ];
