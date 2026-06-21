@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Search } from "lucide-react";
 
 const QUICK_SEARCHES = [
@@ -27,7 +26,10 @@ export default function SearchBar({ query = "", setQuery }: SearchBarProps) {
           className="search-input-custom"
           id="search-input"
         />
-        <button className="search-button-custom" aria-label="Cari">
+        <button 
+          className="search-button-custom" 
+          aria-label="Cari"
+        >
           <Search size={16} />
           <span>Cari</span>
         </button>

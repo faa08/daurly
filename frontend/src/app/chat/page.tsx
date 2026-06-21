@@ -235,10 +235,12 @@ export default function ChatPage() {
     if (e) e.preventDefault();
     if (!inputText.trim() || !activeId) return;
 
+    const userMsgText = inputText;
+
     const newMessage: Message = {
       id: `m_${Date.now()}`,
       senderId: "me",
-      text: inputText,
+      text: userMsgText,
       time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
       type: "text"
     };
@@ -260,21 +262,33 @@ export default function ChatPage() {
     const activeChatRole = activeChat?.role;
 
     if (activeChatRole === "seller") {
-      // 1. Simulate typing indicator after 800ms
+      // 1. Simulate typing indicator after 600ms
       setTimeout(() => {
         setTypingChatId(activeChatId);
-      }, 800);
+      }, 600);
 
-      // 2. Append reply after 2500ms
+      // 2. Append reply after 2200ms
       setTimeout(() => {
         setTypingChatId(null);
         setConversations((prev) =>
           prev.map((c) => {
             if (c.id === activeChatId) {
+              let replyText = `Halo kak! Ada yang bisa kami bantu mengenai toko kami? Produk kami ready stock ya. 😊`;
+              const lowerInput = userMsgText.toLowerCase();
+              if (lowerInput.includes("ready") || lowerInput.includes("ada") || lowerInput.includes("stok") || lowerInput.includes("ukuran") || lowerInput.includes("warna")) {
+                replyText = `Iya kak, produk tersebut ready stock! Silakan langsung dimasukkan ke keranjang dan checkout ya kak. Stok berjalan terus kak.`;
+              } else if (lowerInput.includes("harga") || lowerInput.includes("nego") || lowerInput.includes("diskon") || lowerInput.includes("murah") || lowerInput.includes("voucher")) {
+                replyText = `Untuk harga sudah pas kak, tapi tenang saja kami sedang ada promo/diskon voucher aktif! Bisa dicek di halaman utama/checkout ya kak.`;
+              } else if (lowerInput.includes("kirim") || lowerInput.includes("ongkir") || lowerInput.includes("cepat") || lowerInput.includes("kapan") || lowerInput.includes("kurir")) {
+                replyText = `Pesanan akan kami proses secepatnya kak. Jika checkout sebelum jam 15.00 WIB, akan dikirim hari ini juga!`;
+              } else if (lowerInput.includes("terima kasih") || lowerInput.includes("ok") || lowerInput.includes("oke") || lowerInput.includes("thx") || lowerInput.includes("nuhun") || lowerInput.includes("suwun")) {
+                replyText = `Sama-sama kak! Senang bisa membantu. Kami tunggu orderannya yaa. 🙏`;
+              }
+
               const botReply: Message = {
                 id: `m_bot_${Date.now()}`,
                 senderId: "them",
-                text: "Halo, ada yang bisa kami bantu? Produk ini ready stock ya!",
+                text: replyText,
                 time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
                 type: "text"
               };
@@ -287,7 +301,7 @@ export default function ChatPage() {
             return c;
           })
         );
-      }, 2500);
+      }, 2200);
     }
 
     setInputText("");
@@ -319,6 +333,38 @@ export default function ChatPage() {
     );
 
     setShowAttachMenu(false);
+
+    const activeChatId = activeId;
+    const activeChatRole = activeChat?.role;
+
+    if (activeChatRole === "seller") {
+      setTimeout(() => {
+        setTypingChatId(activeChatId);
+      }, 600);
+
+      setTimeout(() => {
+        setTypingChatId(null);
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id === activeChatId) {
+              const botReply: Message = {
+                id: `m_bot_${Date.now()}`,
+                senderId: "them",
+                text: `Wah, produk "${product.name}" pilihan yang sangat bagus kak! Itu salah satu produk terpopuler di toko kami. Apakah berminat untuk langsung diorder atau ada yang ingin ditanyakan detailnya?`,
+                time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+                type: "text"
+              };
+              return {
+                ...c,
+                messages: [...c.messages, botReply],
+                unreadCount: activeId === activeChatId ? 0 : c.unreadCount + 1
+              };
+            }
+            return c;
+          })
+        );
+      }, 2200);
+    }
   };
 
   const handleSelectChat = (id: string) => {
@@ -471,7 +517,13 @@ export default function ChatPage() {
                       )}
                     </h3>
                     <p className="text-[10px] text-secondary font-medium">
-                      {activeChat.online ? "Online" : `Terakhir aktif: ${activeChat.lastSeen}`}
+                      {typingChatId === activeId ? (
+                        <span className="text-primary font-bold animate-pulse">Sedang mengetik...</span>
+                      ) : activeChat.online ? (
+                        "Online"
+                      ) : (
+                        `Terakhir aktif: ${activeChat.lastSeen}`
+                      )}
                     </p>
                   </div>
                 </div>
@@ -560,12 +612,11 @@ export default function ChatPage() {
                 })}
                 {typingChatId === activeId && (
                   <div className="flex justify-start">
-                    <div className="bg-white text-on-surface border border-[#EAE5E0] rounded-lg px-4 py-2.5 shadow-sm max-w-[70%] flex items-center gap-1.5">
-                      <span className="text-xs text-secondary font-bold font-body">{activeChat.name} sedang mengetik</span>
-                      <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <div className="bg-white text-[#8E8680] border border-[#EAE5E0] rounded-lg px-4 py-2.5 shadow-sm max-w-[70%] flex items-center justify-center">
+                      <div className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-[#8E8680] rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                        <span className="w-1.5 h-1.5 bg-[#8E8680] rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                        <span className="w-1.5 h-1.5 bg-[#8E8680] rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
                       </div>
                     </div>
                   </div>

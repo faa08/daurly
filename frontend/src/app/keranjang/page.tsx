@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Trash2, Plus, Minus, Tag, ShoppingBag, ChevronRight, ShieldCheck, Truck } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
@@ -10,7 +11,7 @@ import Footer from "@/components/Footer";
 
 /* ─────────────────────────────────────────
    Types & initial data
-───────────────────────────────────────── */
+ ───────────────────────────────────────── */
 interface CartItem {
   id: number;
   name: string;
@@ -74,7 +75,7 @@ function fmtPrice(p: number) {
 
 /* ─────────────────────────────────────────
    Styles (shared tokens)
-───────────────────────────────────────── */
+ ───────────────────────────────────────── */
 const C = {
   primary: "#1D4ED8",
   primaryDark: "#1E40AF",
@@ -89,6 +90,7 @@ const C = {
 };
 
 export default function CartPage() {
+  const router = useRouter();
   const [items, setItems] = useState<CartItem[]>(INITIAL_CART);
   const [voucher, setVoucher] = useState("");
   const [voucherApplied, setVoucherApplied] = useState(false);
@@ -354,7 +356,7 @@ export default function CartPage() {
                     <div key={i} style={{ background: C.primaryPale, border: `1px solid #FDDAC4`, borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
                       {b.icon}
                       <div>
-                        <p style={{ fontSize: "0.8rem", fontWeight: 700, color: C.text, margin: 0 }}>{b.title}</p>
+                        <p style={{ fontSize: "0.8" + "rem", fontWeight: 700, color: C.text, margin: 0 }}>{b.title}</p>
                         <p style={{ fontSize: "0.7rem", color: C.textSec, margin: 0 }}>{b.desc}</p>
                       </div>
                     </div>
@@ -434,7 +436,7 @@ export default function CartPage() {
                     <Tag size={16} color="white" />
                     <span style={{ fontSize: "0.875rem", fontWeight: 800, color: "white" }}>Promo Eksklusif</span>
                   </div>
-                  <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.85)", margin: 0, lineHeight: 1.5 }}>
+                  <p style={{ fontSize: "0.8" + "rem", color: "rgba(255,255,255,0.85)", margin: 0, lineHeight: 1.5 }}>
                     Hemat 10% dengan kode <strong style={{ color: "white" }}>LOKALBANGGA</strong> untuk produk kerajinan tangan pilihan.
                   </p>
                 </div>

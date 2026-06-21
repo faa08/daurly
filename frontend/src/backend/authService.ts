@@ -9,6 +9,9 @@ export interface User {
   avatar: string;
   role: "customer" | "seller" | "admin";
   created_at: string;
+  nama_toko?: string;
+  jenis_kelamin?: string;
+  tanggal_lahir?: string;
 }
 
 export interface ProfileUpdate {

@@ -43,6 +43,26 @@ function formatPrice(p: number) {
   return `Rp ${p.toLocaleString("id-ID")}`;
 }
 
+interface Review {
+  id: string;
+  name: string;
+  avatar: string;
+  time: string;
+  rating: number;
+  comment: string;
+}
+
+const INITIAL_REVIEWS: Review[] = [
+  {
+    id: "r1",
+    name: "Budi Nugraha",
+    avatar: "BN",
+    time: "2 hari yang lalu",
+    rating: 5,
+    comment: "Barangnya sangat bagus, packing sangat aman dengan bubble wrap tebal. Motif batiknya rapi dan warnanya persis seperti di foto. Sangat direkomendasikan!"
+  }
+];
+
 export default function ProductDetailPage() {
   const [activeImg, setActiveImg] = useState(0);
   const [activeColor, setActiveColor] = useState(0);
@@ -91,6 +111,10 @@ export default function ProductDetailPage() {
     setReviewUploadProgress(null);
     setReviewImgUrl(null);
   };
+
+  const totalReviews = 124 + (reviews.length - INITIAL_REVIEWS.length);
+  const totalRatingSum = 124 * 4.8 + reviews.reduce((sum, r) => sum + r.rating, 0) - INITIAL_REVIEWS.reduce((sum, r) => sum + r.rating, 0);
+  const averageRating = (totalRatingSum / totalReviews).toFixed(1);
 
   return (
     <>
@@ -193,10 +217,10 @@ export default function ProductDetailPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ display: "flex", gap: 2 }}>
                   {[1,2,3,4,5].map(i => (
-                    <Star key={i} size={14} fill="#F59E0B" color="#F59E0B" />
+                    <Star key={i} size={14} fill={Number(averageRating) >= i ? "#F59E0B" : "none"} color={Number(averageRating) >= i ? "#F59E0B" : "#D5CFC9"} />
                   ))}
                 </div>
-                <span style={{ fontSize: "0.8125rem", color: "#5C5550", fontWeight: 600 }}>4.8 | 124 Ulasan</span>
+                <span style={{ fontSize: "0.8125rem", color: "#5C5550", fontWeight: 600 }}>{averageRating} | {totalReviews} Ulasan</span>
                 <span style={{ fontSize: "0.8125rem", color: "#8E8680" }}>·</span>
                 <span style={{ fontSize: "0.8125rem", color: "#8E8680" }}>Terjual 380+</span>
               </div>
@@ -547,7 +571,7 @@ export default function ProductDetailPage() {
                     <div key={rev.id} style={{ display: "flex", gap: 14, borderBottom: "1px solid #F5F3F0", paddingBottom: 16 }}>
                       <div style={{
                         width: 40, height: 40, borderRadius: "50%",
-                        background: "linear-gradient(135deg, #1D4ED8, #1E40AF)",
+                        background: rev.avatar === "SR" ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #1D4ED8, #1E40AF)",
                         color: "white", fontSize: "0.875rem", fontWeight: 800,
                         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                       }}>{rev.avatar}</div>

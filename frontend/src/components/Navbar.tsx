@@ -347,106 +347,67 @@ export default function Navbar({ searchQuery, setSearchQuery }: { searchQuery?: 
       </div>
       {/* Mobile Bottom Sheet — only shown when logged in */}
       {isProfileOpen && isMobile && currentUser && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(31, 27, 24, 0.4)",
-          backdropFilter: "blur(4px)",
-          zIndex: 1000,
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "center",
-        }}>
+        <div className="md:hidden">
           <div 
-            onClick={() => setIsProfileOpen(false)} 
-            style={{ position: "absolute", inset: 0 }} 
+            className="fixed inset-0 bg-[#1F1B18]/40 backdrop-blur-xs z-[1000] animate-fade-in"
+            onClick={() => setIsProfileOpen(false)}
           />
-          <div style={{
-            position: "relative",
-            width: "100%",
-            background: "white",
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            padding: "16px 24px 32px",
-            boxShadow: "0 -8px 30px rgba(0,0,0,0.15)",
-            zIndex: 1010,
-            display: "flex",
-            flexDirection: "column",
-            color: "#1F1B18",
-          }}>
-            <div style={{
-              width: 48,
-              height: 5,
-              background: "#EAE5E0",
-              borderRadius: 3,
-              alignSelf: "center",
-              marginBottom: 20,
-              cursor: "pointer"
-            }} onClick={() => setIsProfileOpen(false)} />
+          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[24px] border-t border-[#EAE5E0] shadow-2xl z-[1010] px-6 pb-8 pt-3 text-[#1F1B18] animate-slide-up normal-case tracking-normal flex flex-col">
+            {/* Handlebar */}
+            <div 
+              className="w-12 h-1.5 bg-[#EAE5E0] rounded-full mx-auto mb-5 cursor-pointer"
+              onClick={() => setIsProfileOpen(false)}
+            />
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid #F5F3F0", paddingBottom: 16, marginBottom: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Profile Info Header */}
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#F5F3F0]">
+              <div className="flex items-center gap-3">
                 {currentUser.avatar ? (
-                  <img src={currentUser.avatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover" }} />
+                  <img src={currentUser.avatar} alt="avatar" className="w-11 h-11 rounded-full object-cover border border-[#EAE5E0]" />
                 ) : (
-                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#4C1D95", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "1.1rem", fontWeight: 800 }}>
+                  <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white text-base font-bold">
                     {(currentUser.nama_lengkap || currentUser.username || "U").charAt(0).toUpperCase()}
                   </div>
                 )}
-                <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
-                  <span style={{ fontSize: "0.9375rem", fontWeight: 800, color: "#1F1B18" }}>{currentUser.nama_lengkap || currentUser.username}</span>
-                  <span style={{ fontSize: "0.75rem", color: "#8E8680" }}>@{currentUser.username}</span>
+                <div className="flex flex-col text-left">
+                  <span className="text-base font-bold leading-tight text-[#1F1B18]">{currentUser.nama_lengkap || currentUser.username}</span>
+                  <span className="text-xs text-[#8E8680]">@{currentUser.username}</span>
                 </div>
               </div>
               <Link 
                 href="/account/profile"
                 onClick={() => setIsProfileOpen(false)}
-                style={{
-                  padding: "8px 16px", background: "#F5F3F0", borderRadius: 20,
-                  fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", textDecoration: "none"
-                }}
+                className="px-4 py-2 bg-[#F5F3F0] hover:bg-[#EBE8E2] transition-colors rounded-full text-xs font-bold text-[#5C5550]"
               >
                 Profil Saya
               </Link>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {/* Menu Items */}
+            <div className="flex flex-col gap-1 text-left font-body">
               <Link
                 href="/promo"
                 onClick={() => setIsProfileOpen(false)}
-                style={{
-                  display: "flex", alignItems: "center", gap: 14, padding: "12px 16px",
-                  borderRadius: 10, fontSize: "0.875rem", fontWeight: 700, color: "#5C5550",
-                  textDecoration: "none"
-                }}
+                className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-[#5C5550] hover:bg-gray-50 transition-colors border border-gray-100/50"
               >
-                <Ticket size={18} color="#8E8680" />
+                <Ticket className="w-5 h-5 text-[#8E8680]" />
                 <span>Kupon dan Diskon</span>
               </Link>
 
               <Link
                 href="/account/seller"
                 onClick={() => setIsProfileOpen(false)}
-                style={{
-                  display: "flex", alignItems: "center", gap: 14, padding: "12px 16px",
-                  borderRadius: 10, fontSize: "0.875rem", fontWeight: 700, color: "#5C5550",
-                  textDecoration: "none"
-                }}
+                className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-[#5C5550] hover:bg-gray-50 transition-colors border border-gray-100/50"
               >
-                <Briefcase size={18} color="#8E8680" />
+                <Briefcase className="w-5 h-5 text-[#8E8680]" />
                 <span>Daftar menjadi Seller</span>
               </Link>
 
               <button
                 onClick={handleLogout}
-                style={{
-                  display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
-                  background: "none", border: "none", borderTop: "1.5px solid #F5F3F0",
-                  width: "100%", textAlign: "left", fontSize: "0.875rem", fontWeight: 700,
-                  color: "#DC2626", cursor: "pointer", marginTop: 12, paddingTop: 16
-                }}
+                className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 transition-colors text-left w-full mt-2 border border-red-100 bg-red-50/20"
               >
-                <LogOut size={18} color="#DC2626" />
+                <LogOut className="w-5 h-5 text-red-500" />
                 <span>Logout</span>
               </button>
             </div>

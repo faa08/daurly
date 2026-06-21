@@ -9,6 +9,7 @@ export default function BecomeSellerPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Form states for the 6 required documents
   const [user, setUser] = useState<any>(null);
@@ -19,6 +20,49 @@ export default function BecomeSellerPage() {
   const [ktp, setKtp] = useState("");
   const [nib, setNib] = useState("");
   const [ktpFileName, setKtpFileName] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadedImgUrl, setUploadedImgUrl] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Real-time validation functions
+  const handleKtpChange = (val: string) => {
+    setKtp(val);
+    if (val.length > 0 && (val.length !== 16 || !/^\d+$/.test(val))) {
+      setErrors(prev => ({ ...prev, ktp: "NIK KTP harus tepat 16 digit angka." }));
+    } else {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.ktp;
+        return copy;
+      });
+    }
+  };
+
+  const handlePhoneChange = (val: string) => {
+    setNomorHp(val);
+    if (val.length > 0 && !/^(\+62|0)8[1-9][0-9]{7,10}$/.test(val)) {
+      setErrors(prev => ({ ...prev, nomorHp: "Nomor HP tidak valid (diawali 08/+62, 10-13 digit)." }));
+    } else {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.nomorHp;
+        return copy;
+      });
+    }
+  };
+
+  const handleNibChange = (val: string) => {
+    setNib(val);
+    if (val.length > 0 && (val.length !== 13 || !/^\d+$/.test(val))) {
+      setErrors(prev => ({ ...prev, nib: "NIB harus tepat 13 digit angka." }));
+    } else {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.nib;
+        return copy;
+      });
+    }
+  };
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
@@ -29,60 +73,50 @@ export default function BecomeSellerPage() {
     }
   }, []);
 
-  // Validation & interactive upload states
-  const [nomorHpError, setNomorHpError] = useState("");
-  const [ktpError, setKtpError] = useState("");
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const [uploadedImgUrl, setUploadedImgUrl] = useState<string | null>(null);
-
-  const validateHp = (value: string) => {
-    if (!value) {
-      setNomorHpError("");
-      return;
-    }
-    const isNumeric = /^[+0-9\s]+$/.test(value);
-    const startsCorrectly = value.startsWith("08") || value.startsWith("+62");
-    if (!isNumeric) {
-      setNomorHpError("Nomor HP harus berupa angka");
-    } else if (!startsCorrectly) {
-      setNomorHpError("Nomor HP harus diawali dengan 08 atau +62");
-    } else {
-      setNomorHpError("");
-    }
-  };
-
-  const validateKtp = (value: string) => {
-    if (!value) {
-      setKtpError("");
-      return;
-    }
-    const isNumeric = /^\d+$/.test(value);
-    if (!isNumeric) {
-      setKtpError("NIK KTP harus berupa angka");
-    } else if (value.length !== 16) {
-      setKtpError("NIK KTP harus tepat 16 digit");
-    } else {
-      setKtpError("");
-    }
-  };
-
   const handleRegisterSeller = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (nomorHpError || ktpError || !ktpFileName || (uploadProgress !== null && uploadProgress < 100)) {
-      alert("Harap perbaiki kesalahan input dan tunggu proses unggah dokumen selesai.");
+
+    // Final checks
+    const finalErrors: Record<string, string> = {};
+    if (ktp.length !== 16 || !/^\d+$/.test(ktp)) {
+      finalErrors.ktp = "NIK KTP harus tepat 16 digit angka.";
+    }
+    if (!/^(\+62|0)8[1-9][0-9]{7,10}$/.test(nomorHp)) {
+      finalErrors.nomorHp = "Nomor HP tidak valid (diawali 08/+62, 10-13 digit).";
+    }
+    if (nib.length !== 13 || !/^\d+$/.test(nib)) {
+      finalErrors.nib = "NIB harus tepat 13 digit angka.";
+    }
+
+    if (Object.keys(finalErrors).length > 0) {
+      setErrors(finalErrors);
       return;
     }
+
     if (!user) {
       alert("Anda harus login terlebih dahulu.");
       router.push("/masuk");
       return;
     }
+
+    setErrors({});
     setLoading(true);
-    const newSeller = await sellerService.registerSeller(user.id_user, namaToko, email, nomorHp, nib, ktp, rekening, ktpFileName);
+    
+    const newSeller = await sellerService.registerSeller(
+      user.id_user,
+      namaToko,
+      email,
+      nomorHp,
+      nib,
+      ktp,
+      rekening,
+      ktpFileName
+    );
+    
     setLoading(false);
+    
     if (newSeller) {
-      alert(`Pendaftaran Seller Berhasil!\n\nNama Toko: ${namaToko}\nNIB: ${nib}\nEmail: ${email}\n\nSelamat datang di Pelataran UMKM Seller.`);
-      router.push("/seller/dashboard");
+      setShowSuccessModal(true);
     } else {
       alert("Pendaftaran gagal. Silakan coba lagi.");
     }
@@ -135,10 +169,11 @@ export default function BecomeSellerPage() {
                   type="text" 
                   required
                   value={nib}
-                  onChange={(e) => setNib(e.target.value)}
+                  onChange={(e) => handleNibChange(e.target.value)}
                   placeholder="13-digit nomor NIB"
-                  className="w-full px-3.5 py-2.5 bg-surface-container rounded-lg border border-[#EAE5E0] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-semibold text-[#1F1B18]"
+                  className={`w-full px-3.5 py-2.5 bg-surface-container rounded-lg border focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-semibold text-[#1F1B18] ${errors.nib ? "border-red-500" : "border-[#EAE5E0]"}`}
                 />
+                {errors.nib && <p className="text-red-500 text-[10px] mt-1 font-bold text-left">{errors.nib}</p>}
               </div>
             </div>
 
@@ -162,17 +197,11 @@ export default function BecomeSellerPage() {
                   type="tel" 
                   required
                   value={nomorHp}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setNomorHp(val);
-                    validateHp(val);
-                  }}
-                  placeholder="+62 8xxx"
-                  className={`w-full px-3.5 py-2.5 bg-surface-container rounded-lg border ${nomorHpError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-[#EAE5E0] focus:ring-primary focus:border-primary'} focus:outline-none focus:ring-1 text-xs font-semibold text-[#1F1B18]`}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  placeholder="+62 8xxx atau 08xxx"
+                  className={`w-full px-3.5 py-2.5 bg-surface-container rounded-lg border focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-semibold text-[#1F1B18] ${errors.nomorHp ? "border-red-500" : "border-[#EAE5E0]"}`}
                 />
-                {nomorHpError && (
-                  <p className="text-red-500 text-[10px] mt-1 font-semibold">{nomorHpError}</p>
-                )}
+                {errors.nomorHp && <p className="text-red-500 text-[10px] mt-1 font-bold text-left">{errors.nomorHp}</p>}
               </div>
             </div>
 
@@ -196,24 +225,18 @@ export default function BecomeSellerPage() {
                   type="text" 
                   required
                   value={ktp}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setKtp(val);
-                    validateKtp(val);
-                  }}
+                  onChange={(e) => handleKtpChange(e.target.value)}
                   placeholder="16-digit NIK KTP"
-                  className={`w-full px-3.5 py-2.5 bg-surface-container rounded-lg border ${ktpError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-[#EAE5E0] focus:ring-primary focus:border-primary'} focus:outline-none focus:ring-1 text-xs font-semibold text-[#1F1B18]`}
+                  className={`w-full px-3.5 py-2.5 bg-surface-container rounded-lg border focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-semibold text-[#1F1B18] ${errors.ktp ? "border-red-500" : "border-[#EAE5E0]"}`}
                 />
-                {ktpError && (
-                  <p className="text-red-500 text-[10px] mt-1 font-semibold">{ktpError}</p>
-                )}
+                {errors.ktp && <p className="text-red-500 text-[10px] mt-1 font-bold text-left">{errors.ktp}</p>}
               </div>
             </div>
 
-            {/* Upload KTP File Mockup */}
+            {/* Upload KTP File Mockup with Preview */}
             <div className="space-y-2 text-left">
               <label className="block text-[11px] uppercase tracking-wider text-secondary">Upload Dokumen KTP</label>
-              <div className="border border-dashed border-[#D5CFC9] rounded-lg p-5 flex flex-col items-center justify-center bg-surface-container hover:bg-surface-container/60 transition cursor-pointer relative overflow-hidden">
+              <div className="border border-dashed border-[#D5CFC9] rounded-lg p-5 flex flex-col items-center justify-center bg-surface-container hover:bg-surface-container/60 transition cursor-pointer relative overflow-hidden min-h-[120px]">
                 <input 
                   type="file" 
                   accept="image/*,application/pdf"
@@ -304,9 +327,9 @@ export default function BecomeSellerPage() {
               </button>
               <button 
                 type="submit"
-                disabled={loading || !!nomorHpError || !!ktpError || !namaToko || !nomorHp || !ktp || !rekening || !nib || !ktpFileName || (uploadProgress !== null && uploadProgress < 100)}
+                disabled={loading || !!errors.nomorHp || !!errors.ktp || !!errors.nib || !namaToko || !nomorHp || !ktp || !rekening || !nib || !ktpFileName || (uploadProgress !== null && uploadProgress < 100)}
                 className={`px-8 py-2.5 text-white font-bold text-xs rounded-lg shadow-sm transition flex items-center gap-1.5 ${
-                  loading || !!nomorHpError || !!ktpError || !namaToko || !nomorHp || !ktp || !rekening || !nib || !ktpFileName || (uploadProgress !== null && uploadProgress < 100)
+                  loading || !!errors.nomorHp || !!errors.ktp || !!errors.nib || !namaToko || !nomorHp || !ktp || !rekening || !nib || !ktpFileName || (uploadProgress !== null && uploadProgress < 100)
                     ? "bg-[#D5CFC9] cursor-not-allowed text-secondary"
                     : "bg-primary hover:bg-primary-dark hover:shadow cursor-pointer"
                 }`}
@@ -386,6 +409,41 @@ export default function BecomeSellerPage() {
             </ul>
           </section>
         </>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-surface-container rounded-2xl p-8 max-w-md w-full shadow-2xl text-center space-y-6 animate-scale-up">
+            <div className="w-16 h-16 bg-green-50 border border-green-200 rounded-full flex items-center justify-center text-green-600 mx-auto">
+              <span className="material-symbols-outlined text-4xl font-bold">check_circle</span>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-headline font-bold text-xl text-on-surface">Pendaftaran Berhasil!</h3>
+              <p className="text-xs text-secondary leading-relaxed">
+                Toko Anda <strong>{namaToko}</strong> telah terdaftar secara sah di Pelataran UMKM dengan NIB <strong>{nib}</strong>.
+              </p>
+            </div>
+
+            <div className="bg-[#F5F3F0] border border-[#EAE5E0] rounded-xl p-4 text-left text-[11px] text-secondary space-y-2 font-medium">
+              <div className="flex justify-between"><span className="font-bold">Pemilik:</span><span>{user?.name || "Siti Rahayu"}</span></div>
+              <div className="flex justify-between"><span className="font-bold">Email:</span><span>{email}</span></div>
+              <div className="flex justify-between"><span className="font-bold">No. HP:</span><span>{nomorHp}</span></div>
+              <div className="flex justify-between"><span className="font-bold">Rekening:</span><span className="truncate max-w-[180px]">{rekening}</span></div>
+            </div>
+
+            <button 
+              onClick={() => {
+                setShowSuccessModal(false);
+                router.push("/seller/products");
+              }}
+              className="w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold text-xs rounded-lg shadow-sm hover:shadow transition"
+            >
+              Masuk ke Dashboard Seller
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Benefits Grid */}

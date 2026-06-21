@@ -97,10 +97,37 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showVAScreen, setShowVAScreen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(86400); // 24 hours
+  const [copiedVa, setCopiedVa] = useState(false);
+  const [copiedBill, setCopiedBill] = useState(false);
 
-  // Payment gateway simulation state
-  const [timeLeft, setTimeLeft] = useState(900); // 15 mins in seconds
-  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!showVAScreen) return;
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [showVAScreen]);
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${h}:${m}:${s}`;
+  };
+
+  const handleCopyVa = (vaText: string = "8837081234567890") => {
+    navigator.clipboard.writeText(vaText);
+    setCopiedVa(true);
+    setTimeout(() => setCopiedVa(false), 2000);
+  };
+
+  const handleCopyBill = () => {
+    navigator.clipboard.writeText(totalBill.toString());
+    setCopiedBill(true);
+    setTimeout(() => setCopiedBill(false), 2000);
+  };
 
   // Quantity control handler
   const updateQty = (id: number, delta: number) => {
@@ -109,33 +136,6 @@ export default function CheckoutPage() {
         item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
       )
     );
-  };
-
-  // Countdown timer for payment simulation
-  useEffect(() => {
-    if (!isPaying || isSuccess) return;
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isPaying, isSuccess]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   // Calculate totals
@@ -239,10 +239,10 @@ export default function CheckoutPage() {
                     <div style={{ display: "flex", gap: 8, alignItems: "center", background: "white", padding: "10px 14px", borderRadius: 8, border: "1.5px solid #EAE5E0" }}>
                       <span style={{ fontSize: "1.125rem", fontWeight: 800, letterSpacing: "0.05em", flex: 1, fontFamily: "monospace", color: "#1F1B18" }}>800108123456789</span>
                       <button 
-                        onClick={() => handleCopy("800108123456789")}
-                        style={{ height: 32, padding: "0 14px", background: copied ? "#16A34A" : "#1F1B18", color: "white", border: "none", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}
+                        onClick={() => handleCopyVa("800108123456789")}
+                        style={{ height: 32, padding: "0 14px", background: copiedVa ? "#16A34A" : "#1F1B18", color: "white", border: "none", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}
                       >
-                        {copied ? "✓ Disalin" : "Salin"}
+                        {copiedVa ? "✓ Disalin" : "Salin"}
                       </button>
                     </div>
                   </div>
@@ -716,11 +716,9 @@ export default function CheckoutPage() {
               </div>
 
             </div>
-
           </div>
             </>
           )}
-
         </div>
       </main>
 
