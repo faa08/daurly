@@ -2,11 +2,58 @@
 
 import React, { useState } from "react";
 
+const INITIAL_ORDERS = [
+  {
+    id: "ORD-20260621-001",
+    date: "21 Jun 2026, 10:15",
+    buyer: "Budi Santoso",
+    avatar: "BS",
+    productName: "Tas Rotan Artisan 'Lestari'",
+    productDetail: "Natural - Large (1 pcs)",
+    productImg: "/product-dompet.png",
+    total: 368000,
+    status: "Perlu Dikirim"
+  },
+  {
+    id: "ORD-20260620-002",
+    date: "20 Jun 2026, 16:30",
+    buyer: "Siti Rahayu",
+    avatar: "SR",
+    productName: "Paket Cokelat Artisan",
+    productDetail: "Dark Milk - 250g (2 pcs)",
+    productImg: "/product-kopi.png",
+    total: 257000,
+    status: "Dikirim"
+  },
+  {
+    id: "ORD-20260619-003",
+    date: "19 Jun 2026, 09:45",
+    buyer: "Andi Darmawan",
+    avatar: "AD",
+    productName: "Kemeja Batik Modern Slim",
+    productDetail: "Sutra Kawung - XL (1 pcs)",
+    productImg: "/product-batik.png",
+    total: 342000,
+    status: "Selesai"
+  },
+  {
+    id: "ORD-20260618-004",
+    date: "18 Jun 2026, 14:20",
+    buyer: "Lina Marlina",
+    avatar: "LM",
+    productName: "Syal Sutra Motif Kawung",
+    productDetail: "Merah - One Size (1 pcs)",
+    productImg: "/product-skincare.png",
+    total: 427000,
+    status: "Belum Bayar"
+  }
+];
+
 export default function SellerOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("Semua");
   
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>(INITIAL_ORDERS);
 
   const tabs = ["Semua", "Belum Bayar", "Perlu Dikirim", "Dikirim", "Selesai", "Dibatalkan"];
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
@@ -199,6 +199,7 @@ export default function ChatPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [inputText, setInputText] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [typingChatId, setTypingChatId] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const attachMenuRef = useRef<HTMLDivElement>(null);
@@ -208,7 +209,7 @@ export default function ChatPage() {
   // Scroll to bottom of chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeChat?.messages?.length]);
+  }, [activeChat?.messages?.length, typingChatId]);
 
   // Handle click outside attachment menu
   useEffect(() => {
@@ -254,6 +255,40 @@ export default function ChatPage() {
         return c;
       })
     );
+
+    const activeChatId = activeId;
+    const activeChatRole = activeChat?.role;
+
+    if (activeChatRole === "seller") {
+      // 1. Simulate typing indicator after 800ms
+      setTimeout(() => {
+        setTypingChatId(activeChatId);
+      }, 800);
+
+      // 2. Append reply after 2500ms
+      setTimeout(() => {
+        setTypingChatId(null);
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id === activeChatId) {
+              const botReply: Message = {
+                id: `m_bot_${Date.now()}`,
+                senderId: "them",
+                text: "Halo, ada yang bisa kami bantu? Produk ini ready stock ya!",
+                time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+                type: "text"
+              };
+              return {
+                ...c,
+                messages: [...c.messages, botReply],
+                unreadCount: activeId === activeChatId ? 0 : c.unreadCount + 1
+              };
+            }
+            return c;
+          })
+        );
+      }, 2500);
+    }
 
     setInputText("");
   };
@@ -523,6 +558,18 @@ export default function ChatPage() {
                     </div>
                   );
                 })}
+                {typingChatId === activeId && (
+                  <div className="flex justify-start">
+                    <div className="bg-white text-on-surface border border-[#EAE5E0] rounded-lg px-4 py-2.5 shadow-sm max-w-[70%] flex items-center gap-1.5">
+                      <span className="text-xs text-secondary font-bold font-body">{activeChat.name} sedang mengetik</span>
+                      <div className="flex gap-1">
+                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
 

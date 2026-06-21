@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -47,6 +47,50 @@ export default function ProductDetailPage() {
   const [activeImg, setActiveImg] = useState(0);
   const [activeColor, setActiveColor] = useState(0);
   const [activeSize, setActiveSize] = useState(0);
+
+  // Review & Delivery state variables
+  const [reviews, setReviews] = useState([
+    {
+      id: 1,
+      name: "Budi Nugraha",
+      avatar: "BN",
+      time: "2 hari yang lalu",
+      rating: 5,
+      text: "Barangnya sangat bagus, packing sangat aman dengan bubble wrap tebal. Motif batiknya rapi dan warnanya persis seperti di foto. Sangat direkomendasikan!",
+      image: null as string | null
+    }
+  ]);
+  const [deliveryStatus, setDeliveryStatus] = useState<"dikirim" | "sampai">("dikirim");
+  const [newRating, setNewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+  const [newReviewText, setNewReviewText] = useState("");
+  const [reviewFileName, setReviewFileName] = useState("");
+  const [reviewUploadProgress, setReviewUploadProgress] = useState<number | null>(null);
+  const [reviewImgUrl, setReviewImgUrl] = useState<string | null>(null);
+
+  const handleAddReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReviewText.trim()) return;
+
+    const newReview = {
+      id: Date.now(),
+      name: "Siti Rahayu",
+      avatar: "SR",
+      time: "Baru saja",
+      rating: newRating,
+      text: newReviewText,
+      image: reviewImgUrl
+    };
+
+    setReviews([newReview, ...reviews]);
+    
+    // Reset form
+    setNewReviewText("");
+    setNewRating(5);
+    setReviewFileName("");
+    setReviewUploadProgress(null);
+    setReviewImgUrl(null);
+  };
 
   return (
     <>
@@ -318,31 +362,214 @@ export default function ProductDetailPage() {
                 </p>
               </div>
 
-              {/* Reviews Card */}
-              <div style={{ background: "white", border: "1px solid #EAE5E0", borderRadius: 12, padding: 24 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                  <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#1F1B18", margin: 0 }}>Ulasan Pembeli</h2>
-                  <Link href="#" style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8", textDecoration: "none" }}>Lihat Semua</Link>
+              {/* Delivery Status and Review Form */}
+              <div style={{ background: "white", border: "1px solid #EAE5E0", borderRadius: 12, padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h3 style={{ fontSize: "0.9375rem", fontWeight: 800, color: "#1F1B18", margin: 0 }}>Status Pengiriman Pesanan</h3>
+                  {/* Status Toggle Button */}
+                  <button 
+                    onClick={() => setDeliveryStatus(prev => prev === "dikirim" ? "sampai" : "dikirim")}
+                    style={{
+                      padding: "6px 14px",
+                      background: deliveryStatus === "sampai" ? "#EBFDF2" : "#FFF7ED",
+                      border: deliveryStatus === "sampai" ? "1px solid #BBF7D0" : "1px solid #FED7AA",
+                      borderRadius: 20,
+                      color: deliveryStatus === "sampai" ? "#15803D" : "#EA580C",
+                      fontSize: "0.75rem",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      fontFamily: "inherit"
+                    }}
+                  >
+                    <span style={{ fontSize: "0.6rem" }}>●</span>
+                    <span>{deliveryStatus === "sampai" ? "Barang Sudah Sampai" : "Barang Sedang Dikirim"}</span>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#8E8680", marginLeft: 4 }}>[Ubah]</span>
+                  </button>
                 </div>
-                <div style={{ display: "flex", gap: 14 }}>
-                  <div style={{
-                    width: 40, height: 40, borderRadius: "50%",
-                    background: "linear-gradient(135deg, #1D4ED8, #1E40AF)",
-                    color: "white", fontSize: "0.875rem", fontWeight: 800,
-                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                  }}>BN</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-                      <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#1F1B18" }}>Budi Nugraha</span>
-                      <span style={{ fontSize: "0.75rem", color: "#8E8680" }}>2 hari yang lalu</span>
-                    </div>
-                    <div style={{ display: "flex", gap: 2, marginBottom: 8 }}>
-                      {[1,2,3,4,5].map(i => <Star key={i} size={12} fill="#F59E0B" color="#F59E0B" />)}
-                    </div>
-                    <p style={{ fontSize: "0.8125rem", color: "#5C5550", lineHeight: 1.6, fontStyle: "italic", margin: 0 }}>
-                      &quot;Barangnya sangat bagus, packing sangat aman dengan bubble wrap tebal. Motif batiknya rapi dan warnanya persis seperti di foto. Sangat direkomendasikan!&quot;
+
+                {deliveryStatus === "dikirim" ? (
+                  /* IN SHIPPING MESSAGE */
+                  <div style={{ padding: "16px 20px", background: "#F5F3F0", borderRadius: 8, border: "1px solid #EAE5E0", display: "flex", alignItems: "center", gap: 10 }}>
+                    <span className="material-symbols-outlined" style={{ color: "#EA580C", fontSize: "20px" }}>local_shipping</span>
+                    <p style={{ fontSize: "0.75rem", color: "#5C5550", margin: 0, fontWeight: 600 }}>
+                      Pesanan Anda sedang dalam perjalanan. Anda dapat memberikan ulasan setelah paket sampai.
                     </p>
                   </div>
+                ) : (
+                  /* WRITE REVIEW FORM */
+                  <form onSubmit={handleAddReview} style={{ display: "flex", flexDirection: "column", gap: 14, borderTop: "1.5px solid #F5F3F0", paddingTop: 16 }}>
+                    <h4 style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18", margin: 0 }}>Beri Ulasan Produk</h4>
+                    
+                    {/* Star Rating Picker */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ fontSize: "0.8125rem", color: "#5C5550", fontWeight: 700 }}>Rating Anda:</span>
+                      <div style={{ display: "flex", gap: 4 }}>
+                        {[1, 2, 3, 4, 5].map((star) => {
+                          const isHighlighted = (hoverRating !== null ? hoverRating : newRating) >= star;
+                          return (
+                            <button
+                              type="button"
+                              key={star}
+                              onClick={() => setNewRating(star)}
+                              onMouseEnter={() => setHoverRating(star)}
+                              onMouseLeave={() => setHoverRating(null)}
+                              style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}
+                            >
+                              <Star
+                                size={20}
+                                fill={isHighlighted ? "#F59E0B" : "none"}
+                                color={isHighlighted ? "#F59E0B" : "#D5CFC9"}
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Review text input */}
+                    <div>
+                      <textarea
+                        value={newReviewText}
+                        onChange={(e) => setNewReviewText(e.target.value)}
+                        placeholder="Tulis ulasan jujur Anda mengenai kualitas produk, kerapihan batik, dll..."
+                        required
+                        rows={3}
+                        style={{ width: "100%", border: "1.5px solid #D5CFC9", borderRadius: 8, padding: 12, fontSize: "0.8125rem", fontFamily: "inherit", resize: "none", outline: "none", color: "#1F1B18" }}
+                      />
+                    </div>
+
+                    {/* Image Upload for Review */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#5C5550" }}>Unggah Foto Produk (Opsional)</span>
+                      
+                      <div style={{
+                        border: "1.5px dashed #D5CFC9", borderRadius: 8, padding: 16,
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                        background: "#FCFCFA", position: "relative", cursor: "pointer", overflow: "hidden"
+                      }}>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }}
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              const file = e.target.files[0];
+                              setReviewFileName(file.name);
+                              setReviewUploadProgress(0);
+                              setReviewImgUrl(null);
+
+                              let prog = 0;
+                              const interval = setInterval(() => {
+                                prog += 20;
+                                setReviewUploadProgress(prog);
+                                if (prog >= 100) {
+                                  clearInterval(interval);
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    setReviewImgUrl(ev.target?.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }, 150);
+                            }
+                          }}
+                        />
+                        
+                        {reviewUploadProgress === null && !reviewFileName && (
+                          <>
+                            <span className="material-symbols-outlined" style={{ color: "#8E8680", fontSize: "24px", marginBottom: 4 }}>add_photo_alternate</span>
+                            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#1F1B18" }}>Pilih Foto Ulasan</span>
+                            <span style={{ fontSize: "0.65rem", color: "#8E8680", marginTop: 2 }}>Format JPG, PNG (Maks. 2MB)</span>
+                          </>
+                        )}
+
+                        {reviewUploadProgress !== null && reviewUploadProgress < 100 && (
+                          <div style={{ width: "100%", textAlign: "center" }}>
+                            <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#1D4ED8", margin: "0 0 6px" }}>Mengunggah Foto: {reviewUploadProgress}%</p>
+                            <div style={{ width: "100%", height: 6, background: "#EAE5E0", borderRadius: 3, overflow: "hidden" }}>
+                              <div style={{ width: `${reviewUploadProgress}%`, height: "100%", background: "#1D4ED8", transition: "width 0.1s" }} />
+                            </div>
+                          </div>
+                        )}
+
+                        {reviewUploadProgress === 100 && reviewFileName && (
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>✓ Foto Berhasil Diunggah!</span>
+                            {reviewImgUrl && (
+                              <div style={{ width: 80, height: 80, borderRadius: 6, overflow: "hidden", border: "1px solid #EAE5E0" }}>
+                                <img src={reviewImgUrl} alt="Review Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              </div>
+                            )}
+                            <span style={{ fontSize: "0.65rem", color: "#8E8680" }}>{reviewFileName}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Submit Review Button */}
+                    <button
+                      type="submit"
+                      disabled={reviewUploadProgress !== null && reviewUploadProgress < 100}
+                      style={{
+                        height: 40,
+                        background: (reviewUploadProgress !== null && reviewUploadProgress < 100) ? "#D5CFC9" : "#1D4ED8",
+                        color: "white",
+                        borderRadius: 8,
+                        fontSize: "0.8125rem",
+                        fontWeight: 800,
+                        border: "none",
+                        cursor: (reviewUploadProgress !== null && reviewUploadProgress < 100) ? "not-allowed" : "pointer",
+                        fontFamily: "inherit",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6
+                      }}
+                    >
+                      <span>Kirim Ulasan Sekarang</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>send</span>
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Reviews List Card */}
+              <div style={{ background: "white", border: "1px solid #EAE5E0", borderRadius: 12, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1.5px solid #F5F3F0", paddingBottom: 12 }}>
+                  <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#1F1B18", margin: 0 }}>Ulasan Pembeli</h2>
+                  <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#8E8680" }}>{reviews.length} Ulasan</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  {reviews.map((rev) => (
+                    <div key={rev.id} style={{ display: "flex", gap: 14, borderBottom: "1px solid #F5F3F0", paddingBottom: 16 }}>
+                      <div style={{
+                        width: 40, height: 40, borderRadius: "50%",
+                        background: "linear-gradient(135deg, #1D4ED8, #1E40AF)",
+                        color: "white", fontSize: "0.875rem", fontWeight: 800,
+                        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                      }}>{rev.avatar}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
+                          <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#1F1B18" }}>{rev.name}</span>
+                          <span style={{ fontSize: "0.75rem", color: "#8E8680" }}>{rev.time}</span>
+                        </div>
+                        <div style={{ display: "flex", gap: 2, marginBottom: 8 }}>
+                          {[1,2,3,4,5].map(i => <Star key={i} size={12} fill={rev.rating >= i ? "#F59E0B" : "none"} color={rev.rating >= i ? "#F59E0B" : "#D5CFC9"} />)}
+                        </div>
+                        <p style={{ fontSize: "0.8125rem", color: "#5C5550", lineHeight: 1.6, margin: 0 }}>
+                          {rev.text}
+                        </p>
+                        {rev.image && (
+                          <div style={{ marginTop: 10, width: 80, height: 80, borderRadius: 6, overflow: "hidden", border: "1px solid #EAE5E0" }}>
+                            <img src={rev.image} alt="Uploaded review" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

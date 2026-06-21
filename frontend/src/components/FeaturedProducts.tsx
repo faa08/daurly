@@ -66,7 +66,16 @@ function formatPrice(price: number) {
   return `Rp ${price.toLocaleString("id-ID")}`;
 }
 
-export default function FeaturedProducts() {
+interface FeaturedProductsProps {
+  searchQuery?: string;
+}
+
+export default function FeaturedProducts({ searchQuery = "" }: FeaturedProductsProps) {
+  const filteredProducts = PRODUCTS.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <section className="section-featured-products">
       <div className="container">
@@ -81,54 +90,75 @@ export default function FeaturedProducts() {
           </Link>
         </div>
 
-        <div className="products-grid-five">
-          {PRODUCTS.map((product) => (
-            <article
-              key={product.id}
-              className="product-card-custom"
-              id={`product-${product.id}`}
-            >
-              <Link href={`/produk/${product.slug}`}>
-                <div className="product-image-container">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    sizes="(max-width: 768px) 50vw, 220px"
-                  />
-                  {product.badge && (
-                    <span className="product-badge-orange">
-                      {product.badge}
-                    </span>
-                  )}
-                  <button
-                    className="product-cart-button-floating"
-                    aria-label={`Tambah ${product.name} ke keranjang`}
-                    id={`add-cart-${product.id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                    }}
-                  >
-                    <ShoppingCart size={15} />
-                  </button>
-                </div>
-
-                <div className="product-info-custom">
-                  <p className="product-category-custom">{product.category}</p>
-                  <h3 className="product-name-custom">{product.name}</h3>
-                  <p className="product-price-custom">{formatPrice(product.price)}</p>
-                  <div className="product-meta-custom">
-                    <span className="rating-star-orange">★</span>
-                    <span className="rating-value-bold">{product.rating}</span>
-                    <span className="rating-divider-line">|</span>
-                    <span className="sold-count-text">{product.sold} terjual</span>
+        {filteredProducts.length === 0 ? (
+          <div style={{
+            textAlign: "center",
+            padding: "60px 24px",
+            background: "white",
+            border: "1px solid #EAE5E0",
+            borderRadius: 12,
+            color: "#1F1B18",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 10
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "#8E8680" }}>search_off</span>
+            <h3 style={{ fontSize: "1.05rem", fontWeight: 800, margin: 0 }}>Produk Tidak Ditemukan</h3>
+            <p style={{ fontSize: "0.8125rem", color: "#8E8680", margin: 0, maxWidth: 360, lineHeight: 1.5 }}>
+              Maaf, tidak ada produk unggulan yang cocok dengan kata kunci &quot;<strong>{searchQuery}</strong>&quot;. Coba cari dengan kata kunci lain.
+            </p>
+          </div>
+        ) : (
+          <div className="products-grid-five">
+            {filteredProducts.map((product) => (
+              <article
+                key={product.id}
+                className="product-card-custom"
+                id={`product-${product.id}`}
+              >
+                <Link href={`/produk/${product.slug}`}>
+                  <div className="product-image-container">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      sizes="(max-width: 768px) 50vw, 220px"
+                    />
+                    {product.badge && (
+                      <span className="product-badge-orange">
+                        {product.badge}
+                      </span>
+                    )}
+                    <button
+                      className="product-cart-button-floating"
+                      aria-label={`Tambah ${product.name} ke keranjang`}
+                      id={`add-cart-${product.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                      }}
+                    >
+                      <ShoppingCart size={15} />
+                    </button>
                   </div>
-                </div>
-              </Link>
-            </article>
-          ))}
-        </div>
+
+                  <div className="product-info-custom">
+                    <p className="product-category-custom">{product.category}</p>
+                    <h3 className="product-name-custom">{product.name}</h3>
+                    <p className="product-price-custom">{formatPrice(product.price)}</p>
+                    <div className="product-meta-custom">
+                      <span className="rating-star-orange">★</span>
+                      <span className="rating-value-bold">{product.rating}</span>
+                      <span className="rating-divider-line">|</span>
+                      <span className="sold-count-text">{product.sold} terjual</span>
+                    </div>
+                  </div>
+                </Link>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

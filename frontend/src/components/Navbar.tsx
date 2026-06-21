@@ -63,14 +63,23 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   }
 ];
 
-export default function Navbar() {
+export default function Navbar({ searchQuery, setSearchQuery }: { searchQuery?: string; setSearchQuery?: (q: string) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
+  const [isMobile, setIsMobile] = useState(false);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const profileContainerRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -135,6 +144,32 @@ export default function Navbar() {
 
         {/* Right: Actions */}
         <div className="nav-actions-right">
+          {setSearchQuery && (
+            /* Search Bar inside Navbar */
+            <div className="relative flex items-center w-[150px] sm:w-[200px] md:w-[280px] mr-2">
+              <span className="material-symbols-outlined absolute left-3 text-secondary text-[16px] pointer-events-none">search</span>
+              <input 
+                type="text" 
+                placeholder="Cari produk UMKM..." 
+                value={searchQuery || ""}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: "100%",
+                  paddingLeft: "2.25rem",
+                  paddingRight: "1rem",
+                  paddingTop: "0.5rem",
+                  paddingBottom: "0.5rem",
+                  background: "#F3F3F3",
+                  borderRadius: "8px",
+                  border: "1px solid #EAE5E0",
+                  fontSize: "12px",
+                  outline: "none",
+                  fontFamily: "inherit",
+                  color: "#1F1B18",
+                }}
+              />
+            </div>
+          )}
           <Link href="/keranjang" className="nav-cart-btn" id="cart-btn">
             <ShoppingCart size={18} className="nav-icon-orange" />
             <span>Keranjang</span>
@@ -242,7 +277,7 @@ export default function Navbar() {
             >
               <User size={18} className="text-[#4C1D95] fill-[#4C1D95]" />
             </button>
-            {isProfileOpen && (
+            {isProfileOpen && !isMobile && (
               <div className="absolute top-[calc(100%+14px)] right-0 w-[290px] bg-white border border-[#EAE5E0] rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col py-3 px-3 text-[#1F1B18] normal-case tracking-normal">
                 {/* Profile Info Header */}
                 <div className="flex items-center justify-between pb-3 mb-2 border-b border-gray-100 px-1">
@@ -300,6 +335,113 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      {/* Mobile Bottom Sheet */}
+      {isProfileOpen && isMobile && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(31, 27, 24, 0.4)",
+          backdropFilter: "blur(4px)",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center",
+        }}>
+          <div 
+            onClick={() => setIsProfileOpen(false)} 
+            style={{ position: "absolute", inset: 0 }} 
+          />
+          <div style={{
+            position: "relative",
+            width: "100%",
+            background: "white",
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            padding: "16px 24px 32px",
+            boxShadow: "0 -8px 30px rgba(0,0,0,0.15)",
+            zIndex: 1010,
+            display: "flex",
+            flexDirection: "column",
+            color: "#1F1B18",
+          }}>
+            <div style={{
+              width: 48,
+              height: 5,
+              background: "#EAE5E0",
+              borderRadius: 3,
+              alignSelf: "center",
+              marginBottom: 20,
+              cursor: "pointer"
+            }} onClick={() => setIsProfileOpen(false)} />
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid #F5F3F0", paddingBottom: 16, marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#4C1D95", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "1.1rem", fontWeight: 800 }}>
+                  S
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
+                  <span style={{ fontSize: "0.9375rem", fontWeight: 800, color: "#1F1B18" }}>57w3eiqd</span>
+                  <span style={{ fontSize: "0.75rem", color: "#8E8680" }}>@57w3eiqd</span>
+                </div>
+              </div>
+              <Link 
+                href="/account/profile"
+                onClick={() => setIsProfileOpen(false)}
+                style={{
+                  padding: "8px 16px", background: "#F5F3F0", borderRadius: 20,
+                  fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", textDecoration: "none"
+                }}
+              >
+                Profil Saya
+              </Link>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <Link
+                href="/promo"
+                onClick={() => setIsProfileOpen(false)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 14, padding: "12px 16px",
+                  borderRadius: 10, fontSize: "0.875rem", fontWeight: 700, color: "#5C5550",
+                  textDecoration: "none"
+                }}
+              >
+                <Ticket size={18} color="#8E8680" />
+                <span>Kupon dan Diskon</span>
+              </Link>
+
+              <Link
+                href="/account/seller"
+                onClick={() => setIsProfileOpen(false)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 14, padding: "12px 16px",
+                  borderRadius: 10, fontSize: "0.875rem", fontWeight: 700, color: "#5C5550",
+                  textDecoration: "none"
+                }}
+              >
+                <Briefcase size={18} color="#8E8680" />
+                <span>Daftar menjadi Seller</span>
+              </Link>
+
+              <button
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  alert("Anda telah logout.");
+                }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
+                  background: "none", border: "none", borderTop: "1.5px solid #F5F3F0",
+                  width: "100%", textAlign: "left", fontSize: "0.875rem", fontWeight: 700,
+                  color: "#DC2626", cursor: "pointer", marginTop: 12, paddingTop: 16
+                }}
+              >
+                <LogOut size={18} color="#DC2626" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

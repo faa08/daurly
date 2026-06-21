@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
 import HeroBanner from "@/components/HeroBanner";
@@ -7,14 +10,16 @@ import ValueProps from "@/components/ValueProps";
 import Footer from "@/components/Footer";
 
 export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
     <>
-      <Navbar />
-      <SearchBar />
+      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <SearchBar query={searchQuery} setQuery={setSearchQuery} />
       <main>
         <HeroBanner />
         <Categories />
-        <FeaturedProducts />
+        <FeaturedProducts searchQuery={searchQuery} />
         <ValueProps />
       </main>
       <Footer />

@@ -1,6 +1,36 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
+
+const INITIAL_PRODUCTS = [
+  {
+    sku: "SKU-8821",
+    nama: "Mangkuk Keramik Motif Megamendung Handmade",
+    kategori: "Kerajinan",
+    harga: 125000,
+    stok: 45,
+    status: "Aktif",
+    img: "/product-keramik.png",
+  },
+  {
+    sku: "SKU-4912",
+    nama: "Kopi Toraja Arabika 250g Premium Roasted",
+    kategori: "Kuliner",
+    harga: 85000,
+    stok: 120,
+    status: "Aktif",
+    img: "/product-kopi.png",
+  },
+  {
+    sku: "SKU-7731",
+    nama: "Dompet Kulit Sapi Asli Handmade Cognac Brown",
+    kategori: "Fashion Pria",
+    harga: 210000,
+    stok: 0,
+    status: "Stok Habis",
+    img: "/product-dompet.png",
+  }
+];
 
 export default function SellerProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -10,7 +40,7 @@ export default function SellerProductsPage() {
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newProductStock, setNewProductStock] = useState("");
   
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>(INITIAL_PRODUCTS);
 
   const handleDelete = (sku: string, name: string) => {
     if (confirm(`Apakah Anda yakin ingin menghapus produk ${name}?`)) {

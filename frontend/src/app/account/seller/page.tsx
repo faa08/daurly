@@ -17,8 +17,49 @@ export default function BecomeSellerPage() {
   const [nib, setNib] = useState("");
   const [ktpFileName, setKtpFileName] = useState("");
 
+  // Validation & interactive upload states
+  const [nomorHpError, setNomorHpError] = useState("");
+  const [ktpError, setKtpError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadedImgUrl, setUploadedImgUrl] = useState<string | null>(null);
+
+  const validateHp = (value: string) => {
+    if (!value) {
+      setNomorHpError("");
+      return;
+    }
+    const isNumeric = /^[+0-9\s]+$/.test(value);
+    const startsCorrectly = value.startsWith("08") || value.startsWith("+62");
+    if (!isNumeric) {
+      setNomorHpError("Nomor HP harus berupa angka");
+    } else if (!startsCorrectly) {
+      setNomorHpError("Nomor HP harus diawali dengan 08 atau +62");
+    } else {
+      setNomorHpError("");
+    }
+  };
+
+  const validateKtp = (value: string) => {
+    if (!value) {
+      setKtpError("");
+      return;
+    }
+    const isNumeric = /^\d+$/.test(value);
+    if (!isNumeric) {
+      setKtpError("NIK KTP harus berupa angka");
+    } else if (value.length !== 16) {
+      setKtpError("NIK KTP harus tepat 16 digit");
+    } else {
+      setKtpError("");
+    }
+  };
+
   const handleRegisterSeller = (e: React.FormEvent) => {
     e.preventDefault();
+    if (nomorHpError || ktpError || !ktpFileName || (uploadProgress !== null && uploadProgress < 100)) {
+      alert("Harap perbaiki kesalahan input dan tunggu proses unggah dokumen selesai.");
+      return;
+    }
     setLoading(true);
     setTimeout(() => {
       alert(`Pendaftaran Seller Berhasil!\n\nNama Toko: ${namaToko}\nNIB: ${nib}\nEmail: ${email}\n\nSelamat datang di Pelataran UMKM Seller.`);
@@ -100,10 +141,17 @@ export default function BecomeSellerPage() {
                   type="tel" 
                   required
                   value={nomorHp}
-                  onChange={(e) => setNomorHp(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setNomorHp(val);
+                    validateHp(val);
+                  }}
                   placeholder="+62 8xxx"
-                  className="w-full px-3.5 py-2.5 bg-surface-container rounded-lg border border-[#EAE5E0] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-semibold text-[#1F1B18]"
+                  className={`w-full px-3.5 py-2.5 bg-surface-container rounded-lg border ${nomorHpError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-[#EAE5E0] focus:ring-primary focus:border-primary'} focus:outline-none focus:ring-1 text-xs font-semibold text-[#1F1B18]`}
                 />
+                {nomorHpError && (
+                  <p className="text-red-500 text-[10px] mt-1 font-semibold">{nomorHpError}</p>
+                )}
               </div>
             </div>
 
@@ -127,35 +175,91 @@ export default function BecomeSellerPage() {
                   type="text" 
                   required
                   value={ktp}
-                  onChange={(e) => setKtp(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setKtp(val);
+                    validateKtp(val);
+                  }}
                   placeholder="16-digit NIK KTP"
-                  className="w-full px-3.5 py-2.5 bg-surface-container rounded-lg border border-[#EAE5E0] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-semibold text-[#1F1B18]"
+                  className={`w-full px-3.5 py-2.5 bg-surface-container rounded-lg border ${ktpError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-[#EAE5E0] focus:ring-primary focus:border-primary'} focus:outline-none focus:ring-1 text-xs font-semibold text-[#1F1B18]`}
                 />
+                {ktpError && (
+                  <p className="text-red-500 text-[10px] mt-1 font-semibold">{ktpError}</p>
+                )}
               </div>
             </div>
 
             {/* Upload KTP File Mockup */}
             <div className="space-y-2 text-left">
               <label className="block text-[11px] uppercase tracking-wider text-secondary">Upload Dokumen KTP</label>
-              <div className="border border-dashed border-[#D5CFC9] rounded-lg p-5 flex flex-col items-center justify-center bg-surface-container hover:bg-surface-container/60 transition cursor-pointer relative">
+              <div className="border border-dashed border-[#D5CFC9] rounded-lg p-5 flex flex-col items-center justify-center bg-surface-container hover:bg-surface-container/60 transition cursor-pointer relative overflow-hidden">
                 <input 
                   type="file" 
                   accept="image/*,application/pdf"
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
-                      setKtpFileName(e.target.files[0].name);
+                      const file = e.target.files[0];
+                      setKtpFileName(file.name);
+                      setUploadProgress(0);
+                      setUploadedImgUrl(null);
+                      
+                      let prog = 0;
+                      const interval = setInterval(() => {
+                        prog += 10;
+                        setUploadProgress(prog);
+                        if (prog >= 100) {
+                          clearInterval(interval);
+                          if (file.type.startsWith("image/")) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              setUploadedImgUrl(event.target?.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }
+                      }, 100);
                     }
                   }}
                 />
-                <span className="material-symbols-outlined text-secondary text-[28px] mb-1">upload_file</span>
-                {ktpFileName ? (
-                  <span className="text-xs text-primary font-bold">{ktpFileName}</span>
-                ) : (
+                {uploadProgress === null && !ktpFileName && (
                   <>
+                    <span className="material-symbols-outlined text-secondary text-[28px] mb-1">upload_file</span>
                     <span className="text-[11px] text-[#1F1B18] font-bold">Pilih file KTP Anda</span>
                     <span className="text-[9px] text-secondary font-medium mt-0.5">Format JPG, PNG atau PDF (Maks. 5MB)</span>
                   </>
+                )}
+
+                {/* Progress bar */}
+                {uploadProgress !== null && uploadProgress < 100 && (
+                  <div className="w-full text-center space-y-2 py-2">
+                    <span className="material-symbols-outlined text-primary text-[28px] animate-bounce">upload</span>
+                    <p className="text-xs text-primary font-bold">Mengunggah: {uploadProgress}%</p>
+                    <div className="w-full bg-[#EAE5E0] h-2 rounded-full overflow-hidden">
+                      <div className="bg-primary h-full transition-all duration-150" style={{ width: `${uploadProgress}%` }}></div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Success & Preview */}
+                {uploadProgress === 100 && ktpFileName && (
+                  <div className="w-full flex flex-col items-center justify-center space-y-3 py-1">
+                    <div className="flex items-center gap-1.5 text-green-600 font-bold text-xs">
+                      <span className="material-symbols-outlined text-[16px] text-green-600">check_circle</span>
+                      <span>Unggah Selesai!</span>
+                    </div>
+                    {uploadedImgUrl ? (
+                      <div className="relative w-full max-w-[200px] h-[120px] rounded-lg overflow-hidden border border-[#EAE5E0] shadow-sm bg-white">
+                        <img src={uploadedImgUrl} alt="Preview KTP" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-[#EAE5E0]">
+                        <span className="material-symbols-outlined text-[#8E8680]">description</span>
+                        <span className="text-xs text-secondary font-bold truncate max-w-[150px]">{ktpFileName}</span>
+                      </div>
+                    )}
+                    <span className="text-[9px] text-secondary underline">Klik untuk mengganti file</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -179,8 +283,12 @@ export default function BecomeSellerPage() {
               </button>
               <button 
                 type="submit"
-                disabled={loading}
-                className="px-8 py-2.5 bg-primary hover:bg-primary-dark text-white font-bold text-xs rounded-lg shadow-sm hover:shadow transition flex items-center gap-1.5"
+                disabled={loading || !!nomorHpError || !!ktpError || !namaToko || !nomorHp || !ktp || !rekening || !nib || !ktpFileName || (uploadProgress !== null && uploadProgress < 100)}
+                className={`px-8 py-2.5 text-white font-bold text-xs rounded-lg shadow-sm transition flex items-center gap-1.5 ${
+                  loading || !!nomorHpError || !!ktpError || !namaToko || !nomorHp || !ktp || !rekening || !nib || !ktpFileName || (uploadProgress !== null && uploadProgress < 100)
+                    ? "bg-[#D5CFC9] cursor-not-allowed text-secondary"
+                    : "bg-primary hover:bg-primary-dark hover:shadow cursor-pointer"
+                }`}
               >
                 {loading ? (
                   <span>Memproses...</span>

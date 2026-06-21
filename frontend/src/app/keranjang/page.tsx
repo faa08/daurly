@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -397,18 +397,26 @@ export default function CartPage() {
                   </div>
 
                   {/* Checkout Button */}
-                  <button
-                    disabled={checkedItems.length === 0}
-                    style={{
-                      width: "100%", height: 50, marginTop: 20,
-                      background: checkedItems.length === 0 ? C.borderStrong : C.primary,
-                      color: "white", borderRadius: 10, border: "none",
-                      fontSize: "0.9375rem", fontWeight: 800, cursor: checkedItems.length === 0 ? "not-allowed" : "pointer",
-                      fontFamily: "inherit", transition: "background 0.2s",
+                  <Link
+                    href={checkedItems.length === 0 ? "#" : "/checkout"}
+                    onClick={(e) => {
+                      if (checkedItems.length === 0) e.preventDefault();
                     }}
+                    style={{ textDecoration: "none", pointerEvents: checkedItems.length === 0 ? "none" : "auto", display: "block" }}
                   >
-                    {checkedItems.length === 0 ? "Pilih Produk Terlebih Dahulu" : `Beli Sekarang (${checkedItems.reduce((s, i) => s + i.qty, 0)} item)`}
-                  </button>
+                    <button
+                      disabled={checkedItems.length === 0}
+                      style={{
+                        width: "100%", height: 50, marginTop: 20,
+                        background: checkedItems.length === 0 ? C.borderStrong : C.primary,
+                        color: "white", borderRadius: 10, border: "none",
+                        fontSize: "0.9375rem", fontWeight: 800, cursor: checkedItems.length === 0 ? "not-allowed" : "pointer",
+                        fontFamily: "inherit", transition: "background 0.2s",
+                      }}
+                    >
+                      {checkedItems.length === 0 ? "Pilih Produk Terlebih Dahulu" : `Beli Sekarang (${checkedItems.reduce((s, i) => s + i.qty, 0)} item)`}
+                    </button>
+                  </Link>
 
                   <p style={{ fontSize: "0.75rem", color: C.textMuted, textAlign: "center", marginTop: 12, marginBottom: 0 }}>
                     Dengan melanjutkan, kamu menyetujui{" "}

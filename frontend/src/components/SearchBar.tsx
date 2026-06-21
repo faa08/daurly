@@ -10,9 +10,12 @@ const QUICK_SEARCHES = [
   "Snack Nusantara",
 ];
 
-export default function SearchBar() {
-  const [query, setQuery] = useState("");
+interface SearchBarProps {
+  query?: string;
+  setQuery?: (q: string) => void;
+}
 
+export default function SearchBar({ query = "", setQuery }: SearchBarProps) {
   return (
     <div className="searchbar-section">
       <div className="search-box-centered">
@@ -20,7 +23,7 @@ export default function SearchBar() {
           type="text"
           placeholder="Cari produk lokal, kerajinan, atau kuliner..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => setQuery && setQuery(e.target.value)}
           className="search-input-custom"
           id="search-input"
         />
@@ -35,7 +38,7 @@ export default function SearchBar() {
           <button
             key={tag}
             className="search-tag-link"
-            onClick={() => setQuery(tag)}
+            onClick={() => setQuery && setQuery(tag)}
           >
             {tag}
           </button>

@@ -56,7 +56,7 @@ CREATE TYPE stat_produk_enum AS ENUM ('tersedia', 'tidak tersedia');
 CREATE TYPE stat_order_enum  AS ENUM ('pending', 'diproses', 'dikirim', 'selesai', 'dibatalkan');
 CREATE TYPE stat_retur_enum  AS ENUM ('diajukan', 'disetujui', 'ditolak', 'selesai');
 CREATE TYPE stat_pay_enum    AS ENUM ('pending', 'success', 'failed', 'expired');
-CREATE TYPE metod_pay_enum   AS ENUM ('transfer_bank', 'e_wallet', 'cod', 'qris');
+CREATE TYPE metod_pay_enum   AS ENUM ('transfer_bank', 'e_wallet', 'cod', 'qris', 'va', 'kartu_kredit');
 CREATE TYPE stat_kirim_enum  AS ENUM ('belum_dikirim', 'sedang_dikirim', 'sampai', 'gagal');
 CREATE TYPE tipe_saldo_enum  AS ENUM ('masuk', 'keluar');
 CREATE TYPE stat_saldo_enum  AS ENUM ('pending', 'sukses', 'gagal');
@@ -125,6 +125,8 @@ CREATE TABLE seller (
     no_telp         VARCHAR(20),
     addr            TEXT,
     img_ktp         TEXT,
+    nik_ktp         VARCHAR(16),                     -- 16-digit NIK KTP
+    nib             VARCHAR(20),                     -- 13-digit Nomor Induk Berusaha
     nama_bank       VARCHAR(50),                     -- contoh: BCA, BNI, Mandiri
     no_rek          VARCHAR(30),                     -- nomor rekening
     atas_nama_rek   VARCHAR(100),                    -- nama pemilik rekening
@@ -151,6 +153,7 @@ CREATE TABLE produk (
     id_seller       UUID NOT NULL REFERENCES seller(id_seller) ON DELETE CASCADE,
     id_kategori     UUID REFERENCES kategori(id_kategori) ON DELETE SET NULL,
     nama_produk     VARCHAR(200) NOT NULL,
+    slug            VARCHAR(255) UNIQUE,             -- slug untuk routing URL
     "desc"          TEXT,
     harga           NUMERIC(15, 2) NOT NULL CHECK (harga >= 0),
     berat           INT DEFAULT 0,                   -- berat dalam gram (untuk ongkir)
@@ -171,6 +174,7 @@ CREATE TABLE review (
     id_produk   UUID NOT NULL REFERENCES produk(id_produk) ON DELETE CASCADE,
     rating      SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     komentar    TEXT,
+    foto_review TEXT,                            -- URL foto lampiran review
     created_at  TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE (id_user, id_produk)
 );
@@ -211,6 +215,9 @@ CREATE TABLE "order" (
     id_seller       UUID NOT NULL REFERENCES seller(id_seller) ON DELETE SET NULL,
     id_alamat       UUID REFERENCES alamat(id_alamat) ON DELETE SET NULL,
     total_hrg       NUMERIC(15, 2) NOT NULL CHECK (total_hrg >= 0),
+    ongkir          NUMERIC(15, 2) DEFAULT 0,        -- ongkos kirim
+    diskon          NUMERIC(15, 2) DEFAULT 0,        -- potongan voucher
+    biaya_layanan   NUMERIC(15, 2) DEFAULT 0,        -- biaya layanan aplikasi
     stat_order      stat_order_enum NOT NULL DEFAULT 'pending',
     catatan         TEXT,
     created_at      TIMESTAMPTZ DEFAULT NOW(),

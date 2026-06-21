@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -81,6 +81,9 @@ export default function CheckoutPage() {
   const [isEditAddressOpen, setIsEditAddressOpen] = useState(false);
   const [tempAddress, setTempAddress] = useState({ ...address });
 
+  // Order Items State
+  const [items, setItems] = useState(ORDER_ITEMS);
+
   // Shipping & Payment State
   const [selectedShipping, setSelectedShipping] = useState(SHIPPING_METHODS[0]);
   const [selectedPayment, setSelectedPayment] = useState(PAYMENT_METHODS[0].id);
@@ -88,57 +91,87 @@ export default function CheckoutPage() {
   // Voucher State
   const [voucherCode, setVoucherCode] = useState("");
   const [voucherError, setVoucherError] = useState("");
-  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discount: number } | null>(null);
+  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string } | null>(null);
 
   // checkout status
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Calculate totals
-  const totalItemPrice = ORDER_ITEMS.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const totalWeight = ORDER_ITEMS.reduce((sum, item) => sum + item.weight * item.quantity, 0) / 1000; // in kg
-  const shippingCost = selectedShipping.cost;
-  const serviceFee = 2000;
-  
-  // Starting base discount is Rp 25.000 as per mockup. If voucher applies, we increase it.
-  const baseDiscount = 25000;
-  const voucherDiscount = appliedVoucher ? appliedVoucher.discount : 0;
-  const totalDiscount = baseDiscount + voucherDiscount;
+  // Payment gateway simulation state
+  const [timeLeft, setTimeLeft] = useState(900); // 15 mins in seconds
+  const [copied, setCopied] = useState(false);
 
+  // Quantity control handler
+  const updateQty = (id: number, delta: number) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
+      )
+    );
+  };
+
+  // Countdown timer for payment simulation
+  useEffect(() => {
+    if (!isPaying || isSuccess) return;
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isPaying, isSuccess]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Calculate totals
+  const totalItemPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalWeight = items.reduce((sum, item) => sum + item.weight * item.quantity, 0) / 1000; // in kg
+
+  const shippingCost = Math.max(1, Math.ceil(totalWeight)) * selectedShipping.cost;
+  const serviceFee = 2000;
+  const totalDiscount = appliedVoucher ? (appliedVoucher.code === "DISKONUMKM" ? Math.min(50000, totalItemPrice * 0.1) : 50000) : 0;
   const totalBill = totalItemPrice + shippingCost + serviceFee - totalDiscount;
 
-  // Handle Voucher Submit
   const handleApplyVoucher = (e: React.FormEvent) => {
     e.preventDefault();
-    setVoucherError("");
-
     const code = voucherCode.trim().toUpperCase();
-    if (!code) return;
-
-    if (code === "LOKALBANGGA") {
-      // 10% discount on total items (Rp 590,000 * 10% = Rp 59,000)
-      const discountAmount = Math.round(totalItemPrice * 0.1);
-      setAppliedVoucher({ code, discount: discountAmount });
-      setVoucherCode("");
+    if (code === "DISKONUMKM" || code === "HEMAT50") {
+      setAppliedVoucher({ code });
+      setVoucherError("");
     } else {
-      setVoucherError("Voucher tidak valid. Coba LOKALBANGGA");
+      setVoucherError("Kode voucher tidak valid atau sudah kedaluwarsa.");
+      setAppliedVoucher(null);
     }
   };
 
-  // Handle Address Save
-  const handleSaveAddress = (e: React.FormEvent) => {
-    e.preventDefault();
-    setAddress({ ...tempAddress });
-    setIsEditAddressOpen(false);
-  };
-
-  // Handle Payment Submit
   const handlePayNow = () => {
     setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
-      setIsSuccess(true);
-    }, 1500); // simulate network delay
+      setIsPaying(true);
+      setTimeLeft(900);
+    }, 1500);
+  };
+
+  const handleSaveAddress = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddress({ ...tempAddress });
+    setIsEditAddressOpen(false);
   };
 
   return (
@@ -148,317 +181,505 @@ export default function CheckoutPage() {
       <main style={{ background: "#FCFCFA", minHeight: "85vh", padding: "40px 0 60px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
           
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#1F1B18", marginBottom: 24 }}>
-            Checkout
-          </h1>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 380px",
-            gap: 28,
-            alignItems: "start",
-          }}>
-
-            {/* LEFT COLUMN */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-
-              {/* 1. SHIPPING ADDRESS */}
-              <div style={{
-                background: "white",
-                border: "1px solid #EAE5E0",
-                borderRadius: 12,
-                padding: 24,
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                  <h3 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                    Alamat Pengiriman
-                  </h3>
-                  <button 
-                    onClick={() => {
-                      setTempAddress({ ...address });
-                      setIsEditAddressOpen(true);
-                    }}
-                    style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8", border: "none", cursor: "pointer", background: "none" }}
-                  >
-                    Ubah
-                  </button>
+          {isPaying ? (
+            /* ── PAYMENT INSTRUCTIONS GATEWAY SCREEN (Midtrans/Xendit Mockup Style) ── */
+            <div style={{
+              maxWidth: 600,
+              margin: "40px auto",
+              background: "white",
+              border: "1px solid #EAE5E0",
+              borderRadius: 16,
+              padding: "36px 32px",
+              boxShadow: "0 10px 30px rgba(31, 27, 24, 0.05)",
+              color: "#1F1B18",
+              fontFamily: "inherit"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "2px solid #F5F3F0", paddingBottom: 16, marginBottom: 24 }}>
+                <div>
+                  <span style={{ fontSize: "0.65rem", fontWeight: 800, color: "white", background: "#1D4ED8", padding: "4px 8px", borderRadius: 4, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    Secure Payment Gateway
+                  </span>
+                  <h2 style={{ fontSize: "1.25rem", fontWeight: 800, margin: "6px 0 0" }}>Instruksi Pembayaran</h2>
                 </div>
-                <div style={{ display: "flex", gap: 12 }}>
-                  <div style={{ color: "#1D4ED8", marginTop: 2 }}>
-                    <MapPin size={18} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18", marginBottom: 4 }}>
-                      {address.name} <span style={{ fontWeight: 500, color: "#5C5550" }}>({address.phone})</span>
-                    </p>
-                    <p style={{ fontSize: "0.8125rem", color: "#5C5550", lineHeight: 1.5 }}>
-                      {address.details}
-                    </p>
-                  </div>
+                <div style={{ textAlign: "right" }}>
+                  <p style={{ fontSize: "0.75rem", color: "#8E8680", margin: 0 }}>Sisa Waktu Pembayaran</p>
+                  <p style={{ fontSize: "1.25rem", fontWeight: 900, color: "#DC2626", margin: 0, fontFamily: "monospace" }}>
+                    {formatTime(timeLeft)}
+                  </p>
                 </div>
               </div>
 
-              {/* 2. ORDER DETAILS */}
-              <div style={{
-                background: "white",
-                border: "1px solid #EAE5E0",
-                borderRadius: 12,
-                padding: 24,
-              }}>
-                <h3 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
-                  Detail Pesanan
-                </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {ORDER_ITEMS.map((item) => (
-                    <div key={item.id} style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                      <div style={{ position: "relative", width: 64, height: 64, borderRadius: 8, overflow: "hidden", background: "#F8F6F4", border: "1px solid #EAE5E0" }}>
-                        <Image src={item.image} alt={item.name} fill style={{ objectFit: "cover" }} />
+              {/* Total Tagihan */}
+              <div style={{ background: "#EFF6FF", border: "1px solid #EFF6FF", borderRadius: 10, padding: 18, marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <p style={{ fontSize: "0.75rem", color: "#5C5550", margin: "0 0 4px" }}>Total Tagihan</p>
+                  <p style={{ fontSize: "1.5rem", fontWeight: 800, color: "#1D4ED8", margin: 0 }}>
+                    Rp {totalBill.toLocaleString("id-ID")}
+                  </p>
+                </div>
+                <div style={{ fontSize: "0.75rem", color: "#8E8680", textAlign: "right" }}>
+                  <p style={{ margin: 0 }}>No. Transaksi</p>
+                  <p style={{ fontWeight: 700, color: "#1F1B18", margin: 0 }}>TRX-202606214812</p>
+                </div>
+              </div>
+
+              {/* Bank Transfer Instructions / QR Code */}
+              <div style={{ border: "1px solid #EAE5E0", borderRadius: 10, padding: 20, marginBottom: 24, background: "#FCFCFA" }}>
+                <p style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 12px" }}>
+                  Detail Pembayaran
+                </p>
+                
+                {selectedPayment === "bca" && (
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <span style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18" }}>BCA Virtual Account</span>
+                      <span style={{ fontSize: "0.75rem", color: "#1D4ED8", background: "#EFF6FF", padding: "2px 8px", borderRadius: 4, fontWeight: 700 }}>Verifikasi Otomatis</span>
+                    </div>
+                    <p style={{ fontSize: "0.75rem", color: "#8E8680", margin: "0 0 6px" }}>Nomor Virtual Account</p>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", background: "white", padding: "10px 14px", borderRadius: 8, border: "1.5px solid #EAE5E0" }}>
+                      <span style={{ fontSize: "1.125rem", fontWeight: 800, letterSpacing: "0.05em", flex: 1, fontFamily: "monospace", color: "#1F1B18" }}>800108123456789</span>
+                      <button 
+                        onClick={() => handleCopy("800108123456789")}
+                        style={{ height: 32, padding: "0 14px", background: copied ? "#16A34A" : "#1F1B18", color: "white", border: "none", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}
+                      >
+                        {copied ? "✓ Disalin" : "Salin"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {selectedPayment === "gopay" && (
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <span style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18" }}>GoPay QRIS Code</span>
+                      <span style={{ fontSize: "0.75rem", color: "#16A34A", background: "#EBFDF2", padding: "2px 8px", borderRadius: 4, fontWeight: 700 }}>QRIS Instan</span>
+                    </div>
+                    <p style={{ fontSize: "0.75rem", color: "#8E8680", margin: "0 0 16px" }}>Pindai kode QRIS di bawah ini dengan aplikasi GoPay / e-Wallet Anda</p>
+                    <div style={{ display: "inline-block", background: "white", padding: 16, border: "1.5px solid #EAE5E0", borderRadius: 12, marginBottom: 12 }}>
+                      <div style={{ width: 150, height: 150, background: "repeating-conic-gradient(from 0deg, #1F1B18 0deg 90deg, white 90deg 180deg) 0 0/15px 15px, repeating-conic-gradient(from 45deg, #1D4ED8 0deg 90deg, #EFF6FF 90deg 180deg) 7px 7px/15px 15px", borderRadius: 4 }} />
+                    </div>
+                    <p style={{ fontSize: "0.7rem", color: "#8E8680", margin: 0 }}>QRIS berlisensi Bank Indonesia. Berlaku untuk semua aplikasi e-Wallet.</p>
+                  </div>
+                )}
+
+                {selectedPayment === "shopeepay" && (
+                  <div style={{ textAlign: "center", padding: "10px 0" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <span style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18" }}>ShopeePay</span>
+                      <span style={{ fontSize: "0.75rem", color: "#EA580C", background: "#FFF7ED", padding: "2px 8px", borderRadius: 4, fontWeight: 700 }}>Aplikasi</span>
+                    </div>
+                    <p style={{ fontSize: "0.75rem", color: "#8E8680", margin: "0 0 16px" }}>Buka notifikasi di aplikasi Shopee Anda dan selesaikan pembayaran.</p>
+                    <div style={{ display: "inline-block", background: "#FFF7ED", color: "#EA580C", padding: "12px 24px", borderRadius: 8, fontWeight: 800, fontSize: "0.8125rem", border: "1px dashed #FED7AA" }}>
+                      ⏳ Menunggu Pembayaran dari Aplikasi...
+                    </div>
+                  </div>
+                )}
+
+                {selectedPayment === "cc" && (
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <span style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18" }}>Kartu Kredit</span>
+                      <span style={{ fontSize: "0.75rem", color: "#6B21A8", background: "#FAF5FF", padding: "2px 8px", borderRadius: 4, fontWeight: 700 }}>Visa/Mastercard</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#5C5550", marginBottom: 4 }}>Nomor Kartu</label>
+                        <input type="text" placeholder="4111 2222 3333 4444" style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }} />
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18", marginBottom: 2 }}>
-                          {item.name}
-                        </h4>
-                        <p style={{ fontSize: "0.75rem", color: "#8E8680", marginBottom: 2 }}>
-                          {item.quantity} Barang ({item.weight * item.quantity} gr)
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#5C5550", marginBottom: 4 }}>Masa Berlaku</label>
+                          <input type="text" placeholder="MM/YY" style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }} />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#5C5550", marginBottom: 4 }}>CVV</label>
+                          <input type="text" placeholder="3 digit belakang" style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Panduan Transfer */}
+              <div style={{ marginBottom: 28 }}>
+                <h4 style={{ fontSize: "0.8125rem", fontWeight: 800, margin: "0 0 10px", color: "#1F1B18" }}>Panduan Pembayaran</h4>
+                <ol style={{ fontSize: "0.75rem", color: "#5C5550", paddingLeft: 16, margin: 0, display: "flex", flexDirection: "column", gap: 8, lineHeight: 1.5 }}>
+                  <li>Pilih menu <strong>Transfer → Virtual Account</strong> pada M-Banking Anda.</li>
+                  <li>Masukkan kode Virtual Account di atas.</li>
+                  <li>Konfirmasi detail tagihan yang muncul atas nama <strong>Pelataran UMKM</strong>.</li>
+                  <li>Selesaikan pembayaran dan simpan bukti transaksi Anda.</li>
+                </ol>
+              </div>
+
+              {/* Buttons */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button
+                  onClick={() => setIsSuccess(true)}
+                  style={{
+                    width: "100%", height: 48, background: "#16A34A", color: "white", border: "none", borderRadius: 8,
+                    fontSize: "0.9375rem", fontWeight: 800, cursor: "pointer", transition: "background 0.15s",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8
+                  }}
+                >
+                  <span style={{ fontSize: "1.1rem" }}>✓</span>
+                  <span>Simulasikan Pembayaran Berhasil</span>
+                </button>
+                
+                <button
+                  onClick={() => setIsPaying(false)}
+                  style={{
+                    width: "100%", height: 38, background: "none", border: "1.5px solid #D5CFC9", color: "#5C5550", borderRadius: 8,
+                    fontSize: "0.8125rem", fontWeight: 700, cursor: "pointer", transition: "background 0.15s"
+                  }}
+                >
+                  Batal / Kembali ke Checkout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#1F1B18", marginBottom: 24 }}>
+                Checkout
+              </h1>
+
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 380px",
+                gap: 28,
+                alignItems: "start",
+              }}>
+
+                {/* LEFT COLUMN */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+                  {/* 1. SHIPPING ADDRESS */}
+                  <div style={{
+                    background: "white",
+                    border: "1px solid #EAE5E0",
+                    borderRadius: 12,
+                    padding: 24,
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <h3 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                        Alamat Pengiriman
+                      </h3>
+                      <button 
+                        onClick={() => {
+                          setTempAddress({ ...address });
+                          setIsEditAddressOpen(true);
+                        }}
+                        style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8", border: "none", cursor: "pointer", background: "none" }}
+                      >
+                        Ubah
+                      </button>
+                    </div>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <div style={{ color: "#1D4ED8", marginTop: 2 }}>
+                        <MapPin size={18} />
+                      </div>
+                      <div>
+                        <p style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18", marginBottom: 4 }}>
+                          {address.name} <span style={{ fontWeight: 500, color: "#5C5550" }}>({address.phone})</span>
                         </p>
-                        <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8" }}>
-                          Rp {item.price.toLocaleString("id-ID")}
+                        <p style={{ fontSize: "0.8125rem", color: "#5C5550", lineHeight: 1.5 }}>
+                          {address.details}
                         </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <div style={{ height: 1, background: "#EAE5E0", margin: "16px 0" }} />
-
-                <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.8125rem", color: "#5C5550" }}>
-                  <span>Subtotal: <strong style={{ color: "#1F1B18", fontWeight: 700 }}>Rp {totalItemPrice.toLocaleString("id-ID")}</strong></span>
-                </div>
-              </div>
-
-              {/* 3. SHIPPING METHOD */}
-              <div style={{
-                background: "white",
-                border: "1px solid #EAE5E0",
-                borderRadius: 12,
-                padding: 24,
-              }}>
-                <h3 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
-                  Metode Pengiriman
-                </h3>
-                <div style={{ position: "relative" }}>
-                  <select
-                    value={selectedShipping.id}
-                    onChange={(e) => {
-                      const selected = SHIPPING_METHODS.find((s) => s.id === e.target.value);
-                      if (selected) setSelectedShipping(selected);
-                    }}
-                    style={{
-                      width: "100%",
-                      height: 48,
-                      borderRadius: 8,
-                      border: "1.5px solid #D5CFC9",
-                      padding: "0 40px 0 16px",
-                      fontSize: "0.875rem",
-                      color: "#1F1B18",
-                      fontFamily: "inherit",
-                      appearance: "none",
-                      background: "white",
-                      cursor: "pointer",
-                      outline: "none",
-                    }}
-                  >
-                    {SHIPPING_METHODS.map((method) => (
-                      <option key={method.id} value={method.id}>
-                        {method.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", color: "#5C5550", pointerEvents: "none" }}>
-                    <ChevronDown size={18} />
                   </div>
-                </div>
-              </div>
 
-              {/* 4. PAYMENT METHOD */}
-              <div style={{
-                background: "white",
-                border: "1px solid #EAE5E0",
-                borderRadius: 12,
-                padding: 24,
-              }}>
-                <h3 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
-                  Pilih Pembayaran
-                </h3>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                  {PAYMENT_METHODS.map((method) => {
-                    const isSelected = selectedPayment === method.id;
-                    return (
-                      <div
-                        key={method.id}
-                        onClick={() => setSelectedPayment(method.id)}
+                  {/* 2. ORDER DETAILS */}
+                  <div style={{
+                    background: "white",
+                    border: "1px solid #EAE5E0",
+                    borderRadius: 12,
+                    padding: 24,
+                  }}>
+                    <h3 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
+                      Detail Pesanan
+                    </h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                      {items.map((item) => (
+                        <div key={item.id} style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                          <div style={{ position: "relative", width: 64, height: 64, borderRadius: 8, overflow: "hidden", background: "#F8F6F4", border: "1px solid #EAE5E0" }}>
+                            <Image src={item.image} alt={item.name} fill style={{ objectFit: "cover" }} />
+                          </div>
+                          <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div>
+                              <h4 style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18", marginBottom: 2 }}>
+                                {item.name}
+                              </h4>
+                              <p style={{ fontSize: "0.75rem", color: "#8E8680", marginBottom: 2 }}>
+                                {item.quantity} Barang ({item.weight * item.quantity} gr)
+                              </p>
+                              <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8" }}>
+                                Rp {item.price.toLocaleString("id-ID")}
+                              </p>
+                            </div>
+
+                            {/* Dynamic quantity controls */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "2px 4px", background: "#FCFCFA" }}>
+                              <button
+                                onClick={() => updateQty(item.id, -1)}
+                                disabled={item.quantity <= 1}
+                                style={{
+                                  width: 24, height: 24, border: "none", background: "none", 
+                                  color: item.quantity <= 1 ? "#8E8680" : "#1F1B18",
+                                  cursor: item.quantity <= 1 ? "not-allowed" : "pointer",
+                                  fontWeight: "bold", fontSize: "0.875rem", display: "flex", alignItems: "center", justifyContent: "center"
+                                }}
+                              >
+                                -
+                              </button>
+                              <span style={{ fontSize: "0.8125rem", fontWeight: 700, minWidth: 16, textAlign: "center" }}>
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => updateQty(item.id, 1)}
+                                style={{
+                                  width: 24, height: 24, border: "none", background: "none", color: "#1F1B18",
+                                  cursor: "pointer", fontWeight: "bold", fontSize: "0.875rem", display: "flex", alignItems: "center", justifyContent: "center"
+                                }}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ height: 1, background: "#EAE5E0", margin: "16px 0" }} />
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.8125rem", color: "#5C5550" }}>
+                      <span>Subtotal: <strong style={{ color: "#1F1B18", fontWeight: 700 }}>Rp {totalItemPrice.toLocaleString("id-ID")}</strong></span>
+                    </div>
+                  </div>
+
+                  {/* 3. SHIPPING METHOD */}
+                  <div style={{
+                    background: "white",
+                    border: "1px solid #EAE5E0",
+                    borderRadius: 12,
+                    padding: 24,
+                  }}>
+                    <h3 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
+                      Metode Pengiriman
+                    </h3>
+                    <div style={{ position: "relative" }}>
+                      <select
+                        value={selectedShipping.id}
+                        onChange={(e) => {
+                          const selected = SHIPPING_METHODS.find((s) => s.id === e.target.value);
+                          if (selected) setSelectedShipping(selected);
+                        }}
                         style={{
-                          border: isSelected ? "1.5px solid #1D4ED8" : "1.5px solid #EAE5E0",
+                          width: "100%",
+                          height: 48,
                           borderRadius: 8,
-                          padding: 16,
-                          background: isSelected ? "#EFF6FF" : "white",
+                          border: "1.5px solid #D5CFC9",
+                          padding: "0 40px 0 16px",
+                          fontSize: "0.875rem",
+                          color: "#1F1B18",
+                          fontFamily: "inherit",
+                          appearance: "none",
+                          background: "white",
                           cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 12,
-                          transition: "all 0.15s ease",
+                          outline: "none",
                         }}
                       >
-                        <div style={{
-                          width: 18,
-                          height: 18,
-                          borderRadius: "50%",
-                          border: isSelected ? "5.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
-                          background: "white",
-                          flexShrink: 0,
-                          transition: "all 0.15s ease",
-                        }} />
-                        <div>
-                          <p style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1F1B18", marginBottom: 2 }}>
+                        {SHIPPING_METHODS.map((method) => (
+                          <option key={method.id} value={method.id}>
                             {method.name}
-                          </p>
-                          <p style={{ fontSize: "0.75rem", color: "#8E8680" }}>
-                            {method.desc}
-                          </p>
-                        </div>
+                          </option>
+                        ))}
+                      </select>
+                      <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", color: "#5C5550", pointerEvents: "none" }}>
+                        <ChevronDown size={18} />
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-            </div>
-
-            {/* RIGHT SIDEBAR */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              
-              {/* VOUCHER BLOCK */}
-              <div style={{
-                background: "white",
-                border: "1px solid #EAE5E0",
-                borderRadius: 12,
-                padding: 20,
-              }}>
-                <h4 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1F1B18", marginBottom: 12 }}>
-                  Makin Hemat dengan Promo
-                </h4>
-                <form onSubmit={handleApplyVoucher} style={{ display: "flex", gap: 8 }}>
-                  <div style={{ position: "relative", flex: 1 }}>
-                    <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#8E8680" }}>
-                      <Tag size={16} />
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="Masukkan kode voucher"
-                      value={voucherCode}
-                      onChange={(e) => setVoucherCode(e.target.value)}
-                      style={{
-                        width: "100%",
-                        height: 38,
-                        borderRadius: 6,
-                        border: "1.5px solid #D5CFC9",
-                        padding: "0 12px 0 36px",
-                        fontSize: "0.8125rem",
-                        color: "#1F1B18",
-                        fontFamily: "inherit",
-                        outline: "none",
-                      }}
-                    />
+                    </div>
                   </div>
-                  <button
-                    type="submit"
-                    style={{
-                      height: 38,
-                      padding: "0 16px",
-                      background: "#262524",
-                      color: "white",
-                      borderRadius: 6,
-                      fontSize: "0.8125rem",
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "background 0.15s",
-                    }}
-                  >
-                    Gunakan
-                  </button>
-                </form>
 
-                {voucherError && (
-                  <p style={{ fontSize: "0.75rem", color: "#DC2626", marginTop: 6, margin: "6px 0 0" }}>
-                    {voucherError}
-                  </p>
-                )}
-
-                {appliedVoucher && (
+                  {/* 4. PAYMENT METHOD */}
                   <div style={{
-                    marginTop: 10,
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    background: "#EBFDF2",
-                    border: "1px solid #BBF7D0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
+                    background: "white",
+                    border: "1px solid #EAE5E0",
+                    borderRadius: 12,
+                    padding: 24,
                   }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>
-                      Voucher {appliedVoucher.code} Aktif
-                    </span>
-                    <button
-                      onClick={() => setAppliedVoucher(null)}
-                      style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626", background: "none", border: "none", cursor: "pointer" }}
-                    >
-                      Batal
-                    </button>
+                    <h3 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#8E8680", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 16 }}>
+                      Pilih Pembayaran
+                    </h3>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                      {PAYMENT_METHODS.map((method) => {
+                        const isSelected = selectedPayment === method.id;
+                        return (
+                          <div
+                            key={method.id}
+                            onClick={() => setSelectedPayment(method.id)}
+                            style={{
+                              border: isSelected ? "1.5px solid #1D4ED8" : "1.5px solid #EAE5E0",
+                              borderRadius: 8,
+                              padding: 16,
+                              background: isSelected ? "#EFF6FF" : "white",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 12,
+                              transition: "all 0.15s ease",
+                            }}
+                          >
+                            <div style={{
+                              width: 18,
+                              height: 18,
+                              borderRadius: "50%",
+                              border: isSelected ? "5.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
+                              background: "white",
+                              flexShrink: 0,
+                              transition: "all 0.15s ease",
+                            }} />
+                            <div>
+                              <p style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1F1B18", marginBottom: 2 }}>
+                                {method.name}
+                              </p>
+                              <p style={{ fontSize: "0.75rem", color: "#8E8680" }}>
+                                {method.desc}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* SHOPPING SUMMARY */}
-              <div style={{
-                background: "white",
-                border: "1px solid #EAE5E0",
-                borderRadius: 12,
-                padding: 24,
-              }}>
-                <h4 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1F1B18", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>
-                  Ringkasan Belanja
-                </h4>
-                
-                <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: "0.8125rem", color: "#5C5550" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Total Harga ({ORDER_ITEMS.reduce((s, i) => s + i.quantity, 0)} Barang)</span>
-                    <span style={{ color: "#1F1B18" }}>Rp {totalItemPrice.toLocaleString("id-ID")}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Total Ongkos Kirim ({totalWeight.toFixed(1)} kg)</span>
-                    <span style={{ color: "#1F1B18" }}>Rp {shippingCost.toLocaleString("id-ID")}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Biaya Layanan</span>
-                    <span style={{ color: "#1F1B18" }}>Rp {serviceFee.toLocaleString("id-ID")}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "#15803D" }}>
-                    <span>Total Diskon</span>
-                    <span>-Rp {totalDiscount.toLocaleString("id-ID")}</span>
-                  </div>
-
-                  <div style={{ height: 1, background: "#EAE5E0", margin: "4px 0" }} />
-
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", fontSize: "0.875rem", fontWeight: 800 }}>
-                    <span style={{ color: "#1F1B18" }}>Total Tagihan</span>
-                    <span style={{ color: "#1D4ED8", fontSize: "1.25rem", letterSpacing: "-0.02em" }}>
-                      Rp {totalBill.toLocaleString("id-ID")}
-                    </span>
-                  </div>
                 </div>
 
-                <button
+                {/* RIGHT SIDEBAR */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  
+                  {/* VOUCHER BLOCK */}
+                  <div style={{
+                    background: "white",
+                    border: "1px solid #EAE5E0",
+                    borderRadius: 12,
+                    padding: 20,
+                  }}>
+                    <h4 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1F1B18", marginBottom: 12 }}>
+                      Makin Hemat dengan Promo
+                    </h4>
+                    <form onSubmit={handleApplyVoucher} style={{ display: "flex", gap: 8 }}>
+                      <div style={{ position: "relative", flex: 1 }}>
+                        <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#8E8680" }}>
+                          <Tag size={16} />
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="Masukkan kode voucher"
+                          value={voucherCode}
+                          onChange={(e) => setVoucherCode(e.target.value)}
+                          style={{
+                            width: "100%",
+                            height: 38,
+                            borderRadius: 6,
+                            border: "1.5px solid #D5CFC9",
+                            padding: "0 12px 0 36px",
+                            fontSize: "0.8125rem",
+                            color: "#1F1B18",
+                            fontFamily: "inherit",
+                            outline: "none",
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        style={{
+                          height: 38,
+                          padding: "0 16px",
+                          background: "#262524",
+                          color: "white",
+                          borderRadius: 6,
+                          fontSize: "0.8125rem",
+                          fontWeight: 700,
+                          border: "none",
+                          cursor: "pointer",
+                          transition: "background 0.15s",
+                        }}
+                      >
+                        Gunakan
+                      </button>
+                    </form>
+
+                    {voucherError && (
+                      <p style={{ fontSize: "0.75rem", color: "#DC2626", marginTop: 6, margin: "6px 0 0" }}>
+                        {voucherError}
+                      </p>
+                    )}
+
+                    {appliedVoucher && (
+                      <div style={{
+                        marginTop: 10,
+                        padding: "8px 12px",
+                        borderRadius: 6,
+                        background: "#EBFDF2",
+                        border: "1px solid #BBF7D0",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>
+                          Voucher {appliedVoucher.code} Aktif
+                        </span>
+                        <button
+                          onClick={() => setAppliedVoucher(null)}
+                          style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626", background: "none", border: "none", cursor: "pointer" }}
+                        >
+                          Batal
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SHOPPING SUMMARY */}
+                  <div style={{
+                    background: "white",
+                    border: "1px solid #EAE5E0",
+                    borderRadius: 12,
+                    padding: 24,
+                  }}>
+                    <h4 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1F1B18", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>
+                      Ringkasan Belanja
+                    </h4>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: "0.8125rem", color: "#5C5550" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>Total Harga ({items.reduce((s, i) => s + i.quantity, 0)} Barang)</span>
+                        <span style={{ color: "#1F1B18" }}>Rp {totalItemPrice.toLocaleString("id-ID")}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>Total Ongkos Kirim ({totalWeight.toFixed(1)} kg)</span>
+                        <span style={{ color: "#1F1B18" }}>Rp {shippingCost.toLocaleString("id-ID")}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>Biaya Layanan</span>
+                        <span style={{ color: "#1F1B18" }}>Rp {serviceFee.toLocaleString("id-ID")}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", color: "#15803D" }}>
+                        <span>Total Diskon</span>
+                        <span>-Rp {totalDiscount.toLocaleString("id-ID")}</span>
+                      </div>
+
+                      <div style={{ height: 1, background: "#EAE5E0", margin: "4px 0" }} />
+
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", fontSize: "0.875rem", fontWeight: 800 }}>
+                        <span style={{ color: "#1F1B18" }}>Total Tagihan</span>
+                        <span style={{ color: "#1D4ED8", fontSize: "1.25rem", letterSpacing: "-0.02em" }}>
+                          Rp {totalBill.toLocaleString("id-ID")}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
                   onClick={handlePayNow}
                   disabled={isProcessing}
                   style={{
@@ -497,6 +718,8 @@ export default function CheckoutPage() {
             </div>
 
           </div>
+            </>
+          )}
 
         </div>
       </main>
