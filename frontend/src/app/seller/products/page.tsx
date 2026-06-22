@@ -16,7 +16,24 @@ export default function SellerProductsPage() {
   const [newProductCategory, setNewProductCategory] = useState("Fashion Pria");
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newProductStock, setNewProductStock] = useState("");
+  const [newProductImage, setNewProductImage] = useState("");
+  const [newProductVariants, setNewProductVariants] = useState<{ label: string; values: string }[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Ukuran file terlalu besar! Maksimal 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewProductImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const loadSellerData = async () => {
     const currentUser = authService.getCurrentUser();
@@ -59,6 +76,14 @@ export default function SellerProductsPage() {
       return;
     }
     
+    // Map dynamic variants
+    const variants = newProductVariants
+      .map(v => ({
+        label: v.label.trim(),
+        values: v.values.split(",").map(val => val.trim()).filter(Boolean)
+      }))
+      .filter(v => v.label && v.values.length > 0);
+
     const newProduct = await productService.addProduct(
       seller.id_seller,
       newProductName,
@@ -66,7 +91,11 @@ export default function SellerProductsPage() {
       parseFloat(newProductPrice) || 0,
       parseInt(newProductStock) || 0,
       "Deskripsi produk baru",
-      (parseInt(newProductStock) || 0) > 0 ? "Aktif" : "Stok Habis"
+      (parseInt(newProductStock) || 0) > 0 ? "Aktif" : "Stok Habis",
+      newProductImage,
+      undefined,
+      undefined,
+      variants
     );
 
     if (newProduct) {
@@ -76,6 +105,8 @@ export default function SellerProductsPage() {
       setNewProductName("");
       setNewProductPrice("");
       setNewProductStock("");
+      setNewProductImage("");
+      setNewProductVariants([]);
     } else {
       alert("Gagal menambahkan produk.");
     }
@@ -269,6 +300,46 @@ export default function SellerProductsPage() {
             </div>
             
             <form onSubmit={handleAddProductSubmit} className="p-6 space-y-4">
+              {/* Foto Produk */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-secondary uppercase tracking-wider">Foto Produk</label>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 border-2 border-dashed border-surface-container-highest rounded-lg overflow-hidden flex items-center justify-center bg-surface-container-low relative group">
+                    {newProductImage ? (
+                      <>
+                        <img src={newProductImage} alt="Preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setNewProductImage("")}
+                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition"
+                        >
+                          Hapus
+                        </button>
+                      </>
+                    ) : (
+                      <span className="material-symbols-outlined text-secondary text-xl">image</span>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      id="upload-foto-produk"
+                      className="hidden"
+                    />
+                    <label 
+                      htmlFor="upload-foto-produk"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-surface-container-highest rounded text-xs font-bold text-secondary hover:bg-surface-container cursor-pointer transition"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">upload</span>
+                      Pilih Foto Produk
+                    </label>
+                    <p className="text-[10px] text-secondary">Mendukung format JPG, PNG, atau WEBP. Maks 2MB.</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-1">
                 <label className="block text-xs font-bold text-secondary uppercase tracking-wider">Nama Produk</label>
                 <input 
@@ -319,6 +390,82 @@ export default function SellerProductsPage() {
                   placeholder="10" 
                   className="w-full px-4 py-2 border border-surface-container-highest rounded bg-[#F5F5F5] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-body"
                 />
+              </div>
+
+              {/* Varian Produk Dinamis */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-secondary uppercase tracking-wider">
+                    Varian Produk (Opsional)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setNewProductVariants([...newProductVariants, { label: "", values: "" }])}
+                    className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline transition"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">add</span>
+                    Tambah Varian
+                  </button>
+                </div>
+
+                {newProductVariants.length === 0 ? (
+                  <p className="text-[11px] text-secondary italic">
+                    Belum ada varian produk. Tambahkan varian jika produk memiliki pilihan seperti Rasa, Kemasan, Ukuran, dll.
+                  </p>
+                ) : (
+                  <div className="space-y-3 max-h-[180px] overflow-y-auto pr-1">
+                    {newProductVariants.map((variant, idx) => (
+                      <div key={idx} className="flex gap-3 items-start bg-surface-container-low p-3 rounded-lg border border-surface-container-high relative">
+                        <div className="flex-1 space-y-2">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <label className="block text-[10px] font-bold text-secondary uppercase">Nama Varian</label>
+                              <input
+                                type="text"
+                                value={variant.label}
+                                required
+                                onChange={(e) => {
+                                  const updated = [...newProductVariants];
+                                  updated[idx].label = e.target.value;
+                                  setNewProductVariants(updated);
+                                }}
+                                placeholder="Contoh: Rasa, Ukuran, Kemasan"
+                                className="w-full px-3 py-1.5 border border-surface-container-highest rounded bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-body"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="block text-[10px] font-bold text-secondary uppercase">Nilai Pilihan</label>
+                              <input
+                                type="text"
+                                value={variant.values}
+                                required
+                                onChange={(e) => {
+                                  const updated = [...newProductVariants];
+                                  updated[idx].values = e.target.value;
+                                  setNewProductVariants(updated);
+                                }}
+                                placeholder="Contoh: Pedas, Manis, Asin"
+                                className="w-full px-3 py-1.5 border border-surface-container-highest rounded bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-body"
+                              />
+                            </div>
+                          </div>
+                          <p className="text-[9px] text-secondary">Pisahkan nilai pilihan dengan koma.</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = newProductVariants.filter((_, i) => i !== idx);
+                            setNewProductVariants(updated);
+                          }}
+                          className="p-1 hover:bg-error-container/30 rounded text-secondary hover:text-error transition self-center"
+                          title="Hapus Varian"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="pt-4 flex justify-end gap-3">

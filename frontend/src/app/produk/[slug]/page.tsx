@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -15,6 +16,7 @@ import {
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
 import Footer from "@/components/Footer";
+import { productService, Product } from "@/backend/productService";
 
 const THUMBNAILS = [
   "/product-detail-keramik.png",
@@ -64,9 +66,48 @@ const INITIAL_REVIEWS: Review[] = [
 ];
 
 export default function ProductDetailPage() {
+  const params = useParams();
+  const slug = params ? (Array.isArray(params.slug) ? params.slug[0] : params.slug) : "";
+
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeVariants, setActiveVariants] = useState<{ [key: number]: number }>({});
+
   const [activeImg, setActiveImg] = useState(0);
   const [activeColor, setActiveColor] = useState(0);
   const [activeSize, setActiveSize] = useState(0);
+
+  useEffect(() => {
+    async function loadProduct() {
+      if (!slug) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const allProducts = await productService.getProducts();
+        const found = allProducts.find(
+          (p) => 
+            p.id_produk === slug || 
+            (p.sku && p.sku.toLowerCase().includes(slug.toLowerCase())) ||
+            (p.slug && p.slug.toLowerCase() === slug.toLowerCase()) ||
+            (p.nama_produk && p.nama_produk.toLowerCase().replace(/\s+/g, "-") === slug.toLowerCase())
+        );
+        if (found) {
+          setProduct(found);
+          const initialSelections: { [key: number]: number } = {};
+          found.variants?.forEach((_, idx) => {
+            initialSelections[idx] = 0;
+          });
+          setActiveVariants(initialSelections);
+        }
+      } catch (err) {
+        console.error("Error loading product:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProduct();
+  }, [slug]);
 
   // Review & Delivery state variables
   const [reviews, setReviews] = useState([
@@ -116,6 +157,35 @@ export default function ProductDetailPage() {
   const totalRatingSum = 124 * 4.8 + reviews.reduce((sum, r) => sum + r.rating, 0) - INITIAL_REVIEWS.reduce((sum, r) => sum + r.rating, 0);
   const averageRating = (totalRatingSum / totalReviews).toFixed(1);
 
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <SearchBar />
+        <main style={{ background: "#FCFCFA", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              border: "3px solid #EAE5E0",
+              borderTop: "3px solid #1D4ED8",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite"
+            }} />
+            <p style={{ fontSize: "0.875rem", color: "#8E8680", fontWeight: 600 }}>Memuat detail produk...</p>
+          </div>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -129,9 +199,13 @@ export default function ProductDetailPage() {
           <nav style={{ display: "flex", alignItems: "center", gap: 6, padding: "16px 0 20px", fontSize: "0.8rem", color: "#8E8680" }}>
             <Link href="/" style={{ color: "#8E8680", textDecoration: "none" }}>Beranda</Link>
             <ChevronRight size={13} />
-            <Link href="/kategori/kerajinan" style={{ color: "#8E8680", textDecoration: "none" }}>Kerajinan Tangan</Link>
+            <Link href={`/kategori/${product ? product.category.toLowerCase() : "kerajinan"}`} style={{ color: "#8E8680", textDecoration: "none" }}>
+              {product ? product.category : "Kerajinan Tangan"}
+            </Link>
             <ChevronRight size={13} />
-            <span style={{ color: "#1F1B18", fontWeight: 600 }}>Mangkuk Keramik Motif Batik</span>
+            <span style={{ color: "#1F1B18", fontWeight: 600 }}>
+              {product ? product.nama_produk : "Mangkuk Keramik Motif Batik"}
+            </span>
           </nav>
 
           {/* ── Main Product Card ── */}
@@ -158,39 +232,39 @@ export default function ProductDetailPage() {
                 background: "#F8F6F4",
                 border: "1px solid #EAE5E0",
               }}>
-                <Image
-                  src={THUMBNAILS[activeImg]}
-                  alt="Mangkuk Keramik Motif Batik"
-                  fill
-                  style={{ objectFit: "cover" }}
-                  priority
+                <img
+                  src={product ? product.img : THUMBNAILS[activeImg]}
+                  alt={product ? product.nama_produk : "Mangkuk Keramik Motif Batik"}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </div>
 
               {/* Thumbnails */}
-              <div style={{ display: "flex", gap: 8 }}>
-                {THUMBNAILS.map((src, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImg(i)}
-                    style={{
-                      position: "relative",
-                      width: 72,
-                      height: 72,
-                      borderRadius: 8,
-                      overflow: "hidden",
-                      border: activeImg === i ? "2px solid #1D4ED8" : "2px solid transparent",
-                      cursor: "pointer",
-                      background: "#F8F6F4",
-                      padding: 0,
-                      flexShrink: 0,
-                      transition: "border-color 0.15s",
-                    }}
-                  >
-                    <Image src={src} alt={`Foto ${i + 1}`} fill style={{ objectFit: "cover" }} />
-                  </button>
-                ))}
-              </div>
+              {!product && (
+                <div style={{ display: "flex", gap: 8 }}>
+                  {THUMBNAILS.map((src, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImg(i)}
+                      style={{
+                        position: "relative",
+                        width: 72,
+                        height: 72,
+                        borderRadius: 8,
+                        overflow: "hidden",
+                        border: activeImg === i ? "2px solid #1D4ED8" : "2px solid transparent",
+                        cursor: "pointer",
+                        background: "#F8F6F4",
+                        padding: 0,
+                        flexShrink: 0,
+                        transition: "border-color 0.15s",
+                      }}
+                    >
+                      <Image src={src} alt={`Foto ${i + 1}`} fill style={{ objectFit: "cover" }} />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Right: Product Info */}
@@ -206,11 +280,11 @@ export default function ProductDetailPage() {
                 borderRadius: 3,
                 letterSpacing: "0.05em",
                 width: "fit-content",
-              }}>PRODUK UNGGULAN</span>
+              }}>{product ? product.category.toUpperCase() : "PRODUK UNGGULAN"}</span>
 
               {/* Product Name */}
               <h1 style={{ fontSize: "1.625rem", fontWeight: 800, color: "#1F1B18", lineHeight: 1.25, letterSpacing: "-0.02em", margin: 0 }}>
-                Mangkuk Keramik Motif Batik
+                {product ? product.nama_produk : "Mangkuk Keramik Motif Batik"}
               </h1>
 
               {/* Rating Row */}
@@ -222,71 +296,109 @@ export default function ProductDetailPage() {
                 </div>
                 <span style={{ fontSize: "0.8125rem", color: "#5C5550", fontWeight: 600 }}>{averageRating} | {totalReviews} Ulasan</span>
                 <span style={{ fontSize: "0.8125rem", color: "#8E8680" }}>·</span>
-                <span style={{ fontSize: "0.8125rem", color: "#8E8680" }}>Terjual 380+</span>
+                <span style={{ fontSize: "0.8125rem", color: "#8E8680" }}>Terjual {product ? "10+" : "380+"}</span>
               </div>
 
               {/* Price */}
               <div style={{ fontSize: "1.875rem", fontWeight: 800, color: "#1D4ED8", letterSpacing: "-0.02em" }}>
-                Rp 125.000
+                Rp {product ? product.harga.toLocaleString("id-ID") : "125.000"}
               </div>
 
               {/* Divider */}
               <div style={{ height: 1, background: "#EAE5E0" }} />
 
-              {/* Color Picker */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>Warna Pilihan</p>
-                <div style={{ display: "flex", gap: 10 }}>
-                  {COLORS.map((c, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveColor(i)}
-                      title={c.name}
-                      style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: "50%",
-                        background: c.hex,
-                        border: "2px solid transparent",
-                        cursor: "pointer",
-                        outline: "none",
-                        boxShadow: activeColor === i ? `0 0 0 3px white, 0 0 0 5px #1D4ED8` : "none",
-                        transition: "transform 0.15s, box-shadow 0.15s",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
+              {/* Dynamic or Static Variants */}
+              {product ? (
+                product.variants && product.variants.map((v, vIdx) => (
+                  <div key={vIdx} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>{v.label}</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {v.values.map((val, valIdx) => {
+                        const isSelected = activeVariants[vIdx] === valIdx;
+                        return (
+                          <button
+                            key={valIdx}
+                            type="button"
+                            onClick={() => setActiveVariants(prev => ({ ...prev, [vIdx]: valIdx }))}
+                            style={{
+                              height: 34,
+                              padding: "0 16px",
+                              borderRadius: 6,
+                              border: isSelected ? "1.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
+                              fontSize: "0.8125rem",
+                              fontWeight: 600,
+                              color: isSelected ? "#1D4ED8" : "#5C5550",
+                              background: isSelected ? "#EFF6FF" : "white",
+                              cursor: "pointer",
+                              transition: "all 0.15s",
+                              fontFamily: "inherit",
+                            }}
+                          >
+                            {val}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <>
+                  {/* Color Picker */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>Warna Pilihan</p>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      {COLORS.map((c, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveColor(i)}
+                          title={c.name}
+                          style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: "50%",
+                            background: c.hex,
+                            border: "2px solid transparent",
+                            cursor: "pointer",
+                            outline: "none",
+                            boxShadow: activeColor === i ? `0 0 0 3px white, 0 0 0 5px #1D4ED8` : "none",
+                            transition: "transform 0.15s, box-shadow 0.15s",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
 
-              {/* Size Picker */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>Ukuran (Diameter)</p>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {SIZES.map((s, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveSize(i)}
-                      style={{
-                        height: 34,
-                        padding: "0 16px",
-                        borderRadius: 6,
-                        border: activeSize === i ? "1.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
-                        fontSize: "0.8125rem",
-                        fontWeight: 600,
-                        color: activeSize === i ? "#1D4ED8" : "#5C5550",
-                        background: activeSize === i ? "#EFF6FF" : "white",
-                        cursor: "pointer",
-                        transition: "all 0.15s",
-                        fontFamily: "inherit",
-                      }}
-                    >{s}</button>
-                  ))}
-                </div>
-              </div>
+                  {/* Size Picker */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>Ukuran (Diameter)</p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {SIZES.map((s, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveSize(i)}
+                          style={{
+                            height: 34,
+                            padding: "0 16px",
+                            borderRadius: 6,
+                            border: activeSize === i ? "1.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
+                            fontSize: "0.8125rem",
+                            fontWeight: 600,
+                            color: activeSize === i ? "#1D4ED8" : "#5C5550",
+                            background: activeSize === i ? "#EFF6FF" : "white",
+                            cursor: "pointer",
+                            transition: "all 0.15s",
+                            fontFamily: "inherit",
+                          }}
+                        >{s}</button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Description */}
               <p style={{ fontSize: "0.875rem", color: "#5C5550", lineHeight: 1.7, margin: 0 }}>
-                Mangkuk keramik eksklusif yang dibuat oleh perajin lokal dengan teknik pembakaran suhu tinggi untuk daya tahan maksimal. Dihiasi dengan motif batik klasik yang dilukis tangan menggunakan bahan pewarna alami yang aman untuk makanan (Food Grade). Cocok sebagai pelengkap meja makan mewah atau hadiah spesial.
+                {product ? product.desc : "Mangkuk keramik eksklusif yang dibuat oleh perajin lokal dengan teknik pembakaran suhu tinggi untuk daya tahan maksimal. Dihiasi dengan motif batik klasik yang dilukis tangan menggunakan bahan pewarna alami yang aman untuk makanan (Food Grade). Cocok sebagai pelengkap meja makan mewah atau hadiah spesial."}
               </p>
 
               {/* CTA Buttons */}
