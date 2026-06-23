@@ -1,0 +1,3 @@
+# Ignore nested repository backups and residual directories
+/Pelum/
+/_Pelum_backup/
