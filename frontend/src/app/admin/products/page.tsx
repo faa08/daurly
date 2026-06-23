@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { authService } from "@/backend/authService";
 import { sellerService, Seller } from "@/backend/sellerService";
 import { productService, Product } from "@/backend/productService";
+import { supabase } from "@/backend/supabase";
 
 export default function AdminProductsPage() {
   const router = useRouter();
@@ -18,8 +19,9 @@ export default function AdminProductsPage() {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("");
   const [selectedSellerFilter, setSelectedSellerFilter] = useState("");
 
-  // Modal states
+  // Modal & Edit states
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newProductName, setNewProductName] = useState("");
   const [newProductSellerId, setNewProductSellerId] = useState("");
   const [newProductCategory, setNewProductCategory] = useState("");
@@ -29,6 +31,9 @@ export default function AdminProductsPage() {
   const [newProductStock, setNewProductStock] = useState("");
   const [newProductDescription, setNewProductDescription] = useState("");
   const [newProductImage, setNewProductImage] = useState("");
+  const [newProductWeight, setNewProductWeight] = useState("");
+  const [useManualUrl, setUseManualUrl] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   const loadData = async () => {
     // 1. Auth check
@@ -71,6 +76,36 @@ export default function AdminProductsPage() {
     }
   }, [newProductSellerId, sellers]);
 
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setEditingProduct(null);
+    setNewProductName("");
+    setNewProductPrice("");
+    setNewProductStock("");
+    setNewProductDescription("");
+    setNewProductImage("");
+    setNewProductCode("");
+    setNewProductWeight("");
+    setUploadProgress(null);
+    setUseManualUrl(false);
+  };
+
+  const handleEditClick = (p: Product) => {
+    setEditingProduct(p);
+    setNewProductName(p.nama_produk);
+    setNewProductSellerId(p.id_seller);
+    const foundCat = categories.find(c => c.nama_kategori === p.category);
+    setNewProductCategory(foundCat ? foundCat.id_kategori : "");
+    setNewProductBrandName(p.nama_brand || "");
+    setNewProductCode(p.kode_produk || "");
+    setNewProductPrice(p.harga.toString());
+    setNewProductStock(p.stok.toString());
+    setNewProductDescription(p.desc);
+    setNewProductImage(p.img);
+    setNewProductWeight(p.berat ? p.berat.toString() : "0");
+    setShowAddModal(true);
+  };
+
   const handleDelete = async (sku: string, name: string) => {
     if (confirm(`Apakah Anda yakin ingin menghapus produk ${name}?`)) {
       const success = await productService.deleteProduct(sku);
@@ -83,6 +118,61 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Ukuran gambar terlalu besar! Maksimal adalah 2MB.");
+        return;
+      }
+
+      setUploadProgress(0);
+      setNewProductImage("");
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}-${Date.now()}.${fileExt}`;
+      const filePath = `product-images/${fileName}`;
+
+      let uploadedUrl = "";
+      try {
+        setUploadProgress(20);
+        const { data, error } = await supabase.storage
+          .from("products")
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) throw error;
+        setUploadProgress(80);
+
+        const { data: publicUrlData } = supabase.storage
+          .from("products")
+          .getPublicUrl(filePath);
+
+        if (publicUrlData && publicUrlData.publicUrl) {
+          uploadedUrl = publicUrlData.publicUrl;
+        } else {
+          throw new Error("Gagal mendapatkan public URL.");
+        }
+
+        setUploadProgress(100);
+        setNewProductImage(uploadedUrl);
+      } catch (err) {
+        console.warn("Gagal mengunggah ke Supabase Storage, menggunakan mode fallback base64...", err);
+        setUploadProgress(50);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target && event.target.result) {
+            setNewProductImage(event.target.result as string);
+            setUploadProgress(100);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
   const handleAddProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProductSellerId) {
@@ -90,31 +180,50 @@ export default function AdminProductsPage() {
       return;
     }
 
-    const newProduct = await productService.addProduct(
-      newProductSellerId,
-      newProductName,
-      newProductCategory || null,
-      parseFloat(newProductPrice) || 0,
-      parseInt(newProductStock) || 0,
-      newProductDescription || "Deskripsi produk baru",
-      newProductImage || undefined,
-      (parseInt(newProductStock) || 0) > 0 ? "Aktif" : "Stok Habis",
-      newProductBrandName,
-      newProductCode || undefined
-    );
+    if (editingProduct) {
+      const success = await productService.updateProduct(
+        editingProduct.id_produk,
+        newProductName,
+        newProductCategory || null,
+        parseFloat(newProductPrice) || 0,
+        parseInt(newProductStock) || 0,
+        newProductDescription || "Deskripsi produk baru",
+        newProductImage || undefined,
+        (parseInt(newProductStock) || 0) > 0 ? "Aktif" : "Stok Habis",
+        newProductBrandName,
+        newProductCode || undefined,
+        parseInt(newProductWeight) || 0
+      );
 
-    if (newProduct) {
-      alert("Produk berhasil ditambahkan!");
-      loadData();
-      setShowAddModal(false);
-      setNewProductName("");
-      setNewProductPrice("");
-      setNewProductStock("");
-      setNewProductDescription("");
-      setNewProductImage("");
-      setNewProductCode("");
+      if (success) {
+        alert("Produk berhasil diupdate!");
+        loadData();
+        handleCloseModal();
+      } else {
+        alert("Gagal mengupdate produk.");
+      }
     } else {
-      alert("Gagal menambahkan produk.");
+      const newProduct = await productService.addProduct(
+        newProductSellerId,
+        newProductName,
+        newProductCategory || null,
+        parseFloat(newProductPrice) || 0,
+        parseInt(newProductStock) || 0,
+        newProductDescription || "Deskripsi produk baru",
+        newProductImage || undefined,
+        (parseInt(newProductStock) || 0) > 0 ? "Aktif" : "Stok Habis",
+        newProductBrandName,
+        newProductCode || undefined,
+        parseInt(newProductWeight) || 0
+      );
+
+      if (newProduct) {
+        alert("Produk berhasil ditambahkan!");
+        loadData();
+        handleCloseModal();
+      } else {
+        alert("Gagal menambahkan produk.");
+      }
     }
   };
 
@@ -274,7 +383,7 @@ export default function AdminProductsPage() {
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-3">
                       <button 
-                        onClick={() => alert(`Edit SKU: ${p.sku}`)}
+                        onClick={() => handleEditClick(p)}
                         className="p-1.5 hover:bg-[#F5F3F0] rounded text-[#8E8680] hover:text-[#1F1B18] transition"
                         title="Edit Produk"
                       >
@@ -313,14 +422,16 @@ export default function AdminProductsPage() {
         </div>
       </section>
 
-      {/* Stateful Add Product Modal Overlay */}
+      {/* Stateful Add/Edit Product Modal Overlay */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6 backdrop-blur-xs">
           <div className="bg-white border border-[#EAE5E0] rounded-xl max-w-lg w-full overflow-hidden shadow-xl animate-scale-in">
             <div className="px-6 py-4 border-b border-[#EAE5E0] flex justify-between items-center bg-[#F5F3F0]/50">
-              <h3 className="font-headline font-bold text-base text-[#1F1B18]">Tambah Produk Baru</h3>
+              <h3 className="font-headline font-bold text-base text-[#1F1B18]">
+                {editingProduct ? "Edit Produk" : "Tambah Produk Baru"}
+              </h3>
               <button 
-                onClick={() => setShowAddModal(false)}
+                onClick={handleCloseModal}
                 className="text-[#8E8680] hover:text-[#1F1B18] transition"
               >
                 <span className="material-symbols-outlined">close</span>
@@ -397,7 +508,7 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1.5 text-left">
                   <label className="block text-[11px] uppercase tracking-wider text-[#8E8680]">Harga (Rp)</label>
                   <input 
@@ -421,17 +532,100 @@ export default function AdminProductsPage() {
                     className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
                   />
                 </div>
+
+                <div className="space-y-1.5 text-left">
+                  <label className="block text-[11px] uppercase tracking-wider text-[#8E8680]">Berat (Gram)</label>
+                  <input 
+                    type="number" 
+                    required
+                    value={newProductWeight}
+                    onChange={(e) => setNewProductWeight(e.target.value)}
+                    placeholder="500" 
+                    className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1.5 text-left">
-                <label className="block text-[11px] uppercase tracking-wider text-[#8E8680]">URL Gambar Produk</label>
-                <input 
-                  type="text" 
-                  value={newProductImage}
-                  onChange={(e) => setNewProductImage(e.target.value)}
-                  placeholder="https://example.com/image.jpg" 
-                  className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
-                />
+                <label className="block text-[11px] uppercase tracking-wider text-[#8E8680]">Gambar Produk</label>
+                {useManualUrl ? (
+                  <div className="space-y-2">
+                    <input 
+                      type="text" 
+                      value={newProductImage}
+                      onChange={(e) => setNewProductImage(e.target.value)}
+                      placeholder="https://example.com/image.jpg" 
+                      className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setUseManualUrl(false)}
+                      className="text-[10px] text-[#1D4ED8] font-bold hover:underline"
+                    >
+                      ← Unggah File Gambar
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="border border-dashed border-[#D5CFC9] rounded-lg p-6 flex flex-col items-center justify-center bg-[#FCFCFA] relative cursor-pointer hover:bg-[#F5F3F0]/50 transition">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                        onChange={handleImageUpload}
+                      />
+                      
+                      {uploadProgress === null && !newProductImage && (
+                        <div className="text-center">
+                          <span className="material-symbols-outlined text-[#8E8680] text-[32px] mb-1">
+                            add_photo_alternate
+                          </span>
+                          <p className="text-xs font-bold text-[#1F1B18]">Pilih atau Tarik Foto Produk</p>
+                          <p className="text-[10px] text-[#8E8680] mt-1">Maks. 2MB (Format: JPG, PNG, WEBP)</p>
+                        </div>
+                      )}
+
+                      {uploadProgress !== null && uploadProgress < 100 && (
+                        <div className="w-full text-center space-y-2">
+                          <p className="text-xs font-bold text-[#1D4ED8]">Mengunggah: {uploadProgress}%</p>
+                          <div className="w-full h-1.5 bg-[#EAE5E0] rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-[#1D4ED8] transition-all duration-100" 
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {newProductImage && uploadProgress === 100 && (
+                        <div className="flex flex-col items-center gap-2">
+                          <p className="text-[11px] font-bold text-green-600">✓ Gambar Siap Digunakan</p>
+                          <div className="w-20 h-20 rounded border border-[#EAE5E0] overflow-hidden bg-[#F5F3F0]">
+                            <img src={newProductImage} alt="Preview" className="w-full h-full object-cover" />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setNewProductImage("");
+                              setUploadProgress(null);
+                            }}
+                            className="text-[10px] text-red-600 font-bold hover:underline"
+                          >
+                            Hapus Gambar
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setUseManualUrl(true)}
+                      className="text-[10px] text-[#8E8680] font-semibold hover:underline"
+                    >
+                      Masukkan URL Gambar Secara Manual
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1.5 text-left">
@@ -449,7 +643,7 @@ export default function AdminProductsPage() {
               <div className="pt-4 flex justify-end gap-3 border-t border-[#EAE5E0]">
                 <button 
                   type="button" 
-                  onClick={() => setShowAddModal(false)}
+                  onClick={handleCloseModal}
                   className="px-4 py-2 border border-[#D5CFC9] text-[#5C5550] hover:bg-[#F5F3F0] text-xs font-bold rounded transition"
                 >
                   Batal
@@ -458,7 +652,7 @@ export default function AdminProductsPage() {
                   type="submit" 
                   className="px-4 py-2 bg-[#1D4ED8] text-white text-xs font-bold rounded hover:bg-blue-700 transition"
                 >
-                  Simpan Produk
+                  {editingProduct ? "Simpan Perubahan" : "Simpan Produk"}
                 </button>
               </div>
             </form>

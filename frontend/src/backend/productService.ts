@@ -17,6 +17,7 @@ export interface Product {
   nama_brand?: string;
   kode_produk?: string;
   variants?: { label: string; values: string[] }[];
+  berat?: number;
 }
 
 const isPlaceholder = () => {
@@ -116,7 +117,8 @@ export const productService = {
           desc: p.desc || "",
           created_at: p.created_at,
           nama_brand: p.nama_brand,
-          kode_produk: p.kode_produk
+          kode_produk: p.kode_produk,
+          berat: p.berat || 0
         };
       });
     } catch (err) {
@@ -170,7 +172,8 @@ export const productService = {
           desc: p.desc || "",
           created_at: p.created_at,
           nama_brand: p.nama_brand,
-          kode_produk: p.kode_produk
+          kode_produk: p.kode_produk,
+          berat: p.berat || 0
         };
       });
     } catch (err) {
@@ -190,7 +193,8 @@ export const productService = {
     img?: string,
     status: "Aktif" | "Stok Habis" | "Dalam Review" = "Aktif",
     nama_brand?: string,
-    kode_produk?: string
+    kode_produk?: string,
+    berat?: number
   ): Promise<Product | null> {
     console.log("Calling productService.addProduct for product:", nama_produk);
 
@@ -239,7 +243,8 @@ export const productService = {
       desc: desc || "Deskripsi produk baru",
       created_at: new Date().toISOString(),
       nama_brand: nama_brand || "UMKM Lokal",
-      kode_produk: finalKodeProduk
+      kode_produk: finalKodeProduk,
+      berat: berat || 0
     };
 
     if (isPlaceholder()) {
@@ -270,7 +275,8 @@ export const productService = {
           stat_produk: newProduct.stok > 0 ? "tersedia" : "tidak tersedia",
           img: newProduct.img,
           nama_brand: newProduct.nama_brand,
-          kode_produk: newProduct.kode_produk
+          kode_produk: newProduct.kode_produk,
+          berat: newProduct.berat
         });
 
       if (error) {
@@ -282,6 +288,94 @@ export const productService = {
     } catch (err) {
       console.error("productService addProduct failed:", err);
       return null;
+    }
+  },
+
+  // Update product details
+  async updateProduct(
+    id_produk: string,
+    nama_produk: string,
+    id_kategori: string | null,
+    harga: number,
+    stok: number,
+    desc: string,
+    img?: string,
+    status: "Aktif" | "Stok Habis" | "Dalam Review" = "Aktif",
+    nama_brand?: string,
+    kode_produk?: string,
+    berat?: number
+  ): Promise<boolean> {
+    console.log("Calling productService.updateProduct for ID:", id_produk);
+
+    if (isPlaceholder()) {
+      console.warn("Using fallback local storage update product");
+      const stored = localStorage.getItem("pelum_products");
+      if (stored) {
+        const products = JSON.parse(stored) as Product[];
+        const idx = products.findIndex(p => p.id_produk === id_produk);
+        if (idx !== -1) {
+          let catName = "UMKM Lokal";
+          if (id_kategori) {
+            const mockCats = [
+              { id_kategori: "cat-1", nama_kategori: "Fashion Pria" },
+              { id_kategori: "cat-2", nama_kategori: "Tekstil" },
+              { id_kategori: "cat-3", nama_kategori: "Aksesoris" },
+              { id_kategori: "cat-4", nama_kategori: "Kuliner" }
+            ];
+            const foundMock = mockCats.find(c => c.id_kategori === id_kategori);
+            if (foundMock) catName = foundMock.nama_kategori;
+          }
+
+          products[idx] = {
+            ...products[idx],
+            nama_produk,
+            category: catName,
+            harga,
+            stok,
+            status,
+            img: img || products[idx].img,
+            desc,
+            nama_brand: nama_brand || products[idx].nama_brand,
+            kode_produk: kode_produk || products[idx].kode_produk,
+            berat: berat || 0
+          };
+          localStorage.setItem("pelum_products", JSON.stringify(products));
+          return true;
+        }
+      }
+      return false;
+    }
+
+    const dbCategoryId = id_kategori && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id_kategori)
+      ? id_kategori
+      : null;
+
+    try {
+      const { error } = await supabase
+        .from("produk")
+        .update({
+          nama_produk,
+          id_kategori: dbCategoryId,
+          harga,
+          produk_stock: stok,
+          stat_produk: stok > 0 ? "tersedia" : "tidak tersedia",
+          img,
+          desc,
+          nama_brand,
+          kode_produk,
+          berat,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id_produk", id_produk);
+
+      if (error) {
+        console.error("Supabase update product error:", error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error("productService.updateProduct failed:", err);
+      return false;
     }
   },
 
