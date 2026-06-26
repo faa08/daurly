@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 function projectRefFromUrl(url: string): string | null {
   const match = url.match(/https:\/\/([^.]+)\.supabase\.co/);
@@ -19,7 +19,7 @@ function projectRefFromJwt(key: string): string | null {
  * Bypass RLS sehingga operasi admin (tambah toko, dll.) tidak diblokir policy.
  */
 export function createSupabaseAdmin(): {
-  client: ReturnType<typeof createClient> | null;
+  client: SupabaseClient | null;
   error: string | null;
 } {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

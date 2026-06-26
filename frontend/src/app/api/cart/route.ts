@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
       .order("added_at", { ascending: false });
 
     if (error) throw error;
-    return NextResponse.json({ items: mapCartItems((data || []) as CartRow[]) });
+    return NextResponse.json({ items: mapCartItems((data || []) as unknown as CartRow[]) });
   } catch (err: unknown) {
     const e = err as { message?: string; code?: string };
     console.error("API cart GET failed:", e.message || err);

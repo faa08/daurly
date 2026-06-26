@@ -379,7 +379,7 @@ export const adminService = {
         .from("order")
         .select(`
           id_order, stat_order, tipe_pembayaran,
-          payment ( stat_pay ),
+          payment ( stat_pay, metod_pay ),
           pengiriman ( kurir )
         `)
         .eq("tipe_pembayaran", "digital")

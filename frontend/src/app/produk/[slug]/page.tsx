@@ -244,7 +244,7 @@ export default function ProductDetailPage() {
             const selesaiOrder = orderItems?.[0]?.order;
             const orderId = Array.isArray(selesaiOrder)
               ? selesaiOrder[0]?.id_order
-              : (selesaiOrder as { id_order?: string } | null)?.id_order;
+              : (selesaiOrder as unknown as { id_order?: string } | null)?.id_order;
 
             if (orderId) {
               const reviewed = await returnService.getReviewedProductIds(user.id_user, [found.id_produk]);

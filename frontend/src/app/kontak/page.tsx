@@ -6,6 +6,7 @@ import { ChevronRight, Mail, Phone, MapPin, Clock, Send, CheckCircle, MessageSqu
 import { supportService } from "@/backend/supportService";
 import { authService } from "@/backend/authService";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 const CONTACT_CARDS = [
   { icon: <Mail size={20} />, title: "Email", value: "support@pelataranumkm.id", sub: "Balas dalam 1×24 jam kerja", href: "mailto:support@pelataranumkm.id" },

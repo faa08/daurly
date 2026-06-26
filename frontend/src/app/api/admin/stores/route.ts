@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase-admin";
 import { generateStoreEmail } from "@/backend/sellerService";
 
+type UserRow = { id_user: string; role: string };
+type SellerRow = { id_seller: string };
+
 export async function GET() {
   const { client: admin, error: configError } = createSupabaseAdmin();
   if (!admin) {
@@ -53,7 +56,7 @@ export async function POST(request: NextRequest) {
       .from("users")
       .select("id_user, role")
       .eq("email", email)
-      .maybeSingle();
+      .maybeSingle<UserRow>();
 
     if (findUserError) throw findUserError;
 
@@ -93,7 +96,7 @@ export async function POST(request: NextRequest) {
       .from("seller")
       .select("id_seller")
       .eq("id_user", id_user)
-      .maybeSingle();
+      .maybeSingle<SellerRow>();
 
     if (existingSeller) {
       return NextResponse.json(

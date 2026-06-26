@@ -80,7 +80,7 @@ function parseVariants(raw: unknown): ProductVariant[] {
             image: o.image ? String(o.image) : undefined,
             price: o.price != null && o.price !== "" ? Number(o.price) : undefined,
           }))
-          .filter((o) => o.name);
+          .filter((o: { name: string }) => o.name);
         if (options.length) groups.push({ label, options });
         continue;
       }
@@ -89,7 +89,7 @@ function parseVariants(raw: unknown): ProductVariant[] {
       if (Array.isArray(v.values)) {
         const options = v.values
           .map((x: unknown) => ({ name: String(x).trim() }))
-          .filter((o) => o.name);
+          .filter((o: { name: string }) => o.name);
         if (options.length) groups.push({ label, options });
       }
     }
@@ -308,7 +308,7 @@ export const productService = {
         return [];
       }
 
-      return (data || []).map((p) => mapDbRowToProduct(p as Record<string, unknown>));
+      return (data || []).map((p) => mapDbRowToProduct(p as unknown as Record<string, unknown>));
     } catch (err) {
       console.error("productService getProducts failed:", err);
       return [];
@@ -339,7 +339,7 @@ export const productService = {
         return [];
       }
 
-      return (data || []).map((p) => mapDbRowToProduct(p as Record<string, unknown>));
+      return (data || []).map((p) => mapDbRowToProduct(p as unknown as Record<string, unknown>));
     } catch (err) {
       console.error("productService getProductsBySeller failed:", err);
       return [];
@@ -768,7 +768,7 @@ export const productService = {
       if (error) throw error;
       if (!data) return null;
 
-      const mapped = mapDbRowToProduct(data as Record<string, unknown>);
+      const mapped = mapDbRowToProduct(data as unknown as Record<string, unknown>);
       return {
         ...mapped,
         seller: data.seller,

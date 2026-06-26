@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Item keranjang tidak ditemukan." }, { status: 404 });
     }
 
-    const validItems = (cartItems as CartRow[]).filter((i) => i.produk);
+    const validItems = (cartItems as unknown as CartRow[]).filter((i) => i.produk);
     if (!validItems.length) {
       return NextResponse.json({ error: "Produk tidak valid." }, { status: 400 });
     }
