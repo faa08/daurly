@@ -13,7 +13,7 @@ type OrderItem = {
   id_order_item: string;
   qty_orderitem: number;
   hrg_saat_beli: number;
-  produk: { id_produk: string; nama_produk: string; img: string } | null;
+  produk: { id_produk: string; nama_produk: string; cover_img?: string | null; img?: string | null } | null;
 };
 
 type Order = {
@@ -115,7 +115,7 @@ export default function CustomerOrdersPage() {
           seller ( nm_store ),
           order_item (
             id_order_item, qty_orderitem, hrg_saat_beli,
-            produk ( id_produk, nama_produk, img )
+            produk ( id_produk, nama_produk, cover_img )
           ),
           pengiriman ( kurir, no_resi, stat_kirim )
         `)
@@ -280,7 +280,7 @@ export default function CustomerOrdersPage() {
                     <div className="flex gap-4">
                       <div className="w-16 h-16 bg-surface-container rounded overflow-hidden shrink-0">
                         <img
-                          src={parseProductImg(produk?.img)}
+                          src={parseProductImg(produk?.cover_img || produk?.img)}
                           alt={produk?.nama_produk ?? "Produk"}
                           className="w-full h-full object-cover"
                         />
@@ -351,7 +351,7 @@ export default function CustomerOrdersPage() {
                     <div className="flex items-center gap-4 flex-1">
                       <div className="w-16 h-16 bg-surface-container rounded overflow-hidden shrink-0">
                         <img
-                          src={parseProductImg(firstItem.produk?.img)}
+                          src={parseProductImg(firstItem.produk?.cover_img || firstItem.produk?.img)}
                           alt={firstItem.produk?.nama_produk ?? "Produk"}
                           className="w-full h-full object-cover"
                         />

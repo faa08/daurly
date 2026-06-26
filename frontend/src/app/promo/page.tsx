@@ -52,7 +52,7 @@ export default function PromoPage() {
 
   useEffect(() => {
     async function load() {
-      const data = await productService.getProducts({ publicOnly: true, limit: 20, includeImages: true });
+      const data = await productService.getProducts({ publicOnly: true, limit: 20 });
       const stats = await productService.getProductStats(data.map((p) => p.id_produk));
       const items: PromoItem[] = data.map((p) => {
         const card = productToCard(p, stats[p.id_produk]);

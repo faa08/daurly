@@ -64,7 +64,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug?: stri
   useEffect(() => {
     async function loadProducts() {
       try {
-        const data = await productService.getProducts({ publicOnly: true, limit: 200, includeImages: true });
+        const data = await productService.getProducts({ publicOnly: true, limit: 80 });
         const mapped = data.map((p: any) => ({
           id: p.id_produk,
           slug: p.slug || p.id_produk,

@@ -283,25 +283,41 @@ export const productService = {
     }
 
     try {
-      const selectCols = options?.includeFullDetails
-        ? PRODUCT_FULL_SELECT
-        : buildListSelect(options?.publicOnly, options?.includeImages);
-      const cap = options?.limit ?? 200;
+      const cap = options?.limit ?? (options?.publicOnly ? 80 : 200);
+      const useImages = options?.includeImages === true && !options?.publicOnly;
 
-      let query = supabase
-        .from("produk")
-        .select(selectCols)
-        .order("created_at", { ascending: false })
-        .limit(cap);
+      const runQuery = async (includeImages: boolean) => {
+        const selectCols = options?.includeFullDetails
+          ? PRODUCT_FULL_SELECT
+          : buildListSelect(options?.publicOnly, includeImages);
 
-      if (options?.publicOnly) {
-        query = query
-          .eq("stat_produk", "tersedia")
-          .gt("produk_stock", 0)
-          .eq("seller.is_verified", true);
+        let query = supabase
+          .from("produk")
+          .select(selectCols)
+          .order("created_at", { ascending: false })
+          .limit(cap);
+
+        if (options?.publicOnly) {
+          query = query
+            .eq("stat_produk", "tersedia")
+            .gt("produk_stock", 0)
+            .eq("seller.is_verified", true);
+        }
+
+        return query;
+      };
+
+      let { data, error } = await (await runQuery(useImages));
+
+      if (
+        error &&
+        (error.message?.includes("timeout") ||
+          error.message?.includes("canceling statement") ||
+          error.code === "57014")
+      ) {
+        console.warn("[productService] Query timeout — retry tanpa kolom img, pakai cover_img saja.");
+        ({ data, error } = await (await runQuery(false)));
       }
-
-      const { data, error } = await query;
 
       if (error) {
         logSupabaseError("Supabase get products error:", error);
@@ -329,7 +345,7 @@ export const productService = {
     try {
       const { data, error } = await supabase
         .from("produk")
-        .select(buildListSelect(false, true))
+        .select(buildListSelect(false, false))
         .eq("id_seller", sellerId)
         .order("created_at", { ascending: false })
         .limit(200);
@@ -959,7 +975,7 @@ export const productService = {
   },
 
   async searchProducts(query: string, limit = 50): Promise<Product[]> {
-    const all = await this.getProducts({ publicOnly: true, limit: 200, includeImages: true });
+    const all = await this.getProducts({ publicOnly: true, limit: 120 });
     const q = query.trim().toLowerCase();
     if (!q) return all.slice(0, limit);
     return all

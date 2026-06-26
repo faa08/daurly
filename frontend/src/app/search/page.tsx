@@ -37,7 +37,7 @@ function SearchContent() {
       setLoading(true);
       const data = query
         ? await productService.searchProducts(query, 100)
-        : await productService.getProducts({ publicOnly: true, limit: 100, includeImages: true });
+        : await productService.getProducts({ publicOnly: true, limit: 80 });
       const stats = await productService.getProductStats(data.map((p) => p.id_produk));
       setProducts(data.map((p) => productToCard(p, stats[p.id_produk])));
       setLoading(false);

@@ -23,19 +23,24 @@ export default function FeaturedProducts({ searchQuery = "" }: FeaturedProductsP
   useEffect(() => {
     async function loadProducts() {
       try {
-        const data = await productService.getProducts({ publicOnly: true, limit: 10, includeImages: true });
-        const stats = await productService.getProductStats(data.map((p) => p.id_produk));
-        const mapped = data.map((p) => {
-          const card = productToCard(p, stats[p.id_produk]);
-          return {
-            ...card,
+        const data = await productService.getProducts({ publicOnly: true, limit: 10 });
+        setProducts(
+          data.map((p) => ({
+            ...productToCard(p),
             badge: p.stok === 0 ? "Habis" : "Unggulan",
-          };
-        });
-        setProducts(mapped);
+          }))
+        );
+        setLoading(false);
+
+        const stats = await productService.getProductStats(data.map((p) => p.id_produk));
+        setProducts(
+          data.map((p) => ({
+            ...productToCard(p, stats[p.id_produk]),
+            badge: p.stok === 0 ? "Habis" : "Unggulan",
+          }))
+        );
       } catch (err) {
         console.error("Failed to load featured products:", err);
-      } finally {
         setLoading(false);
       }
     }

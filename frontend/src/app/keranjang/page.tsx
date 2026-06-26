@@ -70,7 +70,7 @@ export default function CartPage() {
   const [allChecked, setAllChecked] = useState(false);
 
   useEffect(() => {
-    productService.getProducts({ publicOnly: true, limit: 4, includeImages: true }).then(async (data) => {
+    productService.getProducts({ publicOnly: true, limit: 4 }).then(async (data) => {
       const stats = await productService.getProductStats(data.map((p) => p.id_produk));
       setRecommended(data.map((p) => productToCard(p, stats[p.id_produk])));
     });
