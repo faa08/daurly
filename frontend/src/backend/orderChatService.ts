@@ -84,6 +84,18 @@ export const orderChatService = {
     return data.room || null;
   },
 
+  async deleteChat(chatId: string): Promise<boolean> {
+    const res = await apiFetch("/api/order-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "delete", chatId }),
+    });
+    if (res.ok && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("pelum-notif-refresh"));
+    }
+    return res.ok;
+  },
+
   async listRoomsForAdmin(): Promise<OrderChatRoom[]> {
     const res = await apiFetch("/api/order-chat?list=admin");
     const data = await res.json();

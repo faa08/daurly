@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import { authService } from "@/backend/authService";
 import { cartService } from "@/backend/cartService";
 import { orderService } from "@/backend/orderService";
-
+import { apiFetch } from "@/lib/api-client";
 interface UICartItem {
   id_cart_item: string;
   id_produk: string;
@@ -66,6 +66,7 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [voucher, setVoucher] = useState("");
   const [voucherApplied, setVoucherApplied] = useState(false);
+  const [voucherDetails, setVoucherDetails] = useState<any | null>(null);
   const [recommended, setRecommended] = useState<ProductCard[]>([]);
   const [allChecked, setAllChecked] = useState(false);
 
@@ -109,9 +110,16 @@ export default function CartPage() {
   /* ── helpers ── */
   const checkedItems = items.filter((i) => i.checked);
   const subtotal = checkedItems.reduce((s, i) => s + i.price * i.qty, 0);
-  const discount = voucherApplied ? Math.floor(subtotal * 0.1) : 0;
+  const discount = voucherDetails
+    ? voucherDetails.discount_type === "percentage"
+      ? Math.min(
+          Number(voucherDetails.max_discount) > 0 ? Number(voucherDetails.max_discount) : Infinity,
+          Math.floor(subtotal * (Number(voucherDetails.value) / 100))
+        )
+      : Number(voucherDetails.value)
+    : 0;
   const shipping = checkedItems.length > 0 ? 15000 : 0;
-  const total = subtotal - discount + shipping;
+  const total = Math.max(0, subtotal - discount + shipping);
 
   async function updateQty(id: string, delta: number) {
     const item = items.find((it) => it.id_cart_item === id);
@@ -146,21 +154,38 @@ export default function CartPage() {
     setItems((prev) => prev.map((it) => ({ ...it, checked: next })));
   }
 
-  function applyVoucher() {
-    if (voucher.trim().toUpperCase() === "LOKALBANGGA") {
+  async function applyVoucher() {
+    const code = voucher.trim().toUpperCase();
+    if (!code) return;
+
+    try {
+      const res = await apiFetch("/api/voucher/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Gagal menerapkan voucher.");
+        return;
+      }
+
       setVoucherApplied(true);
-    } else {
-      alert("Kode voucher tidak valid.");
+      setVoucherDetails(data.voucher);
+      alert(`Voucher ${data.voucher.code} berhasil diterapkan!`);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal memvalidasi voucher.");
     }
   }
 
   function handleCheckout() {
     if (checkedItems.length === 0) return;
     orderService.saveCheckoutSession(checkedItems.map((i) => i.id_cart_item));
-    if (voucherApplied) {
+    if (voucherApplied && voucherDetails) {
       sessionStorage.setItem(
         "pelum_checkout_voucher",
-        JSON.stringify({ code: "LOKALBANGGA", discount })
+        JSON.stringify(voucherDetails)
       );
     } else {
       sessionStorage.removeItem("pelum_checkout_voucher");
@@ -345,7 +370,7 @@ export default function CartPage() {
                   <div style={{ display: "flex", gap: 8 }}>
                     <input
                       type="text"
-                      placeholder="Masukkan kode voucher (LOKALBANGGA)"
+                      placeholder="Masukkan kode voucher"
                       value={voucher}
                       onChange={(e) => setVoucher(e.target.value)}
                       disabled={voucherApplied}
@@ -369,10 +394,22 @@ export default function CartPage() {
                       {voucherApplied ? "✓ Terpakai" : "Terapkan"}
                     </button>
                   </div>
-                  {voucherApplied && (
-                    <p style={{ fontSize: "0.75rem", color: "#16A34A", fontWeight: 600, marginTop: 8, marginBottom: 0 }}>
-                      🎉 Voucher LOKALBANGGA berhasil diterapkan! Hemat 10%.
-                    </p>
+                  {voucherApplied && voucherDetails && (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+                      <p style={{ fontSize: "0.75rem", color: "#16A34A", fontWeight: 600, margin: 0 }}>
+                        🎉 Voucher {voucherDetails.code} berhasil diterapkan! (Hemat {voucherDetails.discount_type === "percentage" ? `${voucherDetails.value}%` : fmtPrice(Number(voucherDetails.value))})
+                      </p>
+                      <button
+                        onClick={() => {
+                          setVoucherApplied(false);
+                          setVoucherDetails(null);
+                          setVoucher("");
+                        }}
+                        style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626", background: "none", border: "none", cursor: "pointer" }}
+                      >
+                        Batal
+                      </button>
+                    </div>
                   )}
                 </div>
 

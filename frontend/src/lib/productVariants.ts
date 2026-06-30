@@ -13,11 +13,20 @@ export function getSelectedVariantOptions(
   );
 }
 
-/** Gambar dari varian terpilih (prioritas grup pertama yang punya foto, biasanya Motif) */
+/** Gambar dari varian terpilih (prioritas kombinasi varian jika ada, lalu fallback ke grup opsi pertama) */
 export function getSelectedVariantImage(
   product: Product,
   activeVariants: Record<number, number>
 ): string | null {
+  if (product.variantInventory?.length && product.variants?.length) {
+    const picks = product.variants.map((_, gi) => activeVariants[gi] ?? 0);
+    const key = picks.join(",");
+    const found = product.variantInventory.find((e) => e.picks.join(",") === key);
+    if (found?.image?.trim()) {
+      return found.image.trim();
+    }
+  }
+
   if (!product.variants?.length) return null;
 
   for (let gi = 0; gi < product.variants.length; gi++) {
@@ -28,11 +37,20 @@ export function getSelectedVariantImage(
   return null;
 }
 
-/** Harga efektif: harga dasar, diganti opsi terakhir yang punya harga > 0 (mis. Ukuran/Jenis) */
+/** Harga efektif: harga dasar, diganti kombinasi varian jika ada, atau opsi terakhir yang punya harga > 0 */
 export function getSelectedVariantPrice(
   product: Product,
   activeVariants: Record<number, number>
 ): number {
+  if (product.variantInventory?.length && product.variants?.length) {
+    const picks = product.variants.map((_, gi) => activeVariants[gi] ?? 0);
+    const key = picks.join(",");
+    const found = product.variantInventory.find((e) => e.picks.join(",") === key);
+    if (found?.price != null && found.price > 0) {
+      return found.price;
+    }
+  }
+
   let price = product.harga;
 
   product.variants?.forEach((group, gi) => {
@@ -46,15 +64,31 @@ export function getSelectedVariantPrice(
 }
 
 export function getVariantPriceBounds(product: Product): { min: number; max: number } {
-  const prices = new Set<number>([product.harga]);
-  product.variants?.forEach((g) => {
-    g.options.forEach((o) => {
-      if (o.price != null && o.price > 0) prices.add(o.price);
-    });
+  const prices = new Set<number>();
+
+  // 1. Check combination-level prices
+  product.variantInventory?.forEach((e) => {
+    if (e.price != null && e.price > 0) {
+      prices.add(e.price);
+    }
   });
+
+  // 2. Check option-level prices if no combination-level prices found
+  if (prices.size === 0) {
+    product.variants?.forEach((g) => {
+      g.options.forEach((o) => {
+        if (o.price != null && o.price > 0) prices.add(o.price);
+      });
+    });
+  }
+
+  if (prices.size === 0) {
+    return { min: product.harga, max: product.harga };
+  }
   const arr = [...prices].sort((a, b) => a - b);
   return { min: arr[0], max: arr[arr.length - 1] };
 }
+
 
 export function formatVariantPriceRange(product: Product, formatPrice: (n: number) => string): string {
   const { min, max } = getVariantPriceBounds(product);

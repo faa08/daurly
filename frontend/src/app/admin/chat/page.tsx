@@ -94,6 +94,25 @@ function SupportPanel() {
     setSending(false);
   };
 
+  const handleDeleteChat = async () => {
+    if (!selectedId) return;
+    const ok = window.confirm("Apakah Anda yakin ingin menghapus seluruh percakapan chat support ini?");
+    if (!ok) return;
+
+    const success = await supportChatService.deleteChat(selectedId);
+    if (success) {
+      const data = await supportChatService.listRoomsForAdmin();
+      setRooms(data);
+      if (data.length > 0) {
+        setSelectedId(data[0].id_chat);
+      } else {
+        setSelectedId(null);
+      }
+    } else {
+      alert("Gagal menghapus percakapan.");
+    }
+  };
+
   return (
     <ChatLayout
       loading={loading}
@@ -138,6 +157,7 @@ function SupportPanel() {
       sending={sending}
       hasSelection={!!selectedId}
       placeholder="Balas pelanggan..."
+      onDelete={handleDeleteChat}
     />
   );
 }
@@ -186,6 +206,25 @@ function ShippingPanel({ focusOrderId }: { focusOrderId?: string | null }) {
       scrollToBottomAfterSend();
     }
     setSending(false);
+  };
+
+  const handleDeleteChat = async () => {
+    if (!selectedId) return;
+    const ok = window.confirm("Apakah Anda yakin ingin menghapus seluruh percakapan chat pengiriman ini?");
+    if (!ok) return;
+
+    const success = await orderChatService.deleteChat(selectedId);
+    if (success) {
+      const data = await orderChatService.listRoomsForAdmin();
+      setRooms(data);
+      if (data.length > 0) {
+        setSelectedId(data[0].id_chat);
+      } else {
+        setSelectedId(null);
+      }
+    } else {
+      alert("Gagal menghapus percakapan.");
+    }
   };
 
   const order = selectedRoom
@@ -248,6 +287,7 @@ function ShippingPanel({ focusOrderId }: { focusOrderId?: string | null }) {
       sending={sending}
       hasSelection={!!selectedId}
       placeholder="Koordinasi alamat, kurir, jadwal kirim..."
+      onDelete={handleDeleteChat}
     />
   );
 }
@@ -359,6 +399,7 @@ function ChatLayout({
   hasSelection,
   placeholder,
   sendClassName = "bg-[#1D4ED8] hover:bg-blue-700",
+  onDelete,
 }: {
   loading: boolean;
   empty: boolean;
@@ -376,6 +417,7 @@ function ChatLayout({
   hasSelection: boolean;
   placeholder: string;
   sendClassName?: string;
+  onDelete?: () => void;
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ minHeight: 520 }}>
@@ -398,9 +440,21 @@ function ChatLayout({
         {hasSelection ? (
           <>
             {headerTitle && (
-              <div className="px-4 py-3 border-b border-[#EAE5E0]">
-                <p className="font-bold text-sm text-[#1F1B18]">{headerTitle}</p>
-                {headerSub && <p className="text-xs text-[#8E8680]">{headerSub}</p>}
+              <div className="px-4 py-3 border-b border-[#EAE5E0] flex justify-between items-center bg-[#FCFCFA]">
+                <div>
+                  <p className="font-bold text-sm text-[#1F1B18]">{headerTitle}</p>
+                  {headerSub && <p className="text-xs text-[#8E8680]">{headerSub}</p>}
+                </div>
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={onDelete}
+                    className="text-[#8E8680] hover:text-red-600 transition flex items-center justify-center p-1.5 hover:bg-[#F5F3F0] rounded-lg"
+                    title="Hapus Chat ini"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                  </button>
+                )}
               </div>
             )}
             <div ref={containerRef} onScroll={onScroll} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[360px]">

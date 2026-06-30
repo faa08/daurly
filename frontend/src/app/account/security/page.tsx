@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { authService } from "@/backend/authService";
 import { supabase } from "@/backend/supabase";
+import { apiFetch } from "@/lib/api-client";
 
 const isPlaceholder = () =>
   !process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -10,67 +11,45 @@ const isPlaceholder = () =>
 
 export default function CustomerSecurityPage() {
   const [user, setUser] = useState<ReturnType<typeof authService.getCurrentUser>>(null);
-  const [tfaEnabled, setTfaEnabled] = useState(false);
 
-  // Password change
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [currentPass, setCurrentPass] = useState("");
-  const [newPass, setNewPass] = useState("");
-  const [confirmPass, setConfirmPass] = useState("");
-  const [passLoading, setPassLoading] = useState(false);
-  const [passMsg, setPassMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     const u = authService.getCurrentUser();
     setUser(u);
   }, []);
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPassMsg(null);
-    if (newPass !== confirmPass) {
-      setPassMsg({ type: "err", text: "Konfirmasi kata sandi tidak cocok." });
-      return;
-    }
-    if (newPass.length < 6) {
-      setPassMsg({ type: "err", text: "Kata sandi minimal 6 karakter." });
-      return;
-    }
-    setPassLoading(true);
-
-    if (isPlaceholder()) {
-      // No real auth in placeholder mode
-      setPassMsg({ type: "ok", text: "Kata sandi berhasil diperbarui (mode lokal)." });
-      setShowPasswordForm(false);
-      setCurrentPass(""); setNewPass(""); setConfirmPass("");
-      setPassLoading(false);
-      return;
-    }
-
-    const { error } = await supabase.auth.updateUser({ password: newPass });
-    if (error) {
-      setPassMsg({ type: "err", text: error.message });
-    } else {
-      setPassMsg({ type: "ok", text: "Kata sandi berhasil diperbarui." });
-      setShowPasswordForm(false);
-      setCurrentPass(""); setNewPass(""); setConfirmPass("");
-    }
-    setPassLoading(false);
+  const handleDeleteAccount = () => {
+    setDeleteConfirmText("");
+    setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteAccount = async () => {
-    const confirmText = prompt("Ketik HAPUS untuk mengonfirmasi penghapusan akun Anda secara permanen:");
-    if (confirmText !== "HAPUS") {
-      if (confirmText !== null) alert("Konfirmasi tidak valid. Penghapusan dibatalkan.");
-      return;
-    }
+  const confirmDeleteAccount = async () => {
+    if (deleteConfirmText !== "HAPUS") return;
     if (!user) return;
+    setDeleteLoading(true);
 
-    if (!isPlaceholder()) {
-      await supabase.from("users").delete().eq("id_user", user.id_user);
+    try {
+      if (!isPlaceholder()) {
+        const res = await apiFetch("/api/auth/delete-account", {
+          method: "POST",
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || "Gagal menghapus akun.");
+        }
+      }
+      authService.logout();
+      window.location.href = "/";
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Gagal menghapus akun. Coba lagi.");
+    } finally {
+      setDeleteLoading(false);
+      setIsDeleteModalOpen(false);
     }
-    authService.logout();
-    window.location.href = "/";
   };
 
   const maskedEmail = user?.email
@@ -87,120 +66,24 @@ export default function CustomerSecurityPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Verifikasi Kontak */}
+      <section className="bg-white border border-surface-container p-6 rounded-xl space-y-4 shadow-sm">
+        <h3 className="font-headline font-bold text-base text-on-surface flex items-center gap-2">
+          <span className="material-symbols-outlined text-secondary">verified_user</span>
+          Verifikasi Kontak
+        </h3>
 
-        {/* Kata Sandi */}
-        <section className="bg-white border border-surface-container p-6 rounded-xl space-y-4 shadow-sm flex flex-col justify-between">
-          <div className="space-y-2">
-            <h3 className="font-headline font-bold text-base text-on-surface flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary">lock</span>
-              Kata Sandi
-            </h3>
-            <p className="text-xs text-secondary font-medium leading-relaxed">
-              Ganti kata sandi Anda secara berkala untuk menjaga keamanan akun dari akses yang tidak sah.
-            </p>
-          </div>
-
-          {showPasswordForm ? (
-            <form onSubmit={handlePasswordChange} className="space-y-3 text-xs">
-              {passMsg && (
-                <p className={`text-xs font-semibold px-3 py-2 rounded ${passMsg.type === "ok" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
-                  {passMsg.text}
-                </p>
-              )}
-              <div className="space-y-1">
-                <label className="font-bold text-secondary uppercase tracking-wider text-[10px]">Kata Sandi Saat Ini</label>
-                <input type="password" required value={currentPass} onChange={(e) => setCurrentPass(e.target.value)}
-                  className="w-full px-3 py-2 border border-surface-container rounded text-sm focus:outline-none focus:border-primary" />
-              </div>
-              <div className="space-y-1">
-                <label className="font-bold text-secondary uppercase tracking-wider text-[10px]">Kata Sandi Baru</label>
-                <input type="password" required value={newPass} onChange={(e) => setNewPass(e.target.value)}
-                  className="w-full px-3 py-2 border border-surface-container rounded text-sm focus:outline-none focus:border-primary" />
-              </div>
-              <div className="space-y-1">
-                <label className="font-bold text-secondary uppercase tracking-wider text-[10px]">Konfirmasi Kata Sandi Baru</label>
-                <input type="password" required value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)}
-                  className="w-full px-3 py-2 border border-surface-container rounded text-sm focus:outline-none focus:border-primary" />
-              </div>
-              <div className="flex gap-2 pt-1">
-                <button type="button" onClick={() => { setShowPasswordForm(false); setPassMsg(null); }}
-                  className="flex-1 py-2 border border-surface-container text-secondary font-bold text-xs rounded hover:bg-surface-container transition">
-                  Batal
-                </button>
-                <button type="submit" disabled={passLoading}
-                  className="flex-1 py-2 bg-primary text-white font-bold text-xs rounded hover:brightness-95 transition disabled:opacity-60">
-                  {passLoading ? "Menyimpan..." : "Simpan"}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <button onClick={() => setShowPasswordForm(true)}
-              className="w-full py-2.5 bg-primary text-white font-bold text-xs rounded hover:brightness-95 transition">
-              Ganti Kata Sandi
-            </button>
-          )}
-        </section>
-
-        {/* Verifikasi Kontak */}
-        <section className="bg-white border border-surface-container p-6 rounded-xl space-y-4 shadow-sm">
-          <h3 className="font-headline font-bold text-base text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary">verified_user</span>
-            Verifikasi Kontak
-          </h3>
-
-          <div className="space-y-3 text-xs font-body">
-            {/* Email */}
-            <div className="flex justify-between items-center py-1">
-              <div>
-                <p className="font-bold text-secondary">Email</p>
-                <p className="font-semibold text-on-surface">{maskedEmail}</p>
-              </div>
-              <span className="bg-green-50 text-green-700 border border-green-200 text-[10px] font-bold px-2 py-0.5 rounded">
-                Terverifikasi
-              </span>
+        <div className="space-y-3 text-xs font-body">
+          {/* Email */}
+          <div className="flex justify-between items-center py-1">
+            <div>
+              <p className="font-bold text-secondary">Email</p>
+              <p className="font-semibold text-on-surface">{maskedEmail}</p>
             </div>
-          </div>
-        </section>
-      </div>
-
-      {/* 2FA */}
-      <section className="bg-white border border-surface-container p-6 rounded-xl shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-        <div className="md:col-span-2 space-y-2">
-          <h3 className="font-headline font-bold text-base text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary">phone_android</span>
-            Autentikasi Dua Faktor (2FA)
-          </h3>
-          <p className="text-xs text-secondary font-medium leading-relaxed max-w-xl">
-            Tambahkan lapisan keamanan ekstra ke akun Anda. Setelah diaktifkan, Anda akan diminta memasukkan kode verifikasi setiap kali login.
-          </p>
-          <div className="flex items-center gap-4 text-[10px] font-bold text-secondary pt-1">
-            <span className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px] text-green-600">done</span>
-              Keamanan berlapis
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px] text-green-600">done</span>
-              Notifikasi login baru
+            <span className="bg-green-50 text-green-700 border border-green-200 text-[10px] font-bold px-2 py-0.5 rounded">
+              Terverifikasi
             </span>
           </div>
-        </div>
-        <div className="flex flex-col items-center gap-3">
-          <div className={`w-16 h-16 rounded-full border-4 flex items-center justify-center transition ${tfaEnabled ? "border-green-500 bg-green-50" : "border-surface-container bg-surface-container"}`}>
-            <span className={`material-symbols-outlined text-3xl ${tfaEnabled ? "text-green-600" : "text-secondary"}`}>
-              {tfaEnabled ? "shield" : "shield"}
-            </span>
-          </div>
-          <button
-            onClick={() => setTfaEnabled(!tfaEnabled)}
-            className={`w-full py-2 border rounded font-bold text-xs transition ${
-              tfaEnabled
-                ? "bg-green-600 border-green-600 text-white"
-                : "border-on-surface text-on-surface hover:bg-surface-container"
-            }`}
-          >
-            {tfaEnabled ? "Matikan 2FA" : "Aktifkan 2FA"}
-          </button>
         </div>
       </section>
 
@@ -222,6 +105,61 @@ export default function CustomerSecurityPage() {
           Hapus Akun Saya
         </button>
       </section>
+
+      {/* Modal Hapus Akun */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl p-6 space-y-4 text-left border border-surface-container">
+            <div className="flex items-center gap-3 text-red-600">
+              <span className="material-symbols-outlined text-3xl">warning</span>
+              <h3 className="font-headline font-bold text-lg">Hapus Akun Permanen</h3>
+            </div>
+            
+            <p className="text-xs text-[#5C5550] font-semibold leading-relaxed">
+              Tindakan ini tidak dapat dibatalkan. Semua data pesanan, transaksi, wishlist, dan biodata profil Anda akan dihapus secara permanen dari sistem Pelataran UMKM.
+            </p>
+
+            <div className="space-y-2 text-xs">
+              <label className="font-bold text-secondary uppercase tracking-wider text-[10px]">
+                Ketik <span className="text-red-600 font-extrabold">HAPUS</span> untuk mengonfirmasi:
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="HAPUS"
+                className="w-full px-3 py-2 border border-surface-container rounded text-sm focus:outline-none focus:border-red-500 font-bold"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-2 text-xs">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={deleteLoading}
+                className="flex-1 py-2.5 border border-surface-container text-[#5C5550] font-bold rounded-lg hover:bg-surface-container transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteAccount}
+                disabled={deleteConfirmText !== "HAPUS" || deleteLoading}
+                className="flex-1 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              >
+                {deleteLoading ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Menghapus...
+                  </>
+                ) : (
+                  "Hapus Permanen"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

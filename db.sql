@@ -212,8 +212,7 @@ CREATE TABLE cart_item (
     id_cart         UUID NOT NULL REFERENCES cart(id_cart) ON DELETE CASCADE,
     id_produk       UUID NOT NULL REFERENCES produk(id_produk) ON DELETE CASCADE,
     qty_cartitem    INT NOT NULL DEFAULT 1 CHECK (qty_cartitem > 0),
-    added_at        TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (id_cart, id_produk)
+    added_at        TIMESTAMPTZ DEFAULT NOW()
 );
 
 

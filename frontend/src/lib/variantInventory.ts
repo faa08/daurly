@@ -3,6 +3,8 @@ import type { ProductVariant } from "@/backend/productService";
 export interface VariantInventoryEntry {
   picks: number[];
   stock: number;
+  price?: number;
+  image?: string;
 }
 
 export function picksKey(picks: number[]): string {
@@ -90,6 +92,8 @@ export function parseVariantRaw(raw: unknown): {
                 ? row.picks.map((n) => Number(n)).filter((n) => !Number.isNaN(n))
                 : [],
               stock: Math.max(0, Number(row.stock) || 0),
+              price: row.price != null && row.price !== "" ? Number(row.price) : undefined,
+              image: row.image ? String(row.image) : undefined,
             }))
             .filter((e: VariantInventoryEntry) => e.picks.length > 0)
         : [];

@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import { authService } from "@/backend/authService";
 import { sellerService, type Seller, type StoreStats } from "@/backend/sellerService";
 import { productService } from "@/backend/productService";
-import { parseProductImg, ProductGridImage } from "@/lib/productUi";
+import { parseProductImg, ProductGridImage, productToCard } from "@/lib/productUi";
 import { cartService } from "@/backend/cartService";
 import { 
   Store, 
@@ -37,6 +37,7 @@ interface Product {
   sold: number;
   image: string;
   category: string;
+  priceRange?: string;
 }
 
 const SHOP_PRODUCTS_FALLBACK: Product[] = [];
@@ -178,17 +179,13 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
   const shopLocation = seller?.addr?.trim() || "Indonesia";
   const shopLogo = seller?.logo_toko?.trim() || "";
 
-  const activeProducts = products.length > 0 ? products.map(p => ({
-    id: p.id_produk,
-    id_produk: p.id_produk,
-    slug: p.slug || p.id_produk,
-    name: p.nama_produk,
-    category: p.category || "UMKM LOKAL",
-    price: p.harga,
-    rating: productStats[p.id_produk]?.rating ?? 0,
-    sold: productStats[p.id_produk]?.sold ?? 0,
-    image: parseProductImg(p.img)
-  })) : SHOP_PRODUCTS_FALLBACK;
+  const activeProducts = products.length > 0 ? products.map(p => {
+    const card = productToCard(p, productStats[p.id_produk]);
+    return {
+      ...card,
+      id_produk: p.id_produk,
+    };
+  }) : SHOP_PRODUCTS_FALLBACK;
 
   const storeRating = storeStats?.avgRating ?? 0;
   const storeReviewCount = storeStats?.reviewCount ?? shopReviews.length;
@@ -426,7 +423,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                           <h4 className="font-bold text-xs text-on-surface leading-snug line-clamp-2 h-8 hover:text-primary transition">
                             <Link href={`/produk/${product.slug}`}>{product.name}</Link>
                           </h4>
-                          <p className="text-sm font-black text-primary">Rp {product.price.toLocaleString("id-ID")}</p>
+                          <p className="text-sm font-black text-primary">{product.priceRange || `Rp ${product.price.toLocaleString("id-ID")}`}</p>
                         </div>
                         <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#EAE5E0]/60">
                           <div className="flex items-center gap-0.5 text-[10px] text-secondary font-medium">
@@ -464,7 +461,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                           <h4 className="font-bold text-xs text-on-surface leading-snug line-clamp-2 h-8 hover:text-primary transition">
                             <Link href={`/produk/${product.slug}`}>{product.name}</Link>
                           </h4>
-                          <p className="text-sm font-black text-primary">Rp {product.price.toLocaleString("id-ID")}</p>
+                          <p className="text-sm font-black text-primary">{product.priceRange || `Rp ${product.price.toLocaleString("id-ID")}`}</p>
                         </div>
                         <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#EAE5E0]/60">
                           <div className="flex items-center gap-0.5 text-[10px] text-secondary font-medium">
@@ -524,7 +521,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                           <h4 className="font-bold text-xs text-on-surface leading-snug line-clamp-2 h-8 hover:text-primary transition">
                             <Link href={`/produk/${product.slug}`}>{product.name}</Link>
                           </h4>
-                          <p className="text-sm font-black text-primary">Rp {product.price.toLocaleString("id-ID")}</p>
+                          <p className="text-sm font-black text-primary">{product.priceRange || `Rp ${product.price.toLocaleString("id-ID")}`}</p>
                         </div>
                         <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#EAE5E0]/60">
                           <div className="flex items-center gap-0.5 text-[10px] text-secondary font-medium">

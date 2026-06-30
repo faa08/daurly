@@ -114,8 +114,8 @@ async function resendSignupEmail(
   anonKey: string,
   email: string,
   redirectTo: string
-): Promise<void> {
-  await fetch(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/resend`, {
+): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/resend`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -128,6 +128,25 @@ async function resendSignupEmail(
       options: { email_redirect_to: redirectTo },
     }),
   });
+
+  const body = (await res.json().catch(() => ({}))) as {
+    msg?: string;
+    message?: string;
+    error?: string;
+    error_description?: string;
+  };
+
+  if (!res.ok) {
+    const err =
+      body.msg ||
+      body.message ||
+      body.error_description ||
+      body.error ||
+      `HTTP ${res.status}`;
+    return { ok: false, error: err };
+  }
+
+  return { ok: true };
 }
 
 /**
@@ -148,9 +167,10 @@ async function handleEmailSendFailure(
   if (!authUserId) return null;
 
   await ensureUserProfile(admin, authUserId, email, username, nama_lengkap, no_telp);
-  await resendSignupEmail(supabaseUrl, anonKey, email, redirectTo).catch((err) => {
-    console.warn("resend signup after email failure:", err);
-  });
+  const resend = await resendSignupEmail(supabaseUrl, anonKey, email, redirectTo);
+  if (!resend.ok) {
+    console.warn("resend signup after email failure:", resend.error, { email, redirectTo });
+  }
 
   return { ok: true };
 }
@@ -303,8 +323,20 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  let notice: string | undefined;
+  if (!emailConfirmed && requiresEmailVerification()) {
+    const resend = await resendSignupEmail(supabaseUrl, anonKey, email, redirectTo);
+    if (!resend.ok) {
+      console.error("register: verification email not sent", resend.error, { email, redirectTo });
+      notice =
+        `Akun dibuat, tetapi email verifikasi gagal dikirim (${resend.error}). ` +
+        "Cek folder spam, pastikan SMTP Supabase aktif, atau gunakan tombol kirim ulang.";
+    }
+  }
+
   return NextResponse.json({
     needsEmailVerification: true,
     email,
+    ...(notice ? { notice, emailSendFailed: true } : {}),
   });
 }

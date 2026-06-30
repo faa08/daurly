@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Headphones, X, Send, Bot, Loader2, UserCircle } from "lucide-react";
+import { Headphones, X, Send, Bot, Loader2, UserCircle, Trash2 } from "lucide-react";
 import "./CustomerService.css";
 import { CUSTOMER_SERVICE_WELCOME } from "@/data/customerServiceKnowledge";
 import { authService } from "@/backend/authService";
@@ -228,6 +228,19 @@ function AdminChatPanel() {
     setSending(false);
   };
 
+  const handleClearChat = async () => {
+    if (!chatId) return;
+    const ok = window.confirm("Apakah Anda yakin ingin menghapus seluruh riwayat chat dengan admin?");
+    if (!ok) return;
+
+    const success = await supportChatService.deleteChat(chatId);
+    if (success) {
+      await refresh();
+    } else {
+      alert("Gagal menghapus riwayat chat.");
+    }
+  };
+
   if (!user) {
     return (
       <div className="cs-admin-login-prompt">
@@ -257,6 +270,26 @@ function AdminChatPanel() {
       {initError && (
         <div className="cs-admin-error" role="alert">
           {initError}
+        </div>
+      )}
+      {messages.length > 0 && (
+        <div className="cs-clear-chat-bar" style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          padding: "6px 12px",
+          backgroundColor: "#F5F3F0",
+          borderBottom: "1px solid #EAE5E0",
+          fontSize: "11px",
+          fontWeight: "bold",
+          color: "#8E8680"
+        }}>
+          <button
+            type="button"
+            onClick={handleClearChat}
+            className="flex items-center gap-1 hover:text-red-600 transition"
+          >
+            <Trash2 size={12} /> Hapus Riwayat Chat
+          </button>
         </div>
       )}
       <div className="cs-messages">

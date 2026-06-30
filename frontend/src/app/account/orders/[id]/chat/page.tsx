@@ -8,6 +8,7 @@ import { orderChatService } from "@/backend/orderChatService";
 import ChatReadReceipt from "@/components/ChatReadReceipt";
 import { useChatPolling } from "@/hooks/useChatPolling";
 import { useChatScroll } from "@/hooks/useChatScroll";
+import { Trash2 } from "lucide-react";
 
 export default function OrderChatPage() {
   const params = useParams();
@@ -65,6 +66,19 @@ export default function OrderChatPage() {
     setSending(false);
   };
 
+  const handleClearChat = async () => {
+    if (!chatId) return;
+    const ok = window.confirm("Apakah Anda yakin ingin menghapus seluruh riwayat chat pengiriman ini?");
+    if (!ok) return;
+
+    const success = await orderChatService.deleteChat(chatId);
+    if (success) {
+      await refresh();
+    } else {
+      alert("Gagal menghapus riwayat chat.");
+    }
+  };
+
   if (loading) {
     return <div className="bg-white border border-surface-container rounded-xl p-12 text-center text-secondary text-sm">Memuat chat...</div>;
   }
@@ -80,14 +94,26 @@ export default function OrderChatPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <Link href="/account/orders" className="text-xs font-bold text-secondary hover:text-primary mb-2 inline-block">
-          ← Pesanan Saya
-        </Link>
-        <h2 className="font-headline text-2xl font-bold text-on-surface">Chat Pengiriman</h2>
-        <p className="text-sm text-secondary mt-1">
-          Koordinasi pengiriman dengan admin setelah pembayaran digital.
-        </p>
+      <header className="flex justify-between items-end">
+        <div>
+          <Link href="/account/orders" className="text-xs font-bold text-secondary hover:text-primary mb-2 inline-block">
+            ← Pesanan Saya
+          </Link>
+          <h2 className="font-headline text-2xl font-bold text-on-surface">Chat Pengiriman</h2>
+          <p className="text-sm text-secondary mt-1">
+            Koordinasi pengiriman dengan admin setelah pembayaran digital.
+          </p>
+        </div>
+        {messages.length > 0 && (
+          <button
+            type="button"
+            onClick={handleClearChat}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#8E8680] font-bold border border-surface-container rounded-lg hover:text-red-600 hover:border-red-200 transition bg-white"
+          >
+            <Trash2 size={14} className="flex-shrink-0" />
+            Hapus Riwayat
+          </button>
+        )}
       </header>
 
       <div className="bg-white border border-surface-container rounded-xl shadow-sm flex flex-col" style={{ height: "min(520px, 70vh)" }}>

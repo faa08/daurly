@@ -1,5 +1,6 @@
 import type { Product } from "@/backend/productService";
 import Image from "next/image";
+import { getVariantPriceBounds } from "@/lib/productVariants";
 
 export interface ProductCard {
   id: string;
@@ -11,6 +12,7 @@ export interface ProductCard {
   rating: number;
   sold: number;
   reviewCount: number;
+  priceRange?: string;
 }
 
 export function parseProductImg(img?: string | null): string {
@@ -103,6 +105,14 @@ export function productToCard(
   p: Product,
   stats?: { rating: number; sold: number; reviewCount: number }
 ): ProductCard {
+  let priceRange: string | undefined;
+  if (p.variants && p.variants.length > 0) {
+    const { min, max } = getVariantPriceBounds(p);
+    if (min !== max) {
+      priceRange = `Rp ${min.toLocaleString("id-ID")} - Rp ${max.toLocaleString("id-ID")}`;
+    }
+  }
+
   return {
     id: p.id_produk,
     slug: p.slug || p.id_produk,
@@ -113,6 +123,7 @@ export function productToCard(
     rating: stats?.rating ?? 0,
     sold: stats?.sold ?? 0,
     reviewCount: stats?.reviewCount ?? 0,
+    priceRange,
   };
 }
 

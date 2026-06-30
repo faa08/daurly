@@ -393,6 +393,8 @@ export const adminService = {
       avatar: string;
       amount: number;
       status: string;
+      storeName: string;
+      createdRaw: string;
     }[]
   > {
     if (isPlaceholder()) return [];
@@ -402,7 +404,8 @@ export const adminService = {
         .from("order")
         .select(`
           id_order, created_at, total_hrg, stat_order,
-          users ( nama_lengkap, email )
+          users ( nama_lengkap, email ),
+          seller ( nm_store )
         `)
         .order("created_at", { ascending: false })
         .limit(200);
@@ -413,6 +416,8 @@ export const adminService = {
         const user = Array.isArray(item.users) ? item.users[0] : item.users;
         const u = user as { nama_lengkap?: string; email?: string } | null;
         const buyer = u?.nama_lengkap || "Tanpa Nama";
+        const sellerObj = Array.isArray(item.seller) ? item.seller[0] : item.seller;
+        const s = sellerObj as { nm_store?: string } | null;
         return {
           id: item.id_order as string,
           date: formatDateId(item.created_at as string, true),
@@ -421,11 +426,47 @@ export const adminService = {
           amount: Number(item.total_hrg),
           status: item.stat_order as string,
           avatar: initials(buyer),
+          storeName: s?.nm_store || "Toko UMKM",
+          createdRaw: item.created_at as string,
         };
       });
     } catch (err) {
       console.error("adminService.getTransactions failed:", err);
       return [];
+    }
+  },
+
+  async getTransactionDetails(idOrder: string): Promise<any | null> {
+    if (isPlaceholder()) return null;
+
+    try {
+      const { data: order, error: orderError } = await supabase
+        .from("order")
+        .select(`
+          id_order, created_at, total_hrg, ongkir, diskon, biaya_layanan, stat_order, tipe_pembayaran, catatan,
+          users ( nama_lengkap, email, no_telp ),
+          seller ( nm_store, email, no_telp ),
+          alamat ( label, nama_penerima, no_telp, provinsi, kota, kecamatan, kode_pos, detail_alamat )
+        `)
+        .eq("id_order", idOrder)
+        .maybeSingle();
+
+      if (orderError || !order) throw orderError || new Error("Order tidak ditemukan.");
+
+      const { data: items, error: itemsError } = await supabase
+        .from("order_item")
+        .select("id_order_item, id_produk, qty_orderitem, hrg_saat_beli, nama_produk_snapshot, img_snapshot")
+        .eq("id_order", idOrder);
+
+      if (itemsError) throw itemsError;
+
+      return {
+        ...order,
+        items: items || []
+      };
+    } catch (err) {
+      console.error("adminService.getTransactionDetails failed:", err);
+      return null;
     }
   },
 

@@ -313,11 +313,24 @@ export const authService = {
     }
 
     if (data.needsEmailVerification) {
+      let notice = typeof data.notice === "string" ? data.notice : undefined;
+
+      // Cadangan dari browser — redirect pakai origin production (bukan localhost)
+      if (!data.emailSendFailed) {
+        const resend = await this.resendVerificationEmail(normalizedEmail);
+        if (!resend.ok) {
+          notice =
+            notice ||
+            `Akun dibuat, tetapi email verifikasi belum terkirim (${resend.error}). ` +
+              'Coba tombol "Kirim ulang email verifikasi" atau cek folder spam.';
+        }
+      }
+
       return {
         user: null,
         needsEmailVerification: true,
         email: normalizedEmail,
-        notice: typeof data.notice === "string" ? data.notice : undefined,
+        notice,
       };
     }
 

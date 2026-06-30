@@ -23,7 +23,7 @@ import CategoryHero from "@/components/CategoryHero";
 import { fetchCategoryHero, type SiteBanner } from "@/backend/bannerService";
 import { getCategoryHeroConfig } from "@/data/categoryHero";
 import { productService } from "@/backend/productService";
-import { parseProductImg, ProductGridImage } from "@/lib/productUi";
+import { parseProductImg, ProductGridImage, productToCard } from "@/lib/productUi";
 import { cartService } from "@/backend/cartService";
 import { authService } from "@/backend/authService";
 
@@ -71,18 +71,16 @@ export default function CategoryPage({ params }: { params: Promise<{ slug?: stri
     async function loadProducts() {
       try {
         const data = await productService.getProducts({ publicOnly: true, limit: 80 });
-        const mapped = data.map((p: any) => ({
-          id: p.id_produk,
-          slug: p.slug || p.id_produk,
-          name: p.nama_produk,
-          price: p.harga,
-          image: parseProductImg(p.img),
-          category: p.category || "UMKM Lokal",
-          categorySlug: p.categorySlug || "kerajinan",
-          rating: 4.8,
-          sold: Math.floor(Math.random() * 25) + 5,
-          badge: p.stok === 0 ? "Habis" : "Unggulan",
-        }));
+        const mapped = data.map((p: any) => {
+          const card = productToCard(p);
+          return {
+            ...card,
+            categorySlug: p.categorySlug || "kerajinan",
+            badge: p.stok === 0 ? "Habis" : "Unggulan",
+            rating: 4.8,
+            sold: Math.floor(Math.random() * 25) + 5,
+          };
+        });
         setProducts(mapped);
       } catch (err) {
         console.error("Failed to load category products:", err);
@@ -366,7 +364,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug?: stri
                             fontWeight: 800,
                             color: C.primary,
                             marginBottom: 8
-                          }}>{formatPrice(product.price)}</p>
+                          }}>{product.priceRange || formatPrice(product.price)}</p>
                           
                           <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.7rem", color: C.textMuted, marginTop: "auto" }}>
                             <span style={{ color: C.primary }}>★</span>

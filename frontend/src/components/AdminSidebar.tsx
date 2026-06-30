@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { authService } from "@/backend/authService";
 import { adminService } from "@/backend/adminService";
 import { useLogoutConfirm } from "@/hooks/useLogoutConfirm";
@@ -15,6 +15,8 @@ export default function AdminSidebar({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeTabQuery = searchParams.get("tab") || "";
   const [adminUser, setAdminUser] = useState<ReturnType<typeof authService.getCurrentUser>>(null);
   const [pendingChatCount, setPendingChatCount] = useState(0);
 
@@ -45,6 +47,7 @@ export default function AdminSidebar({
     { name: "Saldo", href: "/admin/saldo", icon: "account_balance_wallet" },
     { name: "Transaksi", href: "/admin/transactions", icon: "receipt_long" },
     { name: "Laporan", href: "/admin/reports", icon: "analytics" },
+    { name: "Kupon & Diskon", href: "/admin/settings?tab=Kupon+%26+Diskon", icon: "percent" },
     { name: "Pengaturan", href: "/admin/settings", icon: "settings" },
   ];
 
@@ -72,7 +75,11 @@ export default function AdminSidebar({
       {/* Navigation Menu */}
       <nav className="flex-1 space-y-1">
         {menuItems.map((item) => {
-          const isActive = pathname === item.href || (item.href === "/admin/chat" && pathname.startsWith("/admin/chat"));
+          const isActive = item.href.includes("tab=")
+            ? pathname === "/admin/settings" && activeTabQuery === "Kupon & Diskon"
+            : item.href === "/admin/settings"
+              ? pathname === "/admin/settings" && activeTabQuery !== "Kupon & Diskon"
+              : pathname === item.href || (item.href === "/admin/chat" && pathname.startsWith("/admin/chat"));
           const badge =
             item.href === "/admin/chat" && pendingChatCount > 0 ? pendingChatCount : null;
           return (

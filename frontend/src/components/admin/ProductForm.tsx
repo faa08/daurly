@@ -39,6 +39,8 @@ type ProductFormDraft = {
   useManualUrl: boolean;
   variants: VariantGroup[];
   variantStockMap: Record<string, string>;
+  variantPriceMap?: Record<string, string>;
+  variantImageMap?: Record<string, string>;
 };
 
 const DEFAULT_VARIANTS: VariantGroup[] = [
@@ -76,6 +78,8 @@ export default function ProductForm({
   const [variants, setVariants] = useState<VariantGroup[]>(DEFAULT_VARIANTS);
   const [variantUploading, setVariantUploading] = useState<string | null>(null);
   const [variantStockMap, setVariantStockMap] = useState<Record<string, string>>({});
+  const [variantPriceMap, setVariantPriceMap] = useState<Record<string, string>>({});
+  const [variantImageMap, setVariantImageMap] = useState<Record<string, string>>({});
   const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
 
   const saveDraftRef = useRef<() => void>(() => {});
@@ -111,6 +115,8 @@ export default function ProductForm({
       useManualUrl,
       variants,
       variantStockMap,
+      variantPriceMap,
+      variantImageMap,
     }),
     [
       productName,
@@ -125,6 +131,8 @@ export default function ProductForm({
       useManualUrl,
       variants,
       variantStockMap,
+      variantPriceMap,
+      variantImageMap,
     ]
   );
 
@@ -135,7 +143,9 @@ export default function ProductForm({
       data.description.trim() ||
       data.images.length > 0 ||
       data.price.trim() ||
-      Object.values(data.variantStockMap).some((v) => v.trim());
+      Object.values(data.variantStockMap).some((v) => v.trim()) ||
+      Object.values(data.variantPriceMap || {}).some((v) => v.trim()) ||
+      Object.values(data.variantImageMap || {}).some((v) => v.trim());
     if (!hasContent) return;
     saveAdminDraft(draftKey, data);
     setDraftSavedAt(Date.now());
@@ -160,6 +170,8 @@ export default function ProductForm({
     setUseManualUrl(draft.useManualUrl);
     setVariants(draft.variants);
     setVariantStockMap(draft.variantStockMap);
+    setVariantPriceMap(draft.variantPriceMap || {});
+    setVariantImageMap(draft.variantImageMap || {});
     setDraftSavedAt(draft.savedAt);
   }
 
@@ -190,13 +202,26 @@ export default function ProductForm({
         : DEFAULT_VARIANTS
     );
     if (product.variantInventory?.length) {
-      const map: Record<string, string> = {};
+      const stockMap: Record<string, string> = {};
+      const priceMap: Record<string, string> = {};
+      const imageMap: Record<string, string> = {};
       for (const entry of product.variantInventory) {
-        map[picksKey(entry.picks)] = String(entry.stock);
+        const key = picksKey(entry.picks);
+        stockMap[key] = String(entry.stock);
+        if (entry.price != null) {
+          priceMap[key] = String(entry.price);
+        }
+        if (entry.image) {
+          imageMap[key] = entry.image;
+        }
       }
-      setVariantStockMap(map);
+      setVariantStockMap(stockMap);
+      setVariantPriceMap(priceMap);
+      setVariantImageMap(imageMap);
     } else {
       setVariantStockMap({});
+      setVariantPriceMap({});
+      setVariantImageMap({});
     }
   }
 
@@ -204,9 +229,13 @@ export default function ProductForm({
     const groups = buildParsedVariants();
     if (groups.length === 0) {
       setVariantStockMap({});
+      setVariantPriceMap({});
+      setVariantImageMap({});
       return;
     }
     setVariantStockMap((prev) => syncInventoryMap(groups, prev));
+    setVariantPriceMap((prev) => syncInventoryMap(groups, prev));
+    setVariantImageMap((prev) => syncInventoryMap(groups, prev));
   }, [variants]);
 
   useEffect(() => {
@@ -339,6 +368,25 @@ export default function ProductForm({
     }
   }
 
+  async function handleComboImageUpload(
+    key: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setVariantUploading(key);
+    try {
+      const url = await uploadImageFile(file);
+      setVariantImageMap((prev) => ({ ...prev, [key]: url }));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Gagal mengunggah foto variasi.");
+    } finally {
+      setVariantUploading(null);
+      e.target.value = "";
+    }
+  }
+
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files);
@@ -381,8 +429,31 @@ export default function ProductForm({
 
     const imagesToSubmit = images.length > 0 ? images : undefined;
     const parsedVariants = buildParsedVariants();
-    const variantInventory = inventoryFromMap(parsedVariants, variantStockMap);
+    const variantInventory = buildAllPickCombinations(parsedVariants)
+      .map((picks) => {
+        const key = picksKey(picks);
+        const stock = Math.max(0, parseInt(variantStockMap[key] || "0", 10) || 0);
+        const priceVal = parseFloat(variantPriceMap[key]);
+        const imageVal = variantImageMap[key]?.trim();
+        return {
+          picks,
+          stock,
+          ...(Number.isNaN(priceVal) ? {} : { price: priceVal }),
+          ...(imageVal ? { image: imageVal } : {}),
+        };
+      })
+      .filter((e) => e.stock > 0 || (e.price != null && e.price > 0) || e.image);
+
     const totalStock = totalInventoryStock(variantInventory);
+
+    // Calculate dynamic base price: find minimum price in variants. Fallback to base price state.
+    const optionPrices: number[] = [];
+    variantInventory.forEach((e) => {
+      if (e.price != null && e.price > 0) {
+        optionPrices.push(e.price);
+      }
+    });
+    const finalPrice = optionPrices.length > 0 ? Math.min(...optionPrices) : (parseFloat(price) || 0);
 
     const extras = { variants: parsedVariants, variantInventory };
 
@@ -391,7 +462,7 @@ export default function ProductForm({
         editingProduct.id_produk,
         productName,
         category || null,
-        parseFloat(price) || 0,
+        finalPrice,
         totalStock,
         description || "Deskripsi produk baru",
         imagesToSubmit,
@@ -413,7 +484,7 @@ export default function ProductForm({
         sellerId,
         productName,
         category || null,
-        parseFloat(price) || 0,
+        finalPrice,
         totalStock,
         description || "Deskripsi produk baru",
         imagesToSubmit,
@@ -522,17 +593,6 @@ export default function ProductForm({
           </div>
         </div>
 
-        <div className="space-y-1.5 text-left">
-          <label className="block text-[11px] uppercase tracking-wider text-[#8E8680]">Harga (Rp)</label>
-          <input
-            type="number"
-            required
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="150000"
-            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
-          />
-        </div>
 
         <div className="space-y-2 text-left">
           <label className="block text-[11px] uppercase tracking-wider text-[#8E8680]">Gambar Produk</label>
@@ -732,19 +792,6 @@ export default function ProductForm({
                       placeholder="Nama (Batik Lace, 40x40...)"
                       className="flex-1 min-w-[120px] px-2.5 py-2 border border-[#D5CFC9] rounded text-xs"
                     />
-                    <input
-                      type="number"
-                      value={opt.price}
-                      onChange={(e) => {
-                        const next = [...variants];
-                        const opts = [...next[gIdx].options];
-                        opts[oIdx] = { ...opts[oIdx], price: e.target.value };
-                        next[gIdx] = { ...next[gIdx], options: opts };
-                        setVariants(next);
-                      }}
-                      placeholder="Harga (opsional)"
-                      className="w-24 px-2.5 py-2 border border-[#D5CFC9] rounded text-xs"
-                    />
                     <label
                       className={`relative w-11 h-11 flex-shrink-0 rounded border-2 border-dashed flex items-center justify-center cursor-pointer overflow-hidden ${
                         opt.image ? "border-[#1D4ED8]" : "border-[#D5CFC9] hover:border-[#1D4ED8]"
@@ -837,13 +884,13 @@ export default function ProductForm({
           <div className="space-y-3 text-left border border-[#EAE5E0] rounded-lg p-4 bg-[#FCFCFA]">
             <div>
               <p className="text-[11px] uppercase tracking-wider text-[#8E8680] font-bold">
-                Stok per Kombinasi Varian
+                Gambar, Stok & Harga per Kombinasi Varian
               </p>
               <p className="text-[10px] text-[#8E8680] mt-0.5">
-                Isi stok untuk tiap kombinasi (Motif + Ukuran). Total stok produk dihitung otomatis.
+                Isi foto, harga dan stok untuk tiap kombinasi varian. Total stok dihitung otomatis.
               </p>
             </div>
-            <div className="max-h-52 overflow-y-auto space-y-2 pr-1">
+            <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
               {buildAllPickCombinations(buildParsedVariants()).map((picks) => {
                 const key = picksKey(picks);
                 const label = getCombinationLabel(buildParsedVariants(), picks);
@@ -853,16 +900,90 @@ export default function ProductForm({
                     className="flex items-center justify-between gap-3 p-2 rounded-lg bg-white border border-[#EAE5E0]"
                   >
                     <span className="text-xs text-[#1F1B18] font-medium flex-1">{label}</span>
-                    <input
-                      type="number"
-                      min={0}
-                      value={variantStockMap[key] ?? ""}
-                      onChange={(e) =>
-                        setVariantStockMap((prev) => ({ ...prev, [key]: e.target.value }))
-                      }
-                      placeholder="0"
-                      className="w-20 px-2.5 py-1.5 border border-[#D5CFC9] rounded text-xs text-right"
-                    />
+                    <div className="flex items-center gap-3">
+                      {/* Image Preview / Uploader */}
+                      <div className="flex items-center gap-1">
+                        <label
+                          className={`relative w-8 h-8 flex-shrink-0 rounded border border-dashed flex items-center justify-center cursor-pointer overflow-hidden ${
+                            variantImageMap[key] ? "border-[#1D4ED8]" : "border-[#D5CFC9] hover:border-[#1D4ED8]"
+                          }`}
+                          title="Unggah foto variasi"
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                            disabled={variantUploading === key}
+                            onChange={(e) => handleComboImageUpload(key, e)}
+                          />
+                          {variantUploading === key ? (
+                            <span className="material-symbols-outlined text-[14px] text-[#1D4ED8] animate-spin">
+                              progress_activity
+                            </span>
+                          ) : variantImageMap[key] ? (
+                            <img src={variantImageMap[key]} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="material-symbols-outlined text-[16px] text-[#8E8680]">
+                              add_photo_alternate
+                            </span>
+                          )}
+                        </label>
+                        {variantImageMap[key] && (
+                          <button
+                            type="button"
+                            onClick={() => setVariantImageMap((prev) => ({ ...prev, [key]: "" }))}
+                            className="text-[9px] text-red-600 font-bold hover:underline"
+                            title="Hapus foto"
+                          >
+                            Hapus
+                          </button>
+                        )}
+                      </div>
+
+                      {images.length > 0 && (
+                        <select
+                          value={variantImageMap[key] || ""}
+                          onChange={(e) => {
+                            setVariantImageMap((prev) => ({ ...prev, [key]: e.target.value }));
+                          }}
+                          className="text-[9px] px-1.5 py-1 border border-[#D5CFC9] rounded bg-white max-w-[80px]"
+                        >
+                          <option value="">Pilih foto...</option>
+                          {images.map((img, imgIdx) => (
+                            <option key={imgIdx} value={img}>
+                              Foto {imgIdx + 1}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] text-[#8E8680] font-bold">Rp</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={variantPriceMap[key] ?? ""}
+                          onChange={(e) =>
+                            setVariantPriceMap((prev) => ({ ...prev, [key]: e.target.value }))
+                          }
+                          placeholder="Harga"
+                          className="w-24 px-2.5 py-1.5 border border-[#D5CFC9] rounded text-xs text-right"
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] text-[#8E8680] font-bold">Stok</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={variantStockMap[key] ?? ""}
+                          onChange={(e) =>
+                            setVariantStockMap((prev) => ({ ...prev, [key]: e.target.value }))
+                          }
+                          placeholder="0"
+                          className="w-16 px-2.5 py-1.5 border border-[#D5CFC9] rounded text-xs text-right"
+                        />
+                      </div>
+                    </div>
                   </div>
                 );
               })}

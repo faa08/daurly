@@ -82,7 +82,13 @@ export default function CheckoutPage() {
   // Voucher State
   const [voucherCode, setVoucherCode] = useState("");
   const [voucherError, setVoucherError] = useState("");
-  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string } | null>(null);
+  const [appliedVoucher, setAppliedVoucher] = useState<{
+    code: string;
+    discount_type: string;
+    value: number;
+    max_discount: number;
+    min_purchase: number;
+  } | null>(null);
 
   // checkout status
   const [isProcessing, setIsProcessing] = useState(false);
@@ -147,7 +153,7 @@ export default function CheckoutPage() {
       if (vRaw) {
         try {
           const v = JSON.parse(vRaw);
-          if (v.code) setAppliedVoucher({ code: v.code });
+          if (v.code) setAppliedVoucher(v);
         } catch { /* ignore */ }
       }
 
@@ -176,25 +182,40 @@ export default function CheckoutPage() {
   const totalItemPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingCost = 0;
   const serviceFee = 2000;
-  const totalDiscount =
-    appliedVoucher
-      ? appliedVoucher.code === "LOKALBANGGA"
-        ? Math.floor(totalItemPrice * 0.1)
-        : appliedVoucher.code === "DISKONUMKM"
-          ? Math.min(50000, totalItemPrice * 0.1)
-          : 50000
-      : 0;
-  const totalBill = totalItemPrice + shippingCost + serviceFee - totalDiscount;
+  const totalDiscount = appliedVoucher
+    ? appliedVoucher.discount_type === "percentage"
+      ? Math.min(
+          Number(appliedVoucher.max_discount) > 0 ? Number(appliedVoucher.max_discount) : Infinity,
+          Math.floor(totalItemPrice * (Number(appliedVoucher.value) / 100))
+        )
+      : Number(appliedVoucher.value)
+    : 0;
+  const totalBill = Math.max(0, totalItemPrice + shippingCost + serviceFee - totalDiscount);
 
-  const handleApplyVoucher = (e: React.FormEvent) => {
+  const handleApplyVoucher = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = voucherCode.trim().toUpperCase();
-    if (code === "DISKONUMKM" || code === "HEMAT50" || code === "LOKALBANGGA") {
-      setAppliedVoucher({ code });
+    if (!code) return;
+
+    try {
+      const res = await apiFetch("/api/voucher/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal: totalItemPrice }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setVoucherError(data.error || "Voucher tidak valid.");
+        setAppliedVoucher(null);
+        return;
+      }
+
+      setAppliedVoucher(data.voucher);
       setVoucherError("");
-    } else {
-      setVoucherError("Kode voucher tidak valid atau sudah kedaluwarsa.");
-      setAppliedVoucher(null);
+      sessionStorage.setItem("pelum_checkout_voucher", JSON.stringify(data.voucher));
+    } catch (err) {
+      console.error(err);
+      setVoucherError("Gagal memvalidasi voucher.");
     }
   };
 
@@ -642,7 +663,11 @@ export default function CheckoutPage() {
                           Voucher {appliedVoucher.code} Aktif
                         </span>
                         <button
-                          onClick={() => setAppliedVoucher(null)}
+                          onClick={() => {
+                            setAppliedVoucher(null);
+                            setVoucherCode("");
+                            sessionStorage.removeItem("pelum_checkout_voucher");
+                          }}
                           style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626", background: "none", border: "none", cursor: "pointer" }}
                         >
                           Batal
@@ -677,10 +702,12 @@ export default function CheckoutPage() {
                         <span>Biaya Layanan</span>
                         <span style={{ color: "#1F1B18" }}>Rp {serviceFee.toLocaleString("id-ID")}</span>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", color: "#15803D" }}>
-                        <span>Total Diskon</span>
-                        <span>-Rp {totalDiscount.toLocaleString("id-ID")}</span>
-                      </div>
+                      {totalDiscount > 0 && (
+                        <div style={{ display: "flex", justifyContent: "space-between", color: "#15803D" }}>
+                          <span>Total Diskon</span>
+                          <span>-Rp {totalDiscount.toLocaleString("id-ID")}</span>
+                        </div>
+                      )}
 
                       <div style={{ height: 1, background: "#EAE5E0", margin: "4px 0" }} />
 

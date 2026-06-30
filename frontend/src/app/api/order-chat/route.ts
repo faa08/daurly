@@ -171,6 +171,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
+    if (action === "delete") {
+      const chatId = String(body.chatId || "");
+      if (!chatId) {
+        return NextResponse.json({ error: "chatId wajib." }, { status: 400 });
+      }
+
+      const allowed = await verifyOrderChatAccess(
+        admin,
+        chatId,
+        user.id_user,
+        user.role === "admin"
+      );
+      if (!allowed) {
+        return NextResponse.json({ error: "Chat tidak ditemukan atau akses ditolak." }, { status: 404 });
+      }
+
+      if (user.role === "admin") {
+        const { error } = await admin
+          .from("order_chat")
+          .delete()
+          .eq("id_chat", chatId);
+        if (error) throw error;
+      } else {
+        const { error } = await admin
+          .from("order_chat_message")
+          .delete()
+          .eq("id_chat", chatId);
+        if (error) throw error;
+
+        await admin.from("order_chat_message").insert({
+          id_chat: chatId,
+          sender_role: "admin",
+          sender_id: null,
+          text: "Halo! Pembayaran Anda sudah kami terima. Admin akan membantu mengatur pengiriman pesanan Anda di chat ini.",
+        });
+      }
+
+      return NextResponse.json({ ok: true });
+    }
+
     return NextResponse.json({ error: "action tidak dikenal." }, { status: 400 });
   } catch (err: unknown) {
     const e = err as { message?: string };

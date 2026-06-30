@@ -254,7 +254,7 @@ function SearchContent() {
                         <div style={{ padding: 14 }}>
                           <p style={{ fontSize: "0.65rem", fontWeight: 800, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px 0" }}>{p.category}</p>
                           <h3 style={{ fontSize: "0.8125rem", fontWeight: 700, color: C.text, lineHeight: 1.4, margin: "0 0 6px 0", height: "2.8em", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{p.name}</h3>
-                          <p style={{ fontSize: "0.9375rem", fontWeight: 800, color: C.primary, margin: "0 0 6px 0" }}>{fmtPrice(p.price)}</p>
+                          <p style={{ fontSize: "0.9375rem", fontWeight: 800, color: C.primary, margin: "0 0 6px 0" }}>{p.priceRange || fmtPrice(p.price)}</p>
                           <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.7rem", color: C.textMuted }}>
                             <Star size={11} fill="#F59E0B" color="#F59E0B" /><strong style={{ color: C.text }}>{p.rating}</strong><span style={{ color: C.borderStrong }}>·</span><span>{p.sold} terjual</span>
                           </div>
