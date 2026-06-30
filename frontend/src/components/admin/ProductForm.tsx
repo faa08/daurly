@@ -313,6 +313,7 @@ export default function ProductForm({
     }
 
     const fileExt = file.name.split(".").pop();
+    // eslint-disable-next-line react-hooks/purity -- this runs in an event handler, not during render
     const fileName = `${Math.random().toString(36).substring(2, 15)}-${Date.now()}.${fileExt}`;
     const filePath = `product-images/${fileName}`;
 
