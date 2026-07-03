@@ -93,14 +93,48 @@ export default function ShippingMapModal({
         .join(", ");
       if (!query || query.length < 5) return null;
 
-      const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      if (!res.ok || !data.results?.length) return null;
-      const first = data.results[0];
-      const gLat = parseFloat(first.lat);
-      const gLng = parseFloat(first.lon);
-      if (!Number.isFinite(gLat) || !Number.isFinite(gLng)) return null;
-      return { lat: gLat, lng: gLng };
+      // Bersihkan tanda pisah/dash yang sering mengacaukan parser geocoding
+      const cleanedQuery = query.replace(/[—–-]/g, ",").replace(/\s+/g, " ");
+
+      try {
+        const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(cleanedQuery)}`);
+        const data = await res.json();
+        if (res.ok && data.results?.length) {
+          const first = data.results[0];
+          const gLat = parseFloat(first.lat);
+          const gLng = parseFloat(first.lon);
+          if (Number.isFinite(gLat) && Number.isFinite(gLng)) {
+            return { lat: gLat, lng: gLng };
+          }
+        }
+      } catch (e) {
+        console.warn("Geocoding failed for main query:", e);
+      }
+
+      // Fallback: Jika gagal, hapus bagian spesifik sebelah kiri secara bertahap
+      const parts = cleanedQuery.split(",").map((p) => p.trim()).filter(Boolean);
+      if (parts.length > 1) {
+        for (let i = 1; i < parts.length; i++) {
+          const fallbackQuery = parts.slice(i).join(", ");
+          if (fallbackQuery.length < 5) continue;
+          try {
+            const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(fallbackQuery)}`);
+            const data = await res.json();
+            if (res.ok && data.results?.length) {
+              const first = data.results[0];
+              const gLat = parseFloat(first.lat);
+              const gLng = parseFloat(first.lon);
+              if (Number.isFinite(gLat) && Number.isFinite(gLng)) {
+                return { lat: gLat, lng: gLng };
+              }
+            }
+          } catch {
+            // Abaikan dan coba bagian berikutnya
+          }
+        }
+      }
+
+      return null;
     }
 
     async function init() {

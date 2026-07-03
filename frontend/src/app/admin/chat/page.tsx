@@ -40,7 +40,7 @@ function ChatBubble({
             : "bg-[#F5F3F0] text-[#1F1B18] rounded-bl-sm"
         }`}
       >
-        <p className="leading-relaxed">{text}</p>
+        <p className="leading-relaxed whitespace-pre-wrap">{text}</p>
         <p className={`text-[10px] mt-1 flex items-center justify-end gap-1 ${isAdmin ? "text-white/70" : "text-[#8E8680]"}`}>
           <span>{time}</span>
           {isAdmin && message && <ChatReadReceipt message={message} onLight />}

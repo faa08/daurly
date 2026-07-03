@@ -158,9 +158,6 @@ export default function RegisterPage() {
           <div className="auth-split-left" style={{
             background: C.primaryPale,
             padding: "40px 36px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 20,
           }}>
             {/* Accent line */}
             <div style={{ width: 40, height: 4, background: C.primary, borderRadius: 2 }} />

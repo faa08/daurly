@@ -136,7 +136,7 @@ export default function OrderChatPage() {
                   {isAdmin && (
                     <p className="text-[10px] font-extrabold uppercase tracking-wider opacity-70 mb-1">Admin</p>
                   )}
-                  <p className="leading-relaxed">{msg.text}</p>
+                  <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                   <p className={`text-[10px] mt-1 flex items-center justify-end gap-1 ${isAdmin ? "text-secondary" : "text-white/70"}`}>
                     <span>
                       {new Date(msg.created_at).toLocaleString("id-ID", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}

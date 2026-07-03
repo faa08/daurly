@@ -60,7 +60,7 @@ export default function FeaturedProducts({ searchQuery = "" }: FeaturedProductsP
             <h2 className="section-title-custom">Produk Unggulan</h2>
             <p className="section-subtitle-custom">Kualitas terbaik yang paling banyak dicari</p>
           </div>
-          <Link href="/produk" className="section-see-all-orange flex-center-gap">
+          <Link href="/kategori" className="section-see-all-orange flex-center-gap">
             <span>Lihat Semua</span>
             <ArrowRight size={16} />
           </Link>

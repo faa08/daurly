@@ -33,11 +33,25 @@ export async function setupShippingChatAfterDigitalPay(
     if (chatErr) throw chatErr;
     chatId = newChat.id_chat;
 
+    const { data: items } = await admin
+      .from("order_item")
+      .select("nama_produk_snapshot, qty_orderitem, hrg_saat_beli")
+      .eq("id_order", id_order);
+
+    let itemsText = "";
+    if (items && items.length > 0) {
+      itemsText = "\n\n📦 *Barang yang dibeli:*\n" + items.map(item => 
+        `- ${item.nama_produk_snapshot} (x${item.qty_orderitem}) - Rp ${Number(item.hrg_saat_beli).toLocaleString("id-ID")}`
+      ).join("\n");
+    }
+
+    const greetingText = `Halo! Pembayaran QRIS/digital Anda sudah berhasil ✅ Admin Pelataran UMKM akan mengatur pengiriman lewat chat ini.${itemsText}\n\nMohon konfirmasi alamat lengkap, nomor HP aktif, dan jadwal penerimaan yang paling nyaman untuk Anda.`;
+
     await admin.from("order_chat_message").insert({
       id_chat: chatId,
       sender_role: "admin",
       sender_id: null,
-      text: ADMIN_SHIPPING_GREETING,
+      text: greetingText,
     });
   }
 
