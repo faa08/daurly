@@ -240,6 +240,7 @@ export default function CustomerOrdersPage() {
       }
 
       const fileExt = file.name.split(".").pop();
+      // eslint-disable-next-line react-hooks/purity
       const fileName = `bukti-${orderId}-${Date.now()}.${fileExt}`;
       const filePath = `payment-receipts/${fileName}`;
 

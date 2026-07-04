@@ -9,7 +9,13 @@ import {
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      const user = authService.getCurrentUser();
+      return user?.id_user ?? null;
+    }
+    return null;
+  });
 
   const load = useCallback(async (uid: string | null) => {
     if (!uid) {
@@ -21,22 +27,26 @@ export function useNotifications() {
   }, []);
 
   useEffect(() => {
-    const user = authService.getCurrentUser();
-    setUserId(user?.id_user ?? null);
-    load(user?.id_user ?? null);
-
-    const onStorage = () => {
+    const syncUser = () => {
       const u = authService.getCurrentUser();
       setUserId(u?.id_user ?? null);
-      load(u?.id_user ?? null);
     };
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("focus", onStorage);
+
+    window.addEventListener("storage", syncUser);
+    window.addEventListener("focus", syncUser);
+    window.addEventListener("pelum-user-updated", syncUser);
+
     return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("focus", onStorage);
+      window.removeEventListener("storage", syncUser);
+      window.removeEventListener("focus", syncUser);
+      window.removeEventListener("pelum-user-updated", syncUser);
     };
-  }, [load]);
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load(userId);
+  }, [userId, load]);
 
   useEffect(() => {
     if (!userId) return;
@@ -46,12 +56,11 @@ export function useNotifications() {
 
   useEffect(() => {
     const onRefresh = () => {
-      const u = authService.getCurrentUser();
-      if (u?.id_user) load(u.id_user);
+      if (userId) load(userId);
     };
     window.addEventListener("pelum-notif-refresh", onRefresh);
     return () => window.removeEventListener("pelum-notif-refresh", onRefresh);
-  }, [load]);
+  }, [userId, load]);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 

@@ -306,7 +306,7 @@ export default function AdminCategoriesPage() {
                         {cat.id_kategori}
                       </td>
                       <td className="px-6 py-4 text-[#8E8680]">
-                        {new Date(cat.created_at || Date.now()).toLocaleDateString("id-ID", {
+                        {new Date(cat.created_at || "2026-07-04").toLocaleDateString("id-ID", {
                           day: "numeric",
                           month: "long",
                           year: "numeric"

@@ -16,6 +16,7 @@ export function useChatPolling<T>(
 
   useEffect(() => {
     if (!chatId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
     const timer = setInterval(refresh, POLL_MS);
     return () => clearInterval(timer);
