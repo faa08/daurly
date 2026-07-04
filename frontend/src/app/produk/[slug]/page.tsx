@@ -497,10 +497,24 @@ export default function ProductDetailPage() {
                       {v.options.map((opt, optIdx) => {
                         const isSelected = (activeVariants[vIdx] ?? 0) === optIdx;
                         const showThumb = Boolean(opt.image?.trim());
+
+                        const isCombinationOutOfStock = product
+                          ? (product.variantInventory?.length
+                            ? getSelectedVariantStock(product, { ...activeVariants, [vIdx]: optIdx }) === 0
+                            : product.stok === 0)
+                          : false;
+
+                        const isOptionCompletelyOutOfStock = product
+                          ? (product.variantInventory?.length
+                            ? !product.variantInventory.some((entry) => entry.picks[vIdx] === optIdx && entry.stock > 0)
+                            : product.stok === 0)
+                          : false;
+
                         return (
                           <button
                             key={optIdx}
                             type="button"
+                            disabled={isOptionCompletelyOutOfStock}
                             onClick={() => handleVariantSelect(vIdx, optIdx)}
                             style={{
                               display: "flex",
@@ -512,12 +526,25 @@ export default function ProductDetailPage() {
                               width: showThumb ? 72 : undefined,
                               padding: showThumb ? "6px 6px 8px" : "0 14px",
                               borderRadius: 4,
-                              border: isSelected ? "1.5px solid #1D4ED8" : "1px solid #D5CFC9",
+                              border: isSelected
+                                ? "1.5px solid #1D4ED8"
+                                : isCombinationOutOfStock
+                                  ? "1px dashed #D5CFC9"
+                                  : "1px solid #D5CFC9",
                               fontSize: showThumb ? "0.625rem" : "0.8125rem",
                               fontWeight: 600,
-                              color: isSelected ? "#1D4ED8" : "#1F1B18",
-                              background: isSelected ? "#EFF6FF" : "white",
-                              cursor: "pointer",
+                              color: isSelected
+                                ? "#1D4ED8"
+                                : isCombinationOutOfStock
+                                  ? "#A19993"
+                                  : "#1F1B18",
+                              background: isSelected
+                                ? "#EFF6FF"
+                                : isCombinationOutOfStock
+                                  ? "#F5F3F0"
+                                  : "white",
+                              cursor: isOptionCompletelyOutOfStock ? "not-allowed" : "pointer",
+                              opacity: isOptionCompletelyOutOfStock ? 0.45 : (isCombinationOutOfStock && !isSelected ? 0.6 : 1),
                               transition: "all 0.15s",
                               fontFamily: "inherit",
                               textAlign: "center",
