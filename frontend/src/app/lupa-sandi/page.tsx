@@ -48,10 +48,10 @@ export default function LupaSandiPage() {
     <div style={{ minHeight: "100vh", background: "#F0EDEA", display: "flex", flexDirection: "column" }}>
       <Navbar />
       <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
-        <div style={{ display: "flex", width: "100%", maxWidth: 860, minHeight: 520, borderRadius: 16, overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.10)" }}>
+        <div className="auth-split-card" style={{ maxWidth: 860, minHeight: 520 }}>
 
           {/* Left Panel */}
-          <div style={{ width: 380, flexShrink: 0, background: `linear-gradient(160deg, ${C.primary} 0%, ${C.primaryDark} 100%)`, padding: "48px 36px", display: "flex", flexDirection: "column", gap: 24, color: "white" }}>
+          <div className="auth-split-left" style={{ background: `linear-gradient(160deg, ${C.primary} 0%, ${C.primaryDark} 100%)`, padding: "48px 36px", color: "white", gap: 24 }}>
             <div style={{ width: 40, height: 4, background: "rgba(255,255,255,0.5)", borderRadius: 2 }} />
             <div>
               <h2 style={{ fontSize: "1.75rem", fontWeight: 800, lineHeight: 1.25, margin: "0 0 12px 0" }}>Lupa Kata Sandi?</h2>
@@ -78,12 +78,12 @@ export default function LupaSandiPage() {
               ))}
             </div>
             <div style={{ marginTop: "auto", padding: "16px", background: "rgba(255,255,255,0.12)", borderRadius: 10 }}>
-              <p style={{ fontSize: "0.8rem", opacity: 0.8, margin: 0, lineHeight: 1.6 }}>🔒 Link reset dikirim lewat Supabase Auth ke email Anda.</p>
+              <p style={{ fontSize: "0.8rem", opacity: 0.8, margin: 0, lineHeight: 1.6 }}>Link reset dikirim lewat Supabase Auth ke email Anda.</p>
             </div>
           </div>
 
           {/* Right Panel */}
-          <div style={{ flex: 1, background: "white", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div className="auth-split-right" style={{ flex: 1, background: "white", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             {errorMsg && (
               <div style={{ background: "#FEF2F2", border: "1px solid #FCA5A5", borderRadius: 8, padding: "10px 14px", marginBottom: 20, fontSize: "0.8125rem", color: "#DC2626", fontWeight: 600 }}>
                 {errorMsg}

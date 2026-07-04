@@ -733,7 +733,7 @@ export default function ProductForm({
             <div>
               <p className="text-[11px] uppercase tracking-wider text-[#8E8680] font-bold">Varian Produk</p>
               <p className="text-[10px] text-[#8E8680] mt-0.5">
-                Grup 1 (Motif/Warna): unggah foto per pilihan. Grup 2 (Ukuran/Jenis): isi harga jika beda.
+                Grup 1 (Motif/Warna) dan/atau Grup 2 (Ukuran/Jenis). Atur harga, stok, dan gambar pilihan dari foto utama pada tabel kombinasi di bawah.
               </p>
             </div>
             <button
@@ -793,56 +793,6 @@ export default function ProductForm({
                       placeholder="Nama (Batik Lace, 40x40...)"
                       className="flex-1 min-w-[120px] px-2.5 py-2 border border-[#D5CFC9] rounded text-xs"
                     />
-                    <label
-                      className={`relative w-11 h-11 flex-shrink-0 rounded border-2 border-dashed flex items-center justify-center cursor-pointer overflow-hidden ${
-                        opt.image ? "border-[#1D4ED8]" : "border-[#D5CFC9] hover:border-[#1D4ED8]"
-                      }`}
-                      title="Unggah foto varian"
-                    >
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="absolute inset-0 opacity-0 cursor-pointer"
-                        disabled={variantUploading === `${gIdx}-${oIdx}`}
-                        onChange={(e) => handleVariantImageUpload(gIdx, oIdx, e)}
-                      />
-                      {variantUploading === `${gIdx}-${oIdx}` ? (
-                        <span className="material-symbols-outlined text-[18px] text-[#1D4ED8] animate-spin">
-                          progress_activity
-                        </span>
-                      ) : opt.image ? (
-                        <img src={opt.image} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="material-symbols-outlined text-[20px] text-[#8E8680]">
-                          add_photo_alternate
-                        </span>
-                      )}
-                    </label>
-                    {opt.image && (
-                      <button
-                        type="button"
-                        onClick={() => setVariantOptionImage(gIdx, oIdx, "")}
-                        className="text-[10px] text-red-600 font-bold hover:underline"
-                      >
-                        Hapus foto
-                      </button>
-                    )}
-                    {images.length > 0 && (
-                      <select
-                        value=""
-                        onChange={(e) => {
-                          if (e.target.value) setVariantOptionImage(gIdx, oIdx, e.target.value);
-                        }}
-                        className="text-[10px] px-2 py-1.5 border border-[#D5CFC9] rounded bg-white max-w-[140px]"
-                      >
-                        <option value="">Pakai foto produk...</option>
-                        {images.map((img, imgIdx) => (
-                          <option key={imgIdx} value={img}>
-                            Foto produk {imgIdx + 1}
-                          </option>
-                        ))}
-                      </select>
-                    )}
                     {group.options.length > 1 && (
                       <button
                         type="button"
@@ -902,33 +852,21 @@ export default function ProductForm({
                   >
                     <span className="text-xs text-[#1F1B18] font-medium flex-1">{label}</span>
                     <div className="flex items-center gap-3">
-                      {/* Image Preview / Uploader */}
+                      {/* Image Preview */}
                       <div className="flex items-center gap-1">
-                        <label
-                          className={`relative w-8 h-8 flex-shrink-0 rounded border border-dashed flex items-center justify-center cursor-pointer overflow-hidden ${
-                            variantImageMap[key] ? "border-[#1D4ED8]" : "border-[#D5CFC9] hover:border-[#1D4ED8]"
+                        <div
+                          className={`relative w-8 h-8 flex-shrink-0 rounded border flex items-center justify-center overflow-hidden bg-[#F5F3F0] ${
+                            variantImageMap[key] ? "border-[#1D4ED8]" : "border-[#D5CFC9]"
                           }`}
-                          title="Unggah foto variasi"
                         >
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="absolute inset-0 opacity-0 cursor-pointer"
-                            disabled={variantUploading === key}
-                            onChange={(e) => handleComboImageUpload(key, e)}
-                          />
-                          {variantUploading === key ? (
-                            <span className="material-symbols-outlined text-[14px] text-[#1D4ED8] animate-spin">
-                              progress_activity
-                            </span>
-                          ) : variantImageMap[key] ? (
+                          {variantImageMap[key] ? (
                             <img src={variantImageMap[key]} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <span className="material-symbols-outlined text-[16px] text-[#8E8680]">
-                              add_photo_alternate
+                              image
                             </span>
                           )}
-                        </label>
+                        </div>
                         {variantImageMap[key] && (
                           <button
                             type="button"

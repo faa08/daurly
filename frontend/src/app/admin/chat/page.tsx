@@ -40,7 +40,21 @@ function ChatBubble({
             : "bg-[#F5F3F0] text-[#1F1B18] rounded-bl-sm"
         }`}
       >
-        <p className="leading-relaxed whitespace-pre-wrap">{text}</p>
+        {text.includes("[ATTACHMENT_QRIS]") ? (
+          <div className="space-y-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/qr.jpeg"
+              alt="QRIS Code"
+              className="max-w-[180px] w-full h-auto rounded-lg bg-white p-2 border border-surface-container-high mx-auto block shadow-sm"
+            />
+            <p className="leading-relaxed whitespace-pre-wrap text-center font-bold">
+              {text.replace("[ATTACHMENT_QRIS]", "").trim() || "QRIS Platform"}
+            </p>
+          </div>
+        ) : (
+          <p className="leading-relaxed whitespace-pre-wrap">{text}</p>
+        )}
         <p className={`text-[10px] mt-1 flex items-center justify-end gap-1 ${isAdmin ? "text-white/70" : "text-[#8E8680]"}`}>
           <span>{time}</span>
           {isAdmin && message && <ChatReadReceipt message={message} onLight />}
@@ -208,6 +222,19 @@ function ShippingPanel({ focusOrderId }: { focusOrderId?: string | null }) {
     setSending(false);
   };
 
+  const handleSendQris = async () => {
+    const user = authService.getCurrentUser();
+    if (!selectedId) return;
+    setSending(true);
+    const qrisText = "[ATTACHMENT_QRIS] Silakan scan kode QRIS di atas untuk melakukan pembayaran pesanan Anda.";
+    const ok = await orderChatService.sendMessage(selectedId, "admin", user?.id_user || null, qrisText);
+    if (ok) {
+      await refresh();
+      scrollToBottomAfterSend();
+    }
+    setSending(false);
+  };
+
   const handleDeleteChat = async () => {
     if (!selectedId) return;
     const ok = window.confirm("Apakah Anda yakin ingin menghapus seluruh percakapan chat pengiriman ini?");
@@ -288,6 +315,7 @@ function ShippingPanel({ focusOrderId }: { focusOrderId?: string | null }) {
       hasSelection={!!selectedId}
       placeholder="Koordinasi alamat, kurir, jadwal kirim..."
       onDelete={handleDeleteChat}
+      onSendQris={handleSendQris}
     />
   );
 }
@@ -400,6 +428,7 @@ function ChatLayout({
   placeholder,
   sendClassName = "bg-[#1D4ED8] hover:bg-blue-700",
   onDelete,
+  onSendQris,
 }: {
   loading: boolean;
   empty: boolean;
@@ -418,6 +447,7 @@ function ChatLayout({
   placeholder: string;
   sendClassName?: string;
   onDelete?: () => void;
+  onSendQris?: () => void;
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ minHeight: 520 }}>
@@ -461,6 +491,18 @@ function ChatLayout({
               {messages}
             </div>
             <form onSubmit={onSend} className="border-t border-[#EAE5E0] p-4 flex gap-2">
+              {onSendQris && (
+                <button
+                  type="button"
+                  onClick={onSendQris}
+                  disabled={sending}
+                  className="px-3 h-11 border border-primary text-primary hover:bg-orange-50 font-bold text-xs rounded-lg flex items-center gap-1.5 flex-shrink-0 transition"
+                  title="Kirim QRIS Platform"
+                >
+                  <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
+                  Kirim QRIS
+                </button>
+              )}
               <input
                 type="text"
                 value={text}

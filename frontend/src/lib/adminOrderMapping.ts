@@ -352,6 +352,8 @@ export function mapAdminOrderRow(o: any): AdminOrder {
     recipientPhone: (alamatRow as AddressParts | null)?.no_telp || "",
     shipLat: mapCoords?.lat ?? null,
     shipLng: mapCoords?.lng ?? null,
+    buktiBayar: payment?.bukti_bayar || null,
+    statPay: payment?.stat_pay || null,
   };
 }
 

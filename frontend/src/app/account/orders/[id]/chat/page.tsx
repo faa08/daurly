@@ -136,7 +136,21 @@ export default function OrderChatPage() {
                   {isAdmin && (
                     <p className="text-[10px] font-extrabold uppercase tracking-wider opacity-70 mb-1">Admin</p>
                   )}
-                  <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                  {msg.text.includes("[ATTACHMENT_QRIS]") ? (
+                    <div className="space-y-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/qr.jpeg"
+                        alt="QRIS Code"
+                        className="max-w-[200px] w-full h-auto rounded-lg bg-white p-2 border border-surface-container-high mx-auto block shadow-sm"
+                      />
+                      <p className="leading-relaxed whitespace-pre-wrap text-center font-bold">
+                        {msg.text.replace("[ATTACHMENT_QRIS]", "").trim() || "Pindai QRIS di atas untuk membayar"}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                  )}
                   <p className={`text-[10px] mt-1 flex items-center justify-end gap-1 ${isAdmin ? "text-secondary" : "text-white/70"}`}>
                     <span>
                       {new Date(msg.created_at).toLocaleString("id-ID", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}

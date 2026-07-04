@@ -46,6 +46,8 @@ export interface AdminOrder {
   recipientPhone: string;
   shipLat: number | null;
   shipLng: number | null;
+  buktiBayar?: string | null;
+  statPay?: string | null;
 }
 
 export type AdminShipStatus = "Perlu Dikirim" | "Sedang Dikirim" | "Selesai";
@@ -640,4 +642,77 @@ export const adminService = {
       return [];
     }
   },
+
+  async confirmDigitalPayment(orderId: string): Promise<boolean> {
+    if (isPlaceholder()) return false;
+    try {
+      const now = new Date().toISOString();
+      
+      // 1. Update payment status to success
+      const { error: payErr } = await supabase
+        .from("payment")
+        .update({ stat_pay: "success", tgl_pay: now })
+        .eq("id_order", orderId);
+      
+      if (payErr) throw payErr;
+      
+      // 2. Update order status to diproses (translated to Perlu Dikirim in admin panel)
+      const { error: orderErr } = await supabase
+        .from("order")
+        .update({ stat_order: "diproses", updated_at: now })
+        .eq("id_order", orderId);
+      
+      if (orderErr) throw orderErr;
+
+      // 3. Deduct stock inventory for products in this order
+      const { data: items } = await supabase
+        .from("order_item")
+        .select("id_produk, qty_orderitem")
+        .eq("id_order", orderId);
+
+      if (items) {
+        for (const item of items) {
+          if (!item.id_produk) continue;
+          
+          const { data: prod } = await supabase
+            .from("produk")
+            .select("produk_stock")
+            .eq("id_produk", item.id_produk)
+            .maybeSingle();
+
+          if (prod) {
+            const newStock = Math.max(0, Number(prod.produk_stock) - Number(item.qty_orderitem));
+            await supabase
+              .from("produk")
+              .update({ produk_stock: newStock })
+              .eq("id_produk", item.id_produk);
+          }
+        }
+      }
+
+      // 4. Send customer notification
+      const { data: orderData } = await supabase
+        .from("order")
+        .select("id_user")
+        .eq("id_order", orderId)
+        .maybeSingle();
+
+      if (orderData?.id_user) {
+        await supabase.from("notifikasi").insert({
+          id_user: orderData.id_user,
+          judul: "Pembayaran Dikonfirmasi",
+          pesan: "Pembayaran QRIS untuk pesanan Anda telah berhasil dikonfirmasi oleh admin. Pesanan kini sedang diproses.",
+          tipe: "payment",
+          link: "/account/orders",
+          id_order: orderId,
+          is_read: false,
+        });
+      }
+
+      return true;
+    } catch (err) {
+      console.error("adminService.confirmDigitalPayment failed:", err);
+      return false;
+    }
+  }
 };

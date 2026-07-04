@@ -27,21 +27,41 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setReady(true);
+      }
+    });
+
     async function init() {
       const params = new URLSearchParams(window.location.search);
       const code = params.get("code");
       if (code) {
-        await supabase.auth.exchangeCodeForSession(code);
+        try {
+          await supabase.auth.exchangeCodeForSession(code);
+        } catch (err) {
+          console.error("Gagal melakukan pertukaran kode sesi:", err);
+        }
       }
+      
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      setReady(Boolean(session));
-      if (!session) {
+      
+      if (session) {
+        setReady(true);
+      } else {
         setErrorMsg("Link reset tidak valid atau sudah kadaluarsa. Minta link baru dari halaman lupa sandi.");
       }
     }
+    
     init();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {

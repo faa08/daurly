@@ -35,6 +35,7 @@ type Order = {
   items: OrderItem[];
   pengiriman: { kurir: string; no_resi: string | null; stat_kirim?: string } | null;
   seller?: { nm_store: string } | null;
+  payment?: { stat_pay: string; bukti_bayar: string | null } | { stat_pay: string; bukti_bayar: string | null }[] | null;
 };
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
@@ -167,7 +168,8 @@ export default function CustomerOrdersPage() {
             id_order_item, qty_orderitem, hrg_saat_beli,
             produk ( id_produk, nama_produk, cover_img, img )
           ),
-          pengiriman ( kurir, no_resi, stat_kirim )
+          pengiriman ( kurir, no_resi, stat_kirim ),
+          payment ( stat_pay, bukti_bayar )
         `)
         .eq("id_user", user.id_user)
         .order("created_at", { ascending: false }),
@@ -190,6 +192,7 @@ export default function CustomerOrdersPage() {
           items,
           pengiriman: normalizePengiriman(o.pengiriman),
           seller: Array.isArray(o.seller) ? o.seller[0] : o.seller,
+          payment: o.payment,
         };
       }) as Order[];
       const hydrated = await hydrateOrderImages(mapped);
@@ -226,6 +229,55 @@ export default function CustomerOrdersPage() {
     const isPickup = ord.pengiriman?.kurir === "Ambil di Toko";
     if (isPickup) return false;
     return ord.stat_order === "dikirim";
+  };
+
+  const handleUploadBukti = async (orderId: string, file: File) => {
+    if (!file) return;
+    setActionLoading(orderId);
+    try {
+      if (file.size > 2 * 1024 * 1024) {
+        throw new Error("Ukuran gambar terlalu besar! Maksimal 2MB.");
+      }
+
+      const fileExt = file.name.split(".").pop();
+      const fileName = `bukti-${orderId}-${Date.now()}.${fileExt}`;
+      const filePath = `payment-receipts/${fileName}`;
+
+      let fileUrl = "";
+      // Upload to Supabase storage (fallback to base64)
+      const { error } = await supabase.storage
+        .from("products")
+        .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+      if (!error) {
+        const { data } = supabase.storage.from("products").getPublicUrl(filePath);
+        fileUrl = data?.publicUrl || "";
+      } else {
+        // Fallback to base64
+        fileUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve((e.target?.result as string) || "");
+          reader.onerror = () => reject(new Error("Gagal membaca berkas."));
+        });
+      }
+
+      if (!fileUrl) throw new Error("Gagal memproses berkas gambar.");
+
+      // Save to payment table
+      const { error: payErr } = await supabase
+        .from("payment")
+        .update({ bukti_bayar: fileUrl })
+        .eq("id_order", orderId);
+
+      if (payErr) throw payErr;
+
+      alert("Bukti pembayaran berhasil diunggah! Mohon menunggu verifikasi admin.");
+      await loadData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Gagal mengunggah bukti pembayaran.");
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const handleCompleteOrder = async (orderId: string) => {
@@ -455,10 +507,42 @@ export default function CustomerOrdersPage() {
                       </div>
                       <div className="flex items-center gap-2 flex-wrap justify-end">
                         {ord.tipe_pembayaran === "digital" &&
-                          ["diproses", "dikirim", "selesai"].includes(ord.stat_order) && (
+                          ["pending", "diproses", "dikirim", "selesai"].includes(ord.stat_order) && (
                           <Link href={`/account/orders/${ord.id_order}/chat`} className="px-4 py-2 border border-primary text-primary font-bold text-xs rounded hover:bg-primary-container transition">
-                            Chat Pengiriman
+                            {ord.stat_order === "pending" ? "Chat Pembayaran (E-Wallet)" : "Chat Pengiriman"}
                           </Link>
+                        )}
+
+                        {ord.stat_order === "pending" && ord.tipe_pembayaran === "digital" && (
+                          (() => {
+                            const payInfo = Array.isArray(ord.payment) ? ord.payment[0] : ord.payment;
+                            const hasBukti = !!payInfo?.bukti_bayar;
+                            return hasBukti ? (
+                              <span className="px-3 py-2 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 rounded-md">
+                                Bukti Terkirim (Menunggu Verifikasi)
+                              </span>
+                            ) : (
+                              <label className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded cursor-pointer transition flex items-center gap-1">
+                                {actionLoading === ord.id_order ? (
+                                  <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                  <span className="material-symbols-outlined text-[16px] mr-1 align-middle">upload_file</span>
+                                )}
+                                Unggah Bukti Bayar
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  disabled={actionLoading === ord.id_order}
+                                  onChange={(e) => {
+                                    if (e.target.files?.[0]) {
+                                      handleUploadBukti(ord.id_order, e.target.files[0]);
+                                    }
+                                  }}
+                                />
+                              </label>
+                            );
+                          })()
                         )}
 
                         {isPickup && ord.stat_order === "diproses" && (

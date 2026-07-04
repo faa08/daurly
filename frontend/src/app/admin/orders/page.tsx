@@ -79,6 +79,21 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleConfirmDigitalPayment = async (uuid: string, buyer: string) => {
+    const ok = window.confirm(`Konfirmasi pembayaran QRIS dari ${buyer} sudah lunas dan sesuai?`);
+    if (!ok) return;
+
+    setConfirmingPickup(uuid);
+    const success = await adminService.confirmDigitalPayment(uuid);
+    setConfirmingPickup(null);
+
+    if (success) {
+      fetchOrders();
+    } else {
+      alert("Gagal mengonfirmasi pembayaran digital.");
+    }
+  };
+
   const needShippingCount = orders.filter((o) => o.status === "Perlu Dikirim").length;
   const needPickupCount = orders.filter(
     (o) => o.status === "Perlu Dikirim" && o.paymentKind === "pickup"
@@ -347,6 +362,24 @@ export default function AdminOrdersPage() {
                           >
                             <Store size={12} />
                             {confirmingPickup === order.uuid ? "Memproses..." : "Konfirmasi Diambil"}
+                          </button>
+                        )}
+                        {order.status === "Belum Bayar" && order.paymentKind === "digital" && (
+                          <button
+                            onClick={() => handleConfirmDigitalPayment(order.uuid, order.buyer)}
+                            disabled={confirmingPickup === order.uuid}
+                            className="bg-green-600 text-white text-[10px] font-bold px-3 py-1.5 rounded hover:bg-green-700 transition flex items-center gap-1"
+                          >
+                            Konfirmasi Lunas
+                          </button>
+                        )}
+                        {order.buktiBayar && (
+                          <button
+                            onClick={() => window.open(order.buktiBayar!)}
+                            className="border border-[#D5CFC9] text-[#5C5550] text-[10px] font-bold px-3 py-1.5 rounded hover:bg-[#F5F3F0] transition flex items-center gap-1"
+                            title="Buka bukti pembayaran di tab baru"
+                          >
+                            Lihat Bukti
                           </button>
                         )}
                         {order.status === "Dikirim" && order.paymentKind !== "pickup" && (

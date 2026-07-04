@@ -40,6 +40,7 @@ export default function AdminSidebar({
     { name: "Dashboard", href: "/admin/dashboard", icon: "grid_view" },
     { name: "Manajemen Toko", href: "/admin/stores", icon: "storefront" },
     { name: "Manajemen Produk", href: "/admin/products", icon: "inventory_2" },
+    { name: "Kategori Produk", href: "/admin/categories", icon: "category" },
     { name: "Banner & Hero", href: "/admin/banners", icon: "view_carousel" },
     { name: "Pesanan", href: "/admin/orders", icon: "shopping_bag" },
     { name: "Pusat Chat", href: "/admin/chat", icon: "forum" },
@@ -47,8 +48,11 @@ export default function AdminSidebar({
     { name: "Saldo", href: "/admin/saldo", icon: "account_balance_wallet" },
     { name: "Transaksi", href: "/admin/transactions", icon: "receipt_long" },
     { name: "Laporan", href: "/admin/reports", icon: "analytics" },
-    { name: "Kupon & Diskon", href: "/admin/settings?tab=Kupon+%26+Diskon", icon: "percent" },
-    { name: "Pengaturan", href: "/admin/settings", icon: "settings" },
+    { name: "Kupon & Diskon", href: "/admin/coupons", icon: "percent" },
+    { name: "Kontak & CS", href: "/admin/contact", icon: "contact_support" },
+    { name: "Tarif & Komisi", href: "/admin/commission", icon: "payments" },
+    { name: "Kebijakan & TOS", href: "/admin/policies", icon: "gavel" },
+    { name: "Batas Waktu", href: "/admin/limits", icon: "hourglass_empty" },
   ];
 
   return (
@@ -75,11 +79,9 @@ export default function AdminSidebar({
       {/* Navigation Menu */}
       <nav className="flex-1 space-y-1">
         {menuItems.map((item) => {
-          const isActive = item.href.includes("tab=")
-            ? pathname === "/admin/settings" && activeTabQuery === "Kupon & Diskon"
-            : item.href === "/admin/settings"
-              ? pathname === "/admin/settings" && activeTabQuery !== "Kupon & Diskon"
-              : pathname === item.href || (item.href === "/admin/chat" && pathname.startsWith("/admin/chat"));
+          const isActive =
+            pathname === item.href ||
+            (item.href === "/admin/chat" && pathname.startsWith("/admin/chat"));
           const badge =
             item.href === "/admin/chat" && pendingChatCount > 0 ? pendingChatCount : null;
           return (

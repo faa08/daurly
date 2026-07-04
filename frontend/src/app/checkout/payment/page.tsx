@@ -16,23 +16,11 @@ const isDevSimulator =
 function PaymentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const ref = searchParams.get("ref") || searchParams.get("orderId") || "";
   const amount = Number(searchParams.get("amount")) || 0;
 
   const [loading, setLoading] = useState(true);
-  const [completing, setCompleting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [waitingMidtrans, setWaitingMidtrans] = useState(false);
-  const [orders, setOrders] = useState<{ id_order: string }[]>([]);
-  const [chatOrderId, setChatOrderId] = useState<string | null>(null);
-
-  const markSuccess = useCallback((orderList: { id_order: string }[]) => {
-    orderService.clearCheckoutSession();
-    sessionStorage.removeItem("pelum_checkout_voucher");
-    setChatOrderId(orderList[0]?.id_order || null);
-    setSuccess(true);
-  }, []);
-
+  const [orders, setOrders] = useState<{ id_order: string; total_hrg?: number }[]>([]);
+  
   useEffect(() => {
     const user = authService.getCurrentUser();
     if (!user) {
@@ -47,166 +35,151 @@ function PaymentContent() {
     }
     setOrders(placed.orders);
     setLoading(false);
-
-    if (ref && !isDevSimulator) {
-      setWaitingMidtrans(true);
-    }
-  }, [router, ref]);
-
-  useEffect(() => {
-    if (!waitingMidtrans || !ref || success) return;
-
-    let cancelled = false;
-    const poll = async () => {
-      try {
-        const res = await apiFetch(`/api/payment/status?ref=${encodeURIComponent(ref)}`);
-        const data = await res.json();
-        if (!cancelled && data.paid) {
-          markSuccess(data.orders?.length ? data.orders : orders);
-          setWaitingMidtrans(false);
-        }
-      } catch {
-        /* retry */
-      }
-    };
-
-    poll();
-    const interval = setInterval(poll, 4000);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, [waitingMidtrans, ref, success, orders, markSuccess]);
-
-  const handlePaySuccess = useCallback(async () => {
-    if (!orders.length || !isDevSimulator) return;
-    setCompleting(true);
-    try {
-      await orderService.completePayment(
-        orders.map((o) => o.id_order),
-        true,
-        { createChat: true, paymentType: "digital" }
-      );
-      markSuccess(orders);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Gagal memverifikasi pembayaran.");
-    } finally {
-      setCompleting(false);
-    }
-  }, [orders, markSuccess]);
+  }, [router]);
 
   if (loading) {
     return (
       <main style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Loader2 size={32} color="#1D4ED8" className="animate-spin" />
+        <Loader2 size={32} color="#FF6F00" className="animate-spin" />
       </main>
     );
   }
 
-  if (success) {
-    return (
-      <main style={{ background: "#FCFCFA", minHeight: "70vh", padding: "48px 24px" }}>
-        <div style={{ maxWidth: 480, margin: "0 auto", background: "white", borderRadius: 16, border: "1px solid #EAE5E0", padding: 32, textAlign: "center" }}>
-          <CheckCircle2 size={56} color="#16A34A" style={{ margin: "0 auto 16px" }} />
-          <h1 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: 8 }}>Pembayaran Berhasil</h1>
-          <p style={{ fontSize: "0.875rem", color: "#5C5550", marginBottom: 24 }}>
-            Admin Pelataran UMKM akan menghubungi Anda lewat chat untuk koordinasi pengiriman.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {chatOrderId && (
-              <Link
-                href={`/account/orders/${chatOrderId}/chat`}
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  height: 44, background: "#16A34A", color: "white", borderRadius: 8,
-                  fontWeight: 700, fontSize: "0.875rem", textDecoration: "none",
-                }}
-              >
-                Buka Chat Pengiriman <ArrowRight size={16} />
-              </Link>
-            )}
-            <Link href="/account/orders" style={{ fontSize: "0.8125rem", color: "#1D4ED8", fontWeight: 700 }}>
-              Lihat Pesanan Saya
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const firstOrderId = orders[0]?.id_order || "";
+  const totalBill = amount || orders.reduce((s, o) => s + (o.total_hrg || 0), 0);
+  const orderIdDisplay = firstOrderId ? `ORD-${firstOrderId.replace(/-/g, "").slice(0, 8).toUpperCase()}` : "";
+  
+  // WhatsApp Link Setup
+  const adminWaNumber = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP || "6281234567890";
+  const waText = `Halo Admin Pelataran UMKM, saya ingin melakukan konfirmasi pembayaran untuk pesanan ${orderIdDisplay} sebesar Rp ${totalBill.toLocaleString("id-ID")} menggunakan QRIS E-Wallet.`;
+  const waUrl = `https://wa.me/${adminWaNumber}?text=${encodeURIComponent(waText)}`;
 
-  if (waitingMidtrans) {
-    return (
-      <main style={{ background: "#FCFCFA", minHeight: "70vh", padding: "48px 24px" }}>
-        <div style={{ maxWidth: 520, margin: "0 auto", background: "white", borderRadius: 16, border: "1px solid #EAE5E0", padding: 32, textAlign: "center" }}>
-          <Clock size={48} color="#1D4ED8" style={{ margin: "0 auto 16px" }} />
-          <h1 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: 8 }}>Menunggu Konfirmasi Pembayaran</h1>
-          <p style={{ fontSize: "0.875rem", color: "#5C5550", marginBottom: 16 }}>
-            Pembayaran Anda sedang diverifikasi oleh Midtrans. Halaman ini akan otomatis diperbarui.
-          </p>
-          {ref && (
-            <p style={{ fontSize: "0.75rem", color: "#8E8680" }}>Ref: {ref}</p>
-          )}
-          <Loader2 size={28} color="#1D4ED8" className="animate-spin" style={{ marginTop: 20 }} />
-        </div>
-      </main>
-    );
-  }
+  const handleFinishCheckout = () => {
+    // Clear checkout session so user doesn't double checkout the same items
+    orderService.clearCheckoutSession();
+    sessionStorage.removeItem("pelum_checkout_voucher");
+    router.push("/account/orders");
+  };
 
   return (
-    <main style={{ background: "#FCFCFA", minHeight: "70vh", padding: "48px 24px" }}>
+    <main style={{ background: "#FCFCFA", minHeight: "80vh", padding: "48px 24px" }}>
       <div style={{
         maxWidth: 520, margin: "0 auto", background: "white", borderRadius: 16,
-        border: "1px solid #EAE5E0", padding: 32, boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
+        border: "1px solid #EAE5E0", padding: 32, boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
+        textAlign: "center"
       }}>
         <span style={{
-          fontSize: "0.65rem", fontWeight: 800, color: "white", background: "#1D4ED8",
+          fontSize: "0.65rem", fontWeight: 800, color: "white", background: "#FF6F00",
           padding: "4px 8px", borderRadius: 4, letterSpacing: "0.05em", textTransform: "uppercase",
         }}>
-          Mode Pengembangan
+          Metode E-Wallet (QRIS)
         </span>
-        <h1 style={{ fontSize: "1.25rem", fontWeight: 800, margin: "12px 0 8px" }}>Simulator Pembayaran</h1>
-        <p style={{ fontSize: "0.8125rem", color: "#5C5550", marginBottom: 24 }}>
-          Midtrans belum dikonfigurasi. Gunakan tombol di bawah hanya untuk pengujian lokal.
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, margin: "16px 0 8px", color: "#1F1B18" }}>
+          Instruksi Pembayaran QRIS
+        </h1>
+        <p style={{ fontSize: "0.85rem", color: "#5C5550", marginBottom: 24, lineHeight: 1.5 }}>
+          Silakan pindai kode QRIS di bawah ini untuk menyelesaikan pembayaran pesanan Anda secara manual.
         </p>
 
-        <div style={{ background: "#EFF6FF", borderRadius: 10, padding: 16, marginBottom: 24 }}>
-          <p style={{ fontSize: "0.75rem", color: "#5C5550", margin: "0 0 4px" }}>Total Tagihan</p>
-          <p style={{ fontSize: "1.5rem", fontWeight: 800, color: "#1D4ED8", margin: 0 }}>
-            Rp {(amount || orders.reduce((s, o) => s + (o as { total_hrg?: number }).total_hrg!, 0)).toLocaleString("id-ID")}
+        {/* Billing Box */}
+        <div style={{ background: "#FFF7ED", borderRadius: 12, border: "1.5px solid #FFEDD5", padding: 18, marginBottom: 24 }}>
+          <p style={{ fontSize: "0.75rem", color: "#7C2D12", margin: "0 0 4px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Total Pembayaran
           </p>
-          {ref && (
-            <p style={{ fontSize: "0.75rem", color: "#8E8680", margin: "8px 0 0" }}>Ref: {ref}</p>
+          <p style={{ fontSize: "1.75rem", fontWeight: 800, color: "#FF6F00", margin: 0 }}>
+            Rp {totalBill.toLocaleString("id-ID")}
+          </p>
+          {orderIdDisplay && (
+            <p style={{ fontSize: "0.75rem", color: "#9A3412", margin: "8px 0 0", fontWeight: 600 }}>
+              Kode Referensi: {orderIdDisplay}
+            </p>
           )}
         </div>
 
-        <button
-          onClick={handlePaySuccess}
-          disabled={completing}
-          style={{
-            width: "100%", height: 48, background: "#16A34A", color: "white", border: "none",
-            borderRadius: 8, fontWeight: 800, fontSize: "0.9375rem", cursor: completing ? "not-allowed" : "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          }}
-        >
-          {completing ? (
-            <>
-              <Loader2 size={18} className="animate-spin" />
-              Memverifikasi...
-            </>
-          ) : (
-            "Simulasikan Pembayaran Berhasil"
-          )}
-        </button>
+        {/* QRIS Code Image */}
+        <div style={{
+          display: "flex", justifyContent: "center", alignItems: "center",
+          background: "#F9F8F6", border: "1px dashed #D5CFC9", borderRadius: 12,
+          padding: 16, marginBottom: 24
+        }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/qr.jpeg"
+            alt="QRIS Code Pelataran UMKM"
+            style={{ maxWidth: "240px", height: "auto", display: "block" }}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+          <Link
+            href={`/account/orders/${firstOrderId}/chat`}
+            onClick={() => {
+              orderService.clearCheckoutSession();
+              sessionStorage.removeItem("pelum_checkout_voucher");
+            }}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              height: 48, background: "#1D4ED8", color: "white", borderRadius: 8,
+              fontWeight: 800, fontSize: "0.875rem", textDecoration: "none",
+              transition: "opacity 0.2s"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.opacity = "0.9"}
+            onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+          >
+            Hubungi Admin (Chat Aplikasi)
+          </Link>
+
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              orderService.clearCheckoutSession();
+              sessionStorage.removeItem("pelum_checkout_voucher");
+            }}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              height: 48, background: "#16A34A", color: "white", borderRadius: 8,
+              fontWeight: 800, fontSize: "0.875rem", textDecoration: "none",
+              transition: "opacity 0.2s"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.opacity = "0.9"}
+            onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+          >
+            Hubungi Admin (WhatsApp)
+          </a>
+        </div>
+
+        <hr style={{ border: "none", borderTop: "1px solid #EAE5E0", margin: "24px 0" }} />
+
+        <div style={{ textAlign: "left", marginBottom: 24 }}>
+          <h4 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1F1B18", marginBottom: 6 }}>
+            📢 Langkah Konfirmasi Pembayaran:
+          </h4>
+          <ol style={{ fontSize: "0.78rem", color: "#5C5550", margin: 0, paddingLeft: 18, lineHeight: 1.5 }}>
+            <li>Lakukan scan kode QRIS dan bayar sesuai nominal di atas.</li>
+            <li>Ambil screenshot bukti transaksi sukses.</li>
+            <li>Klik tombol chat di atas untuk mengirim bukti atau buka menu <b>Pesanan Saya</b> lalu unggah bukti pembayaran agar pesanan Anda dapat dikonfirmasi oleh Admin.</li>
+          </ol>
+        </div>
 
         <button
-          onClick={() => router.push("/checkout")}
+          onClick={handleFinishCheckout}
           style={{
-            width: "100%", height: 40, marginTop: 10, background: "none",
+            width: "100%", height: 44, background: "none",
             border: "1.5px solid #D5CFC9", borderRadius: 8, color: "#5C5550",
-            fontWeight: 700, fontSize: "0.8125rem", cursor: "pointer",
+            fontWeight: 850, fontSize: "0.8125rem", cursor: "pointer",
+            transition: "background 0.2s"
           }}
+          onMouseOver={(e) => e.currentTarget.style.background = "#F9F8F6"}
+          onMouseOut={(e) => e.currentTarget.style.background = "none"}
         >
-          Kembali ke Checkout
+          Lihat Pesanan Saya & Unggah Bukti
         </button>
       </div>
     </main>

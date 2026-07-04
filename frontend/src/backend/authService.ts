@@ -103,6 +103,7 @@ export const authService = {
       } else {
         localStorage.removeItem("pelum_current_user");
       }
+      window.dispatchEvent(new CustomEvent(USER_UPDATED_EVENT));
     }
   },
 

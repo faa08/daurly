@@ -819,7 +819,7 @@ CREATE INDEX IF NOT EXISTS idx_return_chat_message ON return_chat_message(id_cha
 
 ALTER TABLE return_chat ENABLE ROW LEVEL SECURITY;
 ALTER TABLE return_chat_message ENABLE ROW LEVEL SECURITY;
-
+                                        
 DROP POLICY IF EXISTS "Allow anon return_chat" ON return_chat;
 CREATE POLICY "Allow anon return_chat"
     ON return_chat FOR ALL USING (true) WITH CHECK (true);

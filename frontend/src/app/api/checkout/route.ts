@@ -219,6 +219,23 @@ export async function POST(request: NextRequest) {
       });
       if (shipErr) throw shipErr;
 
+      if (paymentType === "digital") {
+        const { data: newChat, error: chatErr } = await admin
+          .from("order_chat")
+          .insert({ id_order, id_user: userId })
+          .select("id_chat")
+          .single();
+
+        if (!chatErr && newChat?.id_chat) {
+          await admin.from("order_chat_message").insert({
+            id_chat: newChat.id_chat,
+            sender_role: "admin",
+            sender_id: null,
+            text: "Halo! Silakan melakukan pembayaran menggunakan QRIS E-Wallet. Anda dapat meminta QR Code melalui chat ini atau menghubungi WhatsApp admin.",
+          });
+        }
+      }
+
       createdOrders.push({
         id_order,
         id_seller: sellerId,
