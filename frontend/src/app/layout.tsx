@@ -4,6 +4,7 @@ import "./globals.css";
 import ToastProvider from "@/components/ToastProvider";
 import CustomerServiceProvider from "@/components/CustomerServiceProvider";
 import AuthSessionProvider from "@/components/AuthSessionProvider";
+import AdminChatNotificationAlert from "@/components/AdminChatNotificationAlert";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export const metadata: Metadata = {
           <AuthSessionProvider>
             <CustomerServiceProvider>
               {children}
+              <AdminChatNotificationAlert />
             </CustomerServiceProvider>
           </AuthSessionProvider>
         </ToastProvider>

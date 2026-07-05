@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { adminService } from "@/backend/adminService";
 
 interface Transaction {
@@ -28,6 +28,22 @@ export default function AdminTransactionsPage() {
   const [detailData, setDetailData] = useState<any | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
+  const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDownloadDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleViewDetails = async (id: string) => {
     setActiveDetailId(id);
     setLoadingDetail(true);
@@ -43,34 +59,360 @@ export default function AdminTransactionsPage() {
     }
   };
 
-  const handleDownloadReport = () => {
+  // Helper to format date in Indonesian format
+  const formatIndonesianDate = (dateStr: string, formatStyle: "short" | "long" = "long") => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+
+    const monthsLong = [
+      "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+    const monthsShort = [
+      "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+      "Jul", "Ags", "Sep", "Okt", "Nov", "Des"
+    ];
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const year = date.getFullYear();
+
+    if (formatStyle === "short") {
+      const month = monthsShort[date.getMonth()];
+      const shortYear = String(year).slice(-2);
+      return `${day}-${month}-${shortYear}`;
+    } else {
+      const month = monthsLong[date.getMonth()];
+      return `${day} ${month} ${year}`;
+    }
+  };
+
+  const handleDownloadReportFormat = async (format: "excel" | "pdf") => {
     if (filteredTransactions.length === 0) {
       alert("Tidak ada data transaksi untuk diunduh.");
       return;
     }
 
-    const headers = ["Order ID", "Tanggal", "Toko", "Pembeli", "Email", "Total Harga", "Status"];
-    const rows = filteredTransactions.map((t) => [
-      t.id,
-      t.date,
-      t.storeName,
-      t.buyer,
-      t.email,
-      t.amount,
-      t.status,
-    ]);
+    setIsDownloading(true);
+    setShowDownloadDropdown(false);
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))].join("\n");
+    try {
+      // 1. Fetch order items for the filtered transactions
+      const orderIds = filteredTransactions.map((t) => t.id);
+      const items = await adminService.getOrderItemsForOrders(orderIds);
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `laporan_transaksi_${new Date().toISOString().split("T")[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // 2. Prepare report rows chronologically
+      const sortedTxs = [...filteredTransactions].sort(
+        (a, b) => new Date(a.createdRaw).getTime() - new Date(b.createdRaw).getTime()
+      );
+
+      const reportItems: {
+        no?: number;
+        tanggal: string;
+        namaBarang: string;
+        keteranganBarang: string;
+        qty: number;
+        hargaSatuan: number;
+        total: number;
+      }[] = [];
+
+      sortedTxs.forEach((t) => {
+        const txItems = items.filter((item) => item.id_order === t.id);
+        const buyerName = t.buyer || "Tanpa Nama";
+        const orderShort = t.id.replace(/-/g, "").substring(0, 8).toUpperCase();
+        
+        if (txItems.length === 0) {
+          // Fallback if no order items are found in the DB
+          reportItems.push({
+            tanggal: formatIndonesianDate(t.createdRaw, "short"),
+            namaBarang: `Produk ${t.storeName || "Toko UMKM"}`,
+            keteranganBarang: `Pembeli: ${buyerName} (ORD-${orderShort})`,
+            qty: 1,
+            hargaSatuan: t.amount,
+            total: t.amount,
+          });
+        } else {
+          txItems.forEach((item) => {
+            const qty = Number(item.qty_orderitem || 1);
+            const price = Number(item.hrg_saat_beli || 0);
+            reportItems.push({
+              tanggal: formatIndonesianDate(t.createdRaw, "short"),
+              namaBarang: item.nama_produk_snapshot || "Produk Tanpa Nama",
+              keteranganBarang: `Pembeli: ${buyerName} (ORD-${orderShort})`,
+              qty: qty,
+              hargaSatuan: price,
+              total: qty * price,
+            });
+          });
+        }
+      });
+
+      // 3. Process empty dates for consecutive duplicate dates (matching screenshot)
+      let lastDate = "";
+      const finalRows = reportItems.map((item, idx) => {
+        const showDate = item.tanggal !== lastDate;
+        if (showDate) {
+          lastDate = item.tanggal;
+        }
+        return {
+          ...item,
+          no: idx + 1,
+          tanggalDisplay: showDate ? item.tanggal : "",
+        };
+      });
+
+      // 4. Calculate period text
+      let periodText = "SEMUA PERIODE";
+      if (sortedTxs.length > 0) {
+        const dates = sortedTxs
+          .map((t) => new Date(t.createdRaw))
+          .filter((d) => !isNaN(d.getTime()));
+        if (dates.length > 0) {
+          const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+          const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+          const minStr = formatIndonesianDate(minDate.toISOString(), "long");
+          const maxStr = formatIndonesianDate(maxDate.toISOString(), "long");
+          periodText = minStr === maxStr ? minStr : `${minStr} sampai ${maxStr}`;
+        }
+      }
+
+      // Store Title
+      const storeName = selectedStoreFilter === "all" ? "PELATARAN UMKM" : selectedStoreFilter;
+
+      if (format === "excel") {
+        // Excel download using ExcelJS
+        const ExcelJS = (await import("exceljs")).default;
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Laporan Transaksi");
+
+        // Column widths
+        worksheet.columns = [
+          { key: "no", width: 6 },
+          { key: "tanggal", width: 22 },
+          { key: "nama_barang", width: 35 },
+          { key: "keterangan", width: 35 },
+          { key: "qty", width: 8 },
+          { key: "harga_satuan", width: 18 },
+          { key: "total", width: 20 },
+        ];
+
+        // Header Styling
+        // Row 1: Store Name
+        worksheet.mergeCells("A1:G1");
+        const cellA1 = worksheet.getCell("A1");
+        cellA1.value = storeName.toUpperCase();
+        cellA1.font = { name: "Arial", size: 14, bold: true, color: { argb: "000000" } };
+        cellA1.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "E26B0A" }, // Orange background
+        };
+        cellA1.alignment = { vertical: "middle", horizontal: "center" };
+
+        // Row 2: Title
+        worksheet.mergeCells("A2:G2");
+        const cellA2 = worksheet.getCell("A2");
+        cellA2.value = "LAPORAN KEUANGAN BULANAN";
+        cellA2.font = { name: "Arial", size: 14, bold: true, color: { argb: "000000" } };
+        cellA2.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "E26B0A" },
+        };
+        cellA2.alignment = { vertical: "middle", horizontal: "center" };
+
+        // Row 3: Period
+        worksheet.mergeCells("A3:G3");
+        const cellA3 = worksheet.getCell("A3");
+        cellA3.value = `PERIODE ${periodText.toUpperCase()}`;
+        cellA3.font = { name: "Arial", size: 12, bold: true, color: { argb: "000000" } };
+        cellA3.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "E26B0A" },
+        };
+        cellA3.alignment = { vertical: "middle", horizontal: "center" };
+
+        // Set row heights for title
+        worksheet.getRow(1).height = 25;
+        worksheet.getRow(2).height = 25;
+        worksheet.getRow(3).height = 25;
+
+        // Empty row
+        worksheet.addRow([]);
+
+        // Row 5: Column headers
+        const headers = [
+          "NO",
+          "TANGGAL TRANSAKSI",
+          "NAMA BARANG",
+          "KETERANGAN BARANG",
+          "QTY",
+          "HARGA SATUAN",
+          "TOTAL",
+        ];
+        const headerRow = worksheet.addRow(headers);
+        headerRow.height = 28;
+        
+        headerRow.eachCell((cell) => {
+          cell.font = { name: "Arial", size: 10, bold: true, color: { argb: "000000" } };
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "C4D79B" }, // Light green
+          };
+          cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+          cell.border = {
+            top: { style: "thin", color: { argb: "000000" } },
+            left: { style: "thin", color: { argb: "000000" } },
+            bottom: { style: "thin", color: { argb: "000000" } },
+            right: { style: "thin", color: { argb: "000000" } },
+          };
+        });
+
+        // Add Data Rows
+        finalRows.forEach((rowObj) => {
+          const rowData = [
+            rowObj.no,
+            rowObj.tanggalDisplay,
+            rowObj.namaBarang,
+            rowObj.keteranganBarang,
+            rowObj.qty,
+            rowObj.hargaSatuan,
+            rowObj.total,
+          ];
+          const newRow = worksheet.addRow(rowData);
+          newRow.height = 20;
+
+          newRow.getCell(1).alignment = { horizontal: "center", vertical: "middle" }; // NO
+          newRow.getCell(2).alignment = { horizontal: "center", vertical: "middle" }; // TANGGAL
+          newRow.getCell(3).alignment = { horizontal: "left", vertical: "middle" };   // NAMA BARANG
+          newRow.getCell(4).alignment = { horizontal: "left", vertical: "middle" };   // KETERANGAN BARANG
+          newRow.getCell(5).alignment = { horizontal: "center", vertical: "middle" }; // QTY
+          newRow.getCell(6).alignment = { horizontal: "right", vertical: "middle" };  // HARGA SATUAN
+          newRow.getCell(7).alignment = { horizontal: "right", vertical: "middle" };  // TOTAL
+
+          // Format numbers as currency Rp #,##0
+          newRow.getCell(6).numFmt = '"Rp "#,##0';
+          newRow.getCell(7).numFmt = '"Rp "#,##0';
+
+          newRow.eachCell((cell) => {
+            cell.font = { name: "Arial", size: 10 };
+            cell.border = {
+              top: { style: "thin", color: { argb: "000000" } },
+              left: { style: "thin", color: { argb: "000000" } },
+              bottom: { style: "thin", color: { argb: "000000" } },
+              right: { style: "thin", color: { argb: "000000" } },
+            };
+          });
+        });
+
+        // Generate and download Excel
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `laporan_transaksi_${storeName.toLowerCase().replace(/\s+/g, "_")}_${
+          new Date().toISOString().split("T")[0]
+        }.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // PDF download using jsPDF and jsPDF-AutoTable
+        const { jsPDF } = await import("jspdf");
+        await import("jspdf-autotable");
+
+        const doc = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+
+        const tableWidth = 182;
+        const startX = 14;
+        let startY = 15;
+
+        // Draw orange block
+        doc.setFillColor(226, 107, 10); // #E26B0A
+        doc.rect(startX, startY, tableWidth, 25, "F");
+
+        // Write texts inside orange block (black font color to match screenshot)
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(13);
+        doc.text(storeName.toUpperCase(), 105, startY + 7, { align: "center" });
+        doc.text("LAPORAN KEUANGAN BULANAN", 105, startY + 13, { align: "center" });
+        doc.setFontSize(10);
+        doc.text(`PERIODE ${periodText.toUpperCase()}`, 105, startY + 19, { align: "center" });
+
+        startY += 30; // Move down below header block
+
+        const tableHeaders = [
+          ["NO", "TANGGAL TRANSAKSI", "NAMA BARANG", "KETERANGAN BARANG", "QTY", "HARGA SATUAN", "TOTAL"],
+        ];
+        const tableRows = finalRows.map((rowObj) => [
+          rowObj.no,
+          rowObj.tanggalDisplay,
+          rowObj.namaBarang,
+          rowObj.keteranganBarang,
+          rowObj.qty,
+          `Rp ${rowObj.hargaSatuan.toLocaleString("id-ID")}`,
+          `Rp ${rowObj.total.toLocaleString("id-ID")}`,
+        ]);
+
+        // Draw autoTable on PDF
+        (doc as any).autoTable({
+          startY: startY,
+          head: tableHeaders,
+          body: tableRows,
+          theme: "grid",
+          headStyles: {
+            fillColor: [196, 215, 155], // Light green (#C4D79B)
+            textColor: [0, 0, 0],
+            fontSize: 9,
+            fontStyle: "bold",
+            halign: "center",
+            valign: "middle",
+          },
+          bodyStyles: {
+            textColor: [30, 30, 30],
+            fontSize: 8.5,
+            valign: "middle",
+          },
+          columnStyles: {
+            0: { cellWidth: 10, halign: "center" },   // NO
+            1: { cellWidth: 28, halign: "center" },   // TANGGAL
+            2: { cellWidth: 44, halign: "left" },     // NAMA BARANG
+            3: { cellWidth: 44, halign: "left" },     // KETERANGAN
+            4: { cellWidth: 12, halign: "center" },   // QTY
+            5: { cellWidth: 21, halign: "right" },    // HARGA SATUAN
+            6: { cellWidth: 23, halign: "right" },    // TOTAL
+          },
+          styles: {
+            font: "helvetica",
+            lineColor: [0, 0, 0],
+            lineWidth: 0.1,
+          },
+          margin: { left: startX, right: startX },
+        });
+
+        // Save PDF
+        doc.save(
+          `laporan_transaksi_${storeName.toLowerCase().replace(/\s+/g, "_")}_${
+            new Date().toISOString().split("T")[0]
+          }.pdf`
+        );
+      }
+    } catch (error) {
+      console.error("Gagal mengunduh laporan:", error);
+      alert("Terjadi kesalahan saat memproses laporan.");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   // Simulation loading data from Backend / DB
@@ -120,6 +462,16 @@ export default function AdminTransactionsPage() {
         const diffTime = Math.abs(now.getTime() - txDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         matchesDate = diffDays <= 30;
+      } else if (selectedDateFilter === "thismonth") {
+        matchesDate =
+          txDate.getMonth() === now.getMonth() &&
+          txDate.getFullYear() === now.getFullYear();
+      } else if (selectedDateFilter === "lastmonth") {
+        const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+        const prevYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        matchesDate =
+          txDate.getMonth() === prevMonth &&
+          txDate.getFullYear() === prevYear;
       }
     }
 
@@ -217,6 +569,24 @@ export default function AdminTransactionsPage() {
     }
   };
 
+  const getActiveDateFilterLabel = () => {
+    switch (selectedDateFilter) {
+      case "today":
+        return "Hari Ini";
+      case "7days":
+        return "Mingguan";
+      case "30days":
+        return "Bulanan";
+      case "thismonth":
+        return "Bulan Ini";
+      case "lastmonth":
+        return "Bulan Lalu";
+      case "all":
+      default:
+        return "Semua";
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -235,9 +605,11 @@ export default function AdminTransactionsPage() {
             className="px-3 py-2 bg-[#F5F3F0] text-[#3E3834] font-semibold text-xs rounded-lg border border-[#D5CFC9] focus:outline-none focus:ring-2 focus:ring-primary transition cursor-pointer"
           >
             <option value="all">Semua Tanggal</option>
-            <option value="today">Hari Ini</option>
-            <option value="7days">7 Hari Terakhir</option>
-            <option value="30days">30 Hari Terakhir</option>
+            <option value="today">Hari Ini (Harian)</option>
+            <option value="7days">7 Hari Terakhir (Mingguan)</option>
+            <option value="30days">30 Hari Terakhir (Bulanan)</option>
+            <option value="thismonth">Bulan Ini</option>
+            <option value="lastmonth">Bulan Lalu</option>
           </select>
 
           {/* Dropdown Toko */}
@@ -254,13 +626,48 @@ export default function AdminTransactionsPage() {
             ))}
           </select>
 
-          <button 
-            onClick={handleDownloadReport}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold text-sm rounded-lg hover:brightness-95 transition"
-          >
-            <span className="material-symbols-outlined text-[20px]">download</span>
-            Unduh Laporan
-          </button>
+          {/* Dropdown Unduh Laporan */}
+          <div className="relative" ref={dropdownRef}>
+            <button 
+              onClick={() => setShowDownloadDropdown(!showDownloadDropdown)}
+              disabled={isDownloading}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold text-sm rounded-lg hover:brightness-95 transition disabled:opacity-75 disabled:cursor-not-allowed"
+            >
+              {isDownloading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Memproses...</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-[20px]">download</span>
+                  Unduh Laporan
+                  <span className="material-symbols-outlined text-[16px] ml-1">
+                    {showDownloadDropdown ? "expand_less" : "expand_more"}
+                  </span>
+                </>
+              )}
+            </button>
+
+            {showDownloadDropdown && (
+              <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white border border-[#EAE5E0] shadow-lg z-30 py-1 overflow-hidden">
+                <button
+                  onClick={() => handleDownloadReportFormat("excel")}
+                  className="w-full text-left px-4 py-2.5 hover:bg-[#F5F3F0] transition text-[#3E3834] text-xs font-semibold flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-green-700">table_chart</span>
+                  Unduh Excel ({getActiveDateFilterLabel()})
+                </button>
+                <button
+                  onClick={() => handleDownloadReportFormat("pdf")}
+                  className="w-full text-left px-4 py-2.5 hover:bg-[#F5F3F0] transition text-[#3E3834] text-xs font-semibold flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-red-600">picture_as_pdf</span>
+                  Unduh PDF ({getActiveDateFilterLabel()})
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

@@ -643,6 +643,21 @@ export const adminService = {
     }
   },
 
+  async getOrderItemsForOrders(orderIds: string[]): Promise<any[]> {
+    if (isPlaceholder() || orderIds.length === 0) return [];
+    try {
+      const { data, error } = await supabase
+        .from("order_item")
+        .select("id_order, nama_produk_snapshot, qty_orderitem, hrg_saat_beli")
+        .in("id_order", orderIds);
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error("adminService.getOrderItemsForOrders failed:", err);
+      return [];
+    }
+  },
+
   async confirmDigitalPayment(orderId: string): Promise<boolean> {
     if (isPlaceholder()) return false;
     try {

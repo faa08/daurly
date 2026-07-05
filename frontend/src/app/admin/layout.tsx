@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminSidebar from "@/components/AdminSidebar";
 import { authService } from "@/backend/authService";
-import AdminChatNotificationAlert from "@/components/AdminChatNotificationAlert";
 
 export default function AdminLayout({
   children,
@@ -48,7 +47,6 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-[#FCFCFA]">
-      <AdminChatNotificationAlert />
       {sidebarOpen && (
         <button
           type="button"
