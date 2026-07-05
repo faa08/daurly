@@ -236,29 +236,6 @@ export default function CheckoutPage() {
     if (!user) return;
 
     const grossAmount = orders.reduce((s, o) => s + o.total_hrg, 0);
-    const snapRes = await apiFetch("/api/payment/midtrans-snap", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        orderId: ref,
-        grossAmount,
-        customerDetails: {
-          name: user.nama_lengkap || user.username,
-          email: user.email,
-          phone: address.phone,
-        },
-      }),
-    });
-    const snap = await snapRes.json();
-    if (!snapRes.ok) {
-      throw new Error(snap.error || "Gagal membuat sesi pembayaran.");
-    }
-
-    if (snap.mode === "midtrans" && snap.redirectUrl) {
-      window.location.href = snap.redirectUrl;
-      return;
-    }
-
     router.push(
       `/checkout/payment?ref=${encodeURIComponent(ref)}&amount=${grossAmount}`
     );
@@ -589,92 +566,6 @@ export default function CheckoutPage() {
 
                 {/* RIGHT SIDEBAR */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                  
-                  {/* VOUCHER BLOCK */}
-                  <div style={{
-                    background: "white",
-                    border: "1px solid #EAE5E0",
-                    borderRadius: 12,
-                    padding: 20,
-                  }}>
-                    <h4 style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1F1B18", marginBottom: 12 }}>
-                      Makin Hemat dengan Promo
-                    </h4>
-                    <form onSubmit={handleApplyVoucher} style={{ display: "flex", gap: 8 }}>
-                      <div style={{ position: "relative", flex: 1 }}>
-                        <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#8E8680" }}>
-                          <Tag size={16} />
-                        </span>
-                        <input
-                          type="text"
-                          placeholder="Masukkan kode voucher"
-                          value={voucherCode}
-                          onChange={(e) => setVoucherCode(e.target.value)}
-                          style={{
-                            width: "100%",
-                            height: 38,
-                            borderRadius: 6,
-                            border: "1.5px solid #D5CFC9",
-                            padding: "0 12px 0 36px",
-                            fontSize: "0.8125rem",
-                            color: "#1F1B18",
-                            fontFamily: "inherit",
-                            outline: "none",
-                          }}
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        style={{
-                          height: 38,
-                          padding: "0 16px",
-                          background: "#262524",
-                          color: "white",
-                          borderRadius: 6,
-                          fontSize: "0.8125rem",
-                          fontWeight: 700,
-                          border: "none",
-                          cursor: "pointer",
-                          transition: "background 0.15s",
-                        }}
-                      >
-                        Gunakan
-                      </button>
-                    </form>
-
-                    {voucherError && (
-                      <p style={{ fontSize: "0.75rem", color: "#DC2626", marginTop: 6, margin: "6px 0 0" }}>
-                        {voucherError}
-                      </p>
-                    )}
-
-                    {appliedVoucher && (
-                      <div style={{
-                        marginTop: 10,
-                        padding: "8px 12px",
-                        borderRadius: 6,
-                        background: "#EBFDF2",
-                        border: "1px solid #BBF7D0",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}>
-                        <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#15803D" }}>
-                          Voucher {appliedVoucher.code} Aktif
-                        </span>
-                        <button
-                          onClick={() => {
-                            setAppliedVoucher(null);
-                            setVoucherCode("");
-                            sessionStorage.removeItem("pelum_checkout_voucher");
-                          }}
-                          style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626", background: "none", border: "none", cursor: "pointer" }}
-                        >
-                          Batal
-                        </button>
-                      </div>
-                    )}
-                  </div>
 
                   {/* SHOPPING SUMMARY */}
                   <div style={{

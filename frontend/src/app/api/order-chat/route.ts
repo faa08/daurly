@@ -159,15 +159,18 @@ export async function POST(request: NextRequest) {
       }
 
       const senderId = wantsAdmin ? user.id_user : user.id_user;
-      const { error } = await admin.from("order_chat_message").insert({
+      const insertPromise = admin.from("order_chat_message").insert({
         id_chat: chatId,
         sender_role: senderRole,
         sender_id: senderId,
         text,
       });
-      if (error) throw error;
 
-      await notifyOrderChatMessage(admin, chatId, senderRole, senderId, text);
+      const notifyPromise = notifyOrderChatMessage(admin, chatId, senderRole, senderId, text);
+
+      const [insertRes] = await Promise.all([insertPromise, notifyPromise]);
+      if (insertRes.error) throw insertRes.error;
+
       return NextResponse.json({ ok: true });
     }
 

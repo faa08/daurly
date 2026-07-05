@@ -132,15 +132,18 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Chat tidak ditemukan." }, { status: 404 });
       }
 
-      const { error } = await admin.from("support_chat_message").insert({
+      const insertPromise = admin.from("support_chat_message").insert({
         id_chat: chatId,
         sender_role: senderRole,
         sender_id: user.id_user,
         text,
       });
-      if (error) throw error;
 
-      await notifySupportChatMessage(admin, chatId, senderRole, user.id_user, text);
+      const notifyPromise = notifySupportChatMessage(admin, chatId, senderRole, user.id_user, text);
+
+      const [insertRes] = await Promise.all([insertPromise, notifyPromise]);
+      if (insertRes.error) throw insertRes.error;
+
       return NextResponse.json({ ok: true });
     }
 

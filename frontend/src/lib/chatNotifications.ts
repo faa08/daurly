@@ -24,7 +24,10 @@ async function getSenderLabel(
 }
 
 async function getAdminUserIds(admin: SupabaseClient): Promise<string[]> {
-  const { data, error } = await admin.from("users").select("id_user, username, email, role");
+  const { data, error } = await admin
+    .from("users")
+    .select("id_user, username, email, role")
+    .or("role.eq.admin,username.eq.admin,username.eq.admin_pelum,email.ilike.%admin@%");
   if (error) {
     console.warn("getAdminUserIds failed:", error.message);
     return [];
@@ -75,17 +78,17 @@ export async function notifyOrderChatMessage(
   senderId: string | null,
   text: string
 ) {
-  const { data: room } = await admin
-    .from("order_chat")
-    .select("id_order, id_user")
-    .eq("id_chat", chatId)
-    .maybeSingle();
-  if (!room?.id_user || !room.id_order) return;
-
   const sender = await getSenderLabel(admin, senderId, senderRole);
   const pesan = `${sender}: ${previewText(text)}`;
 
   if (senderRole === "admin") {
+    const { data: room } = await admin
+      .from("order_chat")
+      .select("id_order, id_user")
+      .eq("id_chat", chatId)
+      .maybeSingle();
+    if (!room?.id_user || !room.id_order) return;
+
     await insertRows(admin, [
       {
         id_user: room.id_user,
@@ -98,6 +101,13 @@ export async function notifyOrderChatMessage(
     ]);
     return;
   }
+
+  const { data: room } = await admin
+    .from("order_chat")
+    .select("id_order")
+    .eq("id_chat", chatId)
+    .maybeSingle();
+  if (!room?.id_order) return;
 
   const recipients = pickAdminRecipients(await getAdminUserIds(admin), senderId);
   if (!recipients.length) return;
@@ -122,17 +132,17 @@ export async function notifySupportChatMessage(
   senderId: string | null,
   text: string
 ) {
-  const { data: room } = await admin
-    .from("support_chat")
-    .select("id_user")
-    .eq("id_chat", chatId)
-    .maybeSingle();
-  if (!room?.id_user) return;
-
   const sender = await getSenderLabel(admin, senderId, senderRole);
   const pesan = `${sender}: ${previewText(text)}`;
 
   if (senderRole === "admin") {
+    const { data: room } = await admin
+      .from("support_chat")
+      .select("id_user")
+      .eq("id_chat", chatId)
+      .maybeSingle();
+    if (!room?.id_user) return;
+
     await insertRows(admin, [
       {
         id_user: room.id_user,
@@ -167,17 +177,17 @@ export async function notifyReturnChatMessage(
   senderId: string | null,
   text: string
 ) {
-  const { data: room } = await admin
-    .from("return_chat")
-    .select("id_retur, id_user")
-    .eq("id_chat", chatId)
-    .maybeSingle();
-  if (!room?.id_user || !room.id_retur) return;
-
   const sender = await getSenderLabel(admin, senderId, senderRole);
   const pesan = `${sender}: ${previewText(text)}`;
 
   if (senderRole === "admin") {
+    const { data: room } = await admin
+      .from("return_chat")
+      .select("id_retur, id_user")
+      .eq("id_chat", chatId)
+      .maybeSingle();
+    if (!room?.id_user || !room.id_retur) return;
+
     await insertRows(admin, [
       {
         id_user: room.id_user,

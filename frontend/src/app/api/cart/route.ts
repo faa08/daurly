@@ -134,17 +134,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "productId wajib." }, { status: 400 });
       }
 
-      const { data: userRow, error: userErr } = await admin
-        .from("users")
-        .select("id_user")
-        .eq("id_user", userId)
-        .maybeSingle();      if (userErr) throw userErr;
-      if (!userRow) {
-        return NextResponse.json(
-          { error: "Akun tidak ditemukan. Silakan keluar lalu masuk kembali." },
-          { status: 400 }
-        );
-      }
 
       const { data: productRow, error: productErr } = await admin
         .from("produk")

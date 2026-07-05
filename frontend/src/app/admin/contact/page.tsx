@@ -22,7 +22,7 @@ export default function AdminContactPage() {
       }
     } else {
       // Defaults
-      setWaHotline("081234567890");
+      setWaHotline("08138298543");
       setSupportEmail("support@pelataranumkm.id");
       setHqAddress("Jl. Jenderal Sudirman No. 123, Jakarta Selatan, DKI Jakarta 12190");
     }
@@ -67,7 +67,7 @@ export default function AdminContactPage() {
                 required
                 value={waHotline.startsWith("62") ? waHotline.slice(2) : waHotline.startsWith("0") ? waHotline.slice(1) : waHotline}
                 onChange={(e) => setWaHotline("62" + e.target.value.replace(/\D/g, ""))}
-                placeholder="81234567890"
+                placeholder="8138298543"
                 className="w-full pl-12 pr-4 py-3 rounded border border-surface-container-highest bg-[#F5F5F5] focus:outline-none focus:ring-2 focus:ring-primary transition text-sm font-body font-bold"
               />
             </div>

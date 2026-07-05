@@ -21,7 +21,7 @@ export const CHECKOUT_PAYMENT_OPTIONS: {
   {
     id: "digital",
     name: "Bayar Digital",
-    desc: "VA, e-wallet, QRIS, kartu kredit via Midtrans",
+    desc: "QRIS",
   },
   {
     id: "offline",

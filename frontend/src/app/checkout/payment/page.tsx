@@ -50,7 +50,7 @@ function PaymentContent() {
   const orderIdDisplay = firstOrderId ? `ORD-${firstOrderId.replace(/-/g, "").slice(0, 8).toUpperCase()}` : "";
   
   // WhatsApp Link Setup
-  const adminWaNumber = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP || "6281234567890";
+  const adminWaNumber = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP || "628138298543";
   const waText = `Halo Admin Pelataran UMKM, saya ingin melakukan konfirmasi pembayaran untuk pesanan ${orderIdDisplay} sebesar Rp ${totalBill.toLocaleString("id-ID")} menggunakan QRIS E-Wallet.`;
   const waUrl = `https://wa.me/${adminWaNumber}?text=${encodeURIComponent(waText)}`;
 
@@ -78,7 +78,7 @@ function PaymentContent() {
           Instruksi Pembayaran QRIS
         </h1>
         <p style={{ fontSize: "0.85rem", color: "#5C5550", marginBottom: 24, lineHeight: 1.5 }}>
-          Silakan pindai kode QRIS di bawah ini untuk menyelesaikan pembayaran pesanan Anda secara manual.
+          Silakan hubungi Admin melalui chat aplikasi atau WhatsApp di bawah ini untuk mendapatkan QR Code pembayaran.
         </p>
 
         {/* Billing Box */}
@@ -96,22 +96,20 @@ function PaymentContent() {
           )}
         </div>
 
-        {/* QRIS Code Image */}
+        {/* Info Box untuk Chat Admin */}
         <div style={{
-          display: "flex", justifyContent: "center", alignItems: "center",
-          background: "#F9F8F6", border: "1px dashed #D5CFC9", borderRadius: 12,
-          padding: 16, marginBottom: 24
+          background: "#EFF6FF", borderRadius: 12, border: "1.5px solid #BFDBFE",
+          padding: 20, marginBottom: 24, textAlign: "left", display: "flex", gap: 12, alignItems: "flex-start"
         }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/qr.jpeg"
-            alt="QRIS Code Pelataran UMKM"
-            style={{ maxWidth: "240px", height: "auto", display: "block" }}
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.style.display = "none";
-            }}
-          />
+          <Clock size={20} color="#1D4ED8" style={{ flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <p style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1E3A8A", margin: "0 0 4px" }}>
+              Meminta QR Code dari Admin
+            </p>
+            <p style={{ fontSize: "0.75rem", color: "#1E40AF", margin: 0, lineHeight: 1.4 }}>
+              Untuk meminimalkan kesalahan, pembayaran Anda akan diproses secara manual. Silakan klik salah satu tombol di bawah untuk meminta Kode QRIS kepada Admin di chat aplikasi atau via WhatsApp dengan menyebutkan <b>Kode Referensi</b> pesanan Anda.
+            </p>
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -162,9 +160,9 @@ function PaymentContent() {
             📢 Langkah Konfirmasi Pembayaran:
           </h4>
           <ol style={{ fontSize: "0.78rem", color: "#5C5550", margin: 0, paddingLeft: 18, lineHeight: 1.5 }}>
-            <li>Lakukan scan kode QRIS dan bayar sesuai nominal di atas.</li>
-            <li>Ambil screenshot bukti transaksi sukses.</li>
-            <li>Klik tombol chat di atas untuk mengirim bukti atau buka menu <b>Pesanan Saya</b> lalu unggah bukti pembayaran agar pesanan Anda dapat dikonfirmasi oleh Admin.</li>
+            <li>Hubungi Admin melalui tombol di atas untuk mendapatkan QR Code pembayaran.</li>
+            <li>Scan kode QRIS yang diberikan Admin dan lakukan pembayaran sesuai nominal di atas.</li>
+            <li>Unggah bukti transfer sukses di chat aplikasi / WhatsApp, atau unggah mandiri di menu <b>Pesanan Saya</b> untuk konfirmasi otomatis.</li>
           </ol>
         </div>
 

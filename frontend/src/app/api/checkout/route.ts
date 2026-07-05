@@ -199,42 +199,56 @@ export async function POST(request: NextRequest) {
         };
       });
 
-      const { error: oiErr } = await admin.from("order_item").insert(orderItems);
-      if (oiErr) throw oiErr;
+      const orderItemPromise = admin.from("order_item").insert(orderItems);
 
-      const { error: payErr } = await admin.from("payment").insert({
+      const paymentPromise = admin.from("payment").insert({
         id_payment: crypto.randomUUID(),
         id_order,
         juml_pay: totalHrg,
         metod_pay: metodPay,
         stat_pay: "pending",
       });
-      if (payErr) throw payErr;
 
-      const { error: shipErr } = await admin.from("pengiriman").insert({
+      const pengirimanPromise = admin.from("pengiriman").insert({
         id_pengiriman: crypto.randomUUID(),
         id_order,
         kurir: courier,
         stat_kirim: "belum_dikirim",
       });
-      if (shipErr) throw shipErr;
 
+      let chatPromise: Promise<void> = Promise.resolve();
       if (paymentType === "digital") {
-        const { data: newChat, error: chatErr } = await admin
-          .from("order_chat")
-          .insert({ id_order, id_user: userId })
-          .select("id_chat")
-          .single();
+        chatPromise = (async () => {
+          const { data: newChat, error: chatErr } = await admin
+            .from("order_chat")
+            .insert({ id_order, id_user: userId })
+            .select("id_chat")
+            .single();
 
-        if (!chatErr && newChat?.id_chat) {
-          await admin.from("order_chat_message").insert({
-            id_chat: newChat.id_chat,
-            sender_role: "admin",
-            sender_id: null,
-            text: "Halo! Silakan melakukan pembayaran menggunakan QRIS E-Wallet. Anda dapat meminta QR Code melalui chat ini atau menghubungi WhatsApp admin.",
-          });
-        }
+          if (!chatErr && newChat?.id_chat) {
+            const { error: msgErr } = await admin.from("order_chat_message").insert({
+              id_chat: newChat.id_chat,
+              sender_role: "admin",
+              sender_id: null,
+              text: "Halo! Silakan melakukan pembayaran menggunakan QRIS E-Wallet. Anda dapat meminta QR Code melalui chat ini atau menghubungi WhatsApp admin.",
+            });
+            if (msgErr) throw msgErr;
+          } else if (chatErr) {
+            throw chatErr;
+          }
+        })();
       }
+
+      const results = await Promise.all([
+        orderItemPromise,
+        paymentPromise,
+        pengirimanPromise,
+        chatPromise,
+      ]);
+
+      if (results[0].error) throw results[0].error;
+      if (results[1].error) throw results[1].error;
+      if (results[2].error) throw results[2].error;
 
       createdOrders.push({
         id_order,
@@ -245,18 +259,17 @@ export async function POST(request: NextRequest) {
       groupIndex++;
     }
 
-    const { error: delErr } = await admin
+    const deletePromise = admin
       .from("cart_item")
       .delete()
       .in("id_cart_item", cartItemIds);
-    if (delErr) throw delErr;
 
     const notifMsg =
       paymentType === "offline"
         ? `${createdOrders.length} pesanan pickup dibuat. Datang ke toko untuk bayar & ambil.`
         : `${createdOrders.length} pesanan menunggu pembayaran digital.`;
 
-    await admin.from("notifikasi").insert({
+    const notifPromise = admin.from("notifikasi").insert({
       id_user: userId,
       judul: paymentType === "offline" ? "Pesanan Pickup" : "Pesanan Dibuat",
       pesan: notifMsg,
@@ -264,6 +277,10 @@ export async function POST(request: NextRequest) {
       link: "/account/orders",
       is_read: false,
     });
+
+    const [delRes, notifRes] = await Promise.all([deletePromise, notifPromise]);
+    if (delRes.error) throw delRes.error;
+    if (notifRes.error) throw notifRes.error;
 
     return NextResponse.json({
       orders: createdOrders,
