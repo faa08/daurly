@@ -48,8 +48,31 @@ function ChatBubble({
               alt="QRIS Code"
               className="max-w-[180px] w-full h-auto rounded-lg bg-white p-2 border border-surface-container-high mx-auto block shadow-sm"
             />
+            <div className="flex justify-center">
+              <a
+                href="/qr.jpeg"
+                download="QRIS_Pelataran_UMKM.jpeg"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-50 text-[11px] font-bold text-[#3E3834] rounded-md border border-gray-200 transition shadow-xs decoration-transparent"
+              >
+                <span className="material-symbols-outlined text-[14px] align-middle">download</span>
+                <span>Unduh QRIS</span>
+              </a>
+            </div>
             <p className="leading-relaxed whitespace-pre-wrap text-center font-bold">
               {text.replace("[ATTACHMENT_QRIS]", "").trim() || "QRIS Platform"}
+            </p>
+          </div>
+        ) : text.includes("[ATTACHMENT_IMAGE]") ? (
+          <div className="space-y-1.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={text.replace("[ATTACHMENT_IMAGE]", "").trim()}
+              alt="Bukti Pembayaran"
+              className="max-w-[200px] w-full h-auto rounded-lg border border-gray-100 shadow-sm mx-auto cursor-pointer"
+              onClick={() => window.open(text.replace("[ATTACHMENT_IMAGE]", "").trim(), "_blank")}
+            />
+            <p className="text-center font-semibold text-xs leading-relaxed">
+              Bukti Pembayaran
             </p>
           </div>
         ) : (

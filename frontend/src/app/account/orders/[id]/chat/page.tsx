@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/backend/authService";
 import { orderChatService } from "@/backend/orderChatService";
+import { supabase } from "@/backend/supabase";
 import ChatReadReceipt from "@/components/ChatReadReceipt";
 import { useChatPolling } from "@/hooks/useChatPolling";
 import { useChatScroll } from "@/hooks/useChatScroll";
-import { Trash2 } from "lucide-react";
+import { Trash2, Paperclip, Loader2 } from "lucide-react";
 
 export default function OrderChatPage() {
   const params = useParams();
@@ -18,6 +19,52 @@ export default function OrderChatPage() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const user = authService.getCurrentUser();
+    if (!file || !user || !chatId || uploading) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran gambar maksimal 5 MB.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `bukti-chat-${orderId}-${Date.now()}.${fileExt}`;
+      const filePath = `payment-receipts/${fileName}`;
+
+      // Upload to Supabase storage
+      const { error } = await supabase.storage
+        .from("products")
+        .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("products").getPublicUrl(filePath);
+      const fileUrl = data?.publicUrl;
+
+      if (!fileUrl) throw new Error("Gagal mengambil URL gambar.");
+
+      // Send chat message with attachment prefix
+      const textMsg = `[ATTACHMENT_IMAGE] ${fileUrl}`;
+      const ok = await orderChatService.sendMessage(chatId, "customer", user.id_user, textMsg);
+      if (ok) {
+        await refresh();
+        scrollToBottomAfterSend();
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : "Gagal mengunggah bukti pembayaran.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const fetchMessages = useCallback(
     (id: string) => orderChatService.getMessages(id, "customer", { markRead: true }),
@@ -144,8 +191,31 @@ export default function OrderChatPage() {
                         alt="QRIS Code"
                         className="max-w-[200px] w-full h-auto rounded-lg bg-white p-2 border border-surface-container-high mx-auto block shadow-sm"
                       />
+                      <div className="flex justify-center">
+                        <a
+                          href="/qr.jpeg"
+                          download="QRIS_Pelataran_UMKM.jpeg"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#F5F3F0] hover:bg-[#EBE8E2] text-xs font-bold text-gray-700 rounded-lg transition shadow-xs text-center decoration-transparent"
+                        >
+                          <span className="material-symbols-outlined text-[15px] align-middle">download</span>
+                          <span>Unduh QRIS</span>
+                        </a>
+                      </div>
                       <p className="leading-relaxed whitespace-pre-wrap text-center font-bold">
                         {msg.text.replace("[ATTACHMENT_QRIS]", "").trim() || "Pindai QRIS di atas untuk membayar"}
+                      </p>
+                    </div>
+                  ) : msg.text.includes("[ATTACHMENT_IMAGE]") ? (
+                    <div className="space-y-1.5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={msg.text.replace("[ATTACHMENT_IMAGE]", "").trim()}
+                        alt="Bukti Pembayaran"
+                        className="max-w-[240px] w-full h-auto rounded-lg border border-gray-100 shadow-sm mx-auto cursor-pointer"
+                        onClick={() => window.open(msg.text.replace("[ATTACHMENT_IMAGE]", "").trim(), "_blank")}
+                      />
+                      <p className="text-center font-semibold text-xs leading-relaxed">
+                        Bukti Pembayaran
                       </p>
                     </div>
                   ) : (
@@ -163,18 +233,40 @@ export default function OrderChatPage() {
           })}
         </div>
 
-        <form onSubmit={handleSend} className="border-t border-surface-container p-4 flex gap-2">
+        <form onSubmit={handleSend} className="border-t border-surface-container p-4 flex gap-2 items-center">
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            className="hidden"
+            disabled={uploading || sending}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || sending}
+            className="w-11 h-11 flex items-center justify-center border border-surface-container-high rounded-lg hover:bg-surface-container transition text-secondary disabled:opacity-50 shrink-0"
+            title="Kirim Bukti Pembayaran (Gambar)"
+          >
+            {uploading ? (
+              <Loader2 size={18} className="animate-spin text-primary" />
+            ) : (
+              <Paperclip size={18} />
+            )}
+          </button>
           <input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Tulis pesan untuk admin..."
+            disabled={uploading || sending}
             className="flex-1 h-11 px-4 rounded-lg border border-surface-container-high text-sm outline-none focus:border-primary"
           />
           <button
             type="submit"
-            disabled={sending || !text.trim()}
-            className="px-5 h-11 bg-primary text-white font-bold text-sm rounded-lg disabled:opacity-50"
+            disabled={sending || uploading || !text.trim()}
+            className="px-5 h-11 bg-primary text-white font-bold text-sm rounded-lg disabled:opacity-50 shrink-0"
           >
             Kirim
           </button>
