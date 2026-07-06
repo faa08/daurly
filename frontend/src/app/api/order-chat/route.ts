@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         .from("order_chat")
         .select(`
           *,
-          order ( stat_order, total_hrg, tipe_pembayaran ),
+          order ( stat_order, total_hrg, tipe_pembayaran, order_item ( id_order_item, qty_orderitem, hrg_saat_beli, nama_produk_snapshot, img_snapshot ) ),
           users ( nama_lengkap, email )
         `)
         .order("created_at", { ascending: false });
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     if (orderId) {
       const { data, error } = await admin
         .from("order_chat")
-        .select(`*, order ( stat_order, total_hrg, tipe_pembayaran, id_user )`)
+        .select(`*, order ( stat_order, total_hrg, tipe_pembayaran, id_user, order_item ( id_order_item, qty_orderitem, hrg_saat_beli, nama_produk_snapshot, img_snapshot ) )`)
         .eq("id_order", orderId)
         .maybeSingle();
       if (error) throw error;
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
       if (denied) return denied;
       const { data, error } = await admin
         .from("order_chat")
-        .select(`*, order ( stat_order, total_hrg, tipe_pembayaran )`)
+        .select(`*, order ( stat_order, total_hrg, tipe_pembayaran, order_item ( id_order_item, qty_orderitem, hrg_saat_beli, nama_produk_snapshot, img_snapshot ) )`)
         .eq("id_user", user.id_user)
         .order("created_at", { ascending: false });
       if (error) throw error;

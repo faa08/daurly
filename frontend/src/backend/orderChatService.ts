@@ -19,6 +19,13 @@ export interface OrderChatRoom {
     stat_order: string;
     total_hrg: number;
     tipe_pembayaran?: string;
+    order_item?: {
+      id_order_item: string;
+      qty_orderitem: number;
+      hrg_saat_beli: number;
+      nama_produk_snapshot: string;
+      img_snapshot: string;
+    }[];
   };
   user?: {
     nama_lengkap?: string;

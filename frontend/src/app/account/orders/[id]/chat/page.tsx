@@ -24,6 +24,7 @@ export default function OrderChatPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [room, setRoom] = useState<any | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,6 +97,7 @@ export default function OrderChatPage() {
 
       if (room?.id_chat) {
         setChatId(room.id_chat);
+        setRoom(room);
       }
       setLoading(false);
     }
@@ -166,6 +168,19 @@ export default function OrderChatPage() {
           </button>
         )}
       </header>
+
+      {room?.order?.order_item && room.order.order_item.length > 0 && (
+        <div className="bg-white border border-surface-container rounded-xl p-3.5 flex flex-wrap gap-2 items-center text-xs text-secondary shadow-xs">
+          <span className="font-bold text-on-surface">Barang yang dibeli:</span>
+          <div className="flex flex-wrap gap-1.5">
+            {room.order.order_item.map((it: any) => (
+              <span key={it.id_order_item} className="bg-surface-container border border-surface-container-high rounded-lg px-2.5 py-1 font-bold text-on-surface">
+                {it.nama_produk_snapshot} (x{it.qty_orderitem})
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white border border-surface-container rounded-xl shadow-sm flex flex-col" style={{ height: "min(520px, 70vh)" }}>
         <div ref={containerRef} onScroll={onScroll} className="flex-1 overflow-y-auto p-4 space-y-3">

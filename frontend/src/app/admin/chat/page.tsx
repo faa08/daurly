@@ -287,6 +287,20 @@ function ShippingPanel({ focusOrderId }: { focusOrderId?: string | null }) {
     ? getOrderPaymentDisplay({ tipe_pembayaran: order.tipe_pembayaran })
     : null;
 
+  const items = order?.order_item || [];
+  const headerExtra = items.length > 0 ? (
+    <div className="px-4 py-2 bg-[#F5F3F0]/60 border-b border-[#EAE5E0] flex flex-wrap gap-2 items-center text-xs text-[#5C5550]">
+      <span className="font-bold text-[#1F1B18]">Barang dibeli:</span>
+      <div className="flex flex-wrap gap-x-3 gap-y-1">
+        {items.map((it: any) => (
+          <span key={it.id_order_item} className="bg-white border border-[#EAE5E0] rounded px-1.5 py-0.5 font-medium text-gray-700">
+            {it.nama_produk_snapshot} (x{it.qty_orderitem})
+          </span>
+        ))}
+      </div>
+    </div>
+  ) : null;
+
   return (
     <ChatLayout
       loading={loading}
@@ -320,6 +334,7 @@ function ShippingPanel({ focusOrderId }: { focusOrderId?: string | null }) {
           ? `Status: ${order.stat_order}${orderPay ? ` · ${orderPay.label} — ${orderPay.desc}` : ""}`
           : undefined
       }
+      headerExtra={headerExtra}
       messages={messages.map((msg) => (
         <ChatBubble
           key={msg.id_message}
@@ -452,6 +467,7 @@ function ChatLayout({
   sendClassName = "bg-[#1D4ED8] hover:bg-blue-700",
   onDelete,
   onSendQris,
+  headerExtra,
 }: {
   loading: boolean;
   empty: boolean;
@@ -471,14 +487,16 @@ function ChatLayout({
   sendClassName?: string;
   onDelete?: () => void;
   onSendQris?: () => void;
+  headerExtra?: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ minHeight: 520 }}>
-      <div className="bg-white border border-[#EAE5E0] rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-[#EAE5E0] font-bold text-sm text-[#8E8680] uppercase tracking-wider">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: "min(580px, 75vh)" }}>
+      {/* Daftar Chat */}
+      <div className="bg-white border border-[#EAE5E0] rounded-xl flex flex-col overflow-hidden h-full">
+        <div className="px-4 py-3 border-b border-[#EAE5E0] font-bold text-sm text-[#8E8680] uppercase tracking-wider shrink-0">
           Daftar Chat
         </div>
-        <div className="max-h-[480px] overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           {loading ? (
             <p className="p-6 text-sm text-[#8E8680]">Memuat...</p>
           ) : empty ? (
@@ -489,11 +507,12 @@ function ChatLayout({
         </div>
       </div>
 
-      <div className="lg:col-span-2 bg-white border border-[#EAE5E0] rounded-xl flex flex-col overflow-hidden">
+      {/* Area Chat */}
+      <div className="lg:col-span-2 bg-white border border-[#EAE5E0] rounded-xl flex flex-col overflow-hidden h-full">
         {hasSelection ? (
           <>
             {headerTitle && (
-              <div className="px-4 py-3 border-b border-[#EAE5E0] flex justify-between items-center bg-[#FCFCFA]">
+              <div className="px-4 py-3 border-b border-[#EAE5E0] flex justify-between items-center bg-[#FCFCFA] shrink-0">
                 <div>
                   <p className="font-bold text-sm text-[#1F1B18]">{headerTitle}</p>
                   {headerSub && <p className="text-xs text-[#8E8680]">{headerSub}</p>}
@@ -510,16 +529,17 @@ function ChatLayout({
                 )}
               </div>
             )}
-            <div ref={containerRef} onScroll={onScroll} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[360px]">
+            {headerExtra}
+            <div ref={containerRef} onScroll={onScroll} className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages}
             </div>
-            <form onSubmit={onSend} className="border-t border-[#EAE5E0] p-4 flex gap-2">
+            <form onSubmit={onSend} className="border-t border-[#EAE5E0] p-4 flex gap-2 shrink-0 items-center">
               {onSendQris && (
                 <button
                   type="button"
                   onClick={onSendQris}
                   disabled={sending}
-                  className="px-3 h-11 border border-primary text-primary hover:bg-orange-50 font-bold text-xs rounded-lg flex items-center gap-1.5 flex-shrink-0 transition"
+                  className="px-3 h-10 border border-primary text-primary hover:bg-orange-50 font-bold text-xs rounded-lg flex items-center gap-1.5 flex-shrink-0 transition"
                   title="Kirim QRIS Platform"
                 >
                   <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
@@ -531,12 +551,12 @@ function ChatLayout({
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder={placeholder}
-                className="flex-1 h-11 px-4 rounded-lg border border-[#D5CFC9] text-sm outline-none focus:border-[#1D4ED8]"
+                className="flex-1 h-10 px-4 rounded-lg border border-[#D5CFC9] text-sm outline-none focus:border-[#1D4ED8]"
               />
               <button
                 type="submit"
                 disabled={sending || !text.trim()}
-                className={`px-5 h-11 text-white font-bold text-sm rounded-lg disabled:opacity-50 ${sendClassName}`}
+                className={`px-5 h-10 text-white font-bold text-sm rounded-lg disabled:opacity-50 flex-shrink-0 transition ${sendClassName}`}
               >
                 Kirim
               </button>
