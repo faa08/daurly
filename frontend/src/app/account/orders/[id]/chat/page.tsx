@@ -11,6 +11,10 @@ import { useChatPolling } from "@/hooks/useChatPolling";
 import { useChatScroll } from "@/hooks/useChatScroll";
 import { Trash2, Paperclip, Loader2 } from "lucide-react";
 
+function getFileName(orderId: string, ext: string) {
+  return `bukti-chat-${orderId}-${Date.now()}.${ext}`;
+}
+
 export default function OrderChatPage() {
   const params = useParams();
   const router = useRouter();
@@ -34,8 +38,8 @@ export default function OrderChatPage() {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `bukti-chat-${orderId}-${Date.now()}.${fileExt}`;
+      const fileExt = file.name.split(".").pop() || "jpg";
+      const fileName = getFileName(orderId, fileExt);
       const filePath = `payment-receipts/${fileName}`;
 
       // Upload to Supabase storage
