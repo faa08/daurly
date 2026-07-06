@@ -82,7 +82,17 @@ function AiChatPanel() {
       const res = await apiFetch("/api/customer-service", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history }),
+        body: JSON.stringify({ 
+          messages: history,
+          context: {
+            pathname: window.location.pathname,
+            user: authService.getCurrentUser() ? {
+              nama_lengkap: authService.getCurrentUser()?.nama_lengkap,
+              username: authService.getCurrentUser()?.username,
+              role: authService.getCurrentUser()?.role,
+            } : null,
+          }
+        }),
       });
 
       const data = await res.json();

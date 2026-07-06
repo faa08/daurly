@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/api-auth";
 import { CUSTOMER_SERVICE_SYSTEM_PROMPT } from "@/data/customerServiceKnowledge";
+import { createSupabaseAdmin } from "@/lib/supabase-admin";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -45,16 +46,56 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const messages: ChatMessage[] = body.messages ?? [];
+    const context = body.context ?? {};
 
     if (!messages.length || messages[messages.length - 1]?.role !== "user") {
       return NextResponse.json({ error: "Pesan tidak valid" }, { status: 400 });
+    }
+
+    // Ambil data produk unggulan dari database secara real-time
+    let topProductsText = "";
+    const { client: adminClient } = createSupabaseAdmin();
+    if (adminClient) {
+      try {
+        const { data: products } = await adminClient
+          .from("produk")
+          .select("nama_produk, harga, nm_store")
+          .eq("stat_produk", "tersedia")
+          .limit(5);
+
+        if (products && products.length > 0) {
+          topProductsText = products
+            .map((p) => `- ${p.nama_produk} (Harga: Rp ${Number(p.harga).toLocaleString("id-ID")}) dari toko "${p.nm_store || "Toko Lokal"}"`)
+            .join("\n");
+        }
+      } catch (err) {
+        console.error("Gagal memuat produk teratas untuk context AI:", err);
+      }
+    }
+
+    // Susun System Prompt dinamis
+    let systemPrompt = CUSTOMER_SERVICE_SYSTEM_PROMPT;
+    
+    if (context.user || context.pathname || topProductsText) {
+      systemPrompt += "\n\n## DYNAMIC CONTEXT (Konteks Real-Time Halaman & Data Website saat ini):";
+      if (context.user) {
+        systemPrompt += `\n- Pengguna aktif saat ini sedang login sebagai: ${context.user.nama_lengkap} (@${context.user.username}), dengan peran: ${context.user.role}. Sapalah dia dengan namanya jika sopan dan relevan.`;
+      } else {
+        systemPrompt += "\n- Pengguna saat ini adalah Tamu (belum login).";
+      }
+      if (context.pathname) {
+        systemPrompt += `\n- Pengguna saat ini sedang membuka halaman web di path: ${context.pathname}. Hubungkan jawaban Anda secara relevan dengan halaman ini jika diperlukan (misalnya jika sedang membuka halaman keranjang, bantu kelola keranjang belanja).`;
+      }
+      if (topProductsText) {
+        systemPrompt += `\n- Berikut adalah beberapa produk unggulan yang tersedia saat ini di database:\n${topProductsText}\n(Jika pembeli menanyakan rekomendasi produk atau apa saja produk yang tersedia, Anda wajib merekomendasikan produk-produk di atas).`;
+      }
     }
 
     if (isGroq) {
       const modelName = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
       
       const groqMessages = [
-        { role: "system", content: CUSTOMER_SERVICE_SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         ...messages.map((msg) => ({
           role: msg.role === "user" ? ("user" as const) : ("assistant" as const),
           content: msg.text,
@@ -91,7 +132,7 @@ export async function POST(request: NextRequest) {
       const genAI = new GoogleGenerativeAI(geminiKey!);
       const model = genAI.getGenerativeModel({
         model: modelName,
-        systemInstruction: CUSTOMER_SERVICE_SYSTEM_PROMPT,
+        systemInstruction: systemPrompt,
       });
 
       const history = messages.slice(0, -1).map((msg) => ({
