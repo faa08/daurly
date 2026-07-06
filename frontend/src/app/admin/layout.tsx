@@ -18,6 +18,12 @@ export default function AdminLayout({
     let cancelled = false;
 
     async function verifyAdmin() {
+      // Check local storage first for instant layout loading
+      const cachedUser = authService.getCurrentUser();
+      if (cachedUser && cachedUser.role === "admin") {
+        setReady(true);
+      }
+
       const user = await authService.refreshSession();
       if (cancelled) return;
       if (!user || user.role !== "admin") {

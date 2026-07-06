@@ -99,13 +99,13 @@ export default function CustomerProfilePage() {
       </div>
 
       <form onSubmit={handleSave}>
-        <div className="flex flex-col md:flex-row">
-          <div className="flex-1 px-8 py-6 space-y-5">
-            <div className="flex items-start gap-4">
-              <label className="w-32 text-right text-sm text-on-surface pt-2 shrink-0">
+        <div className="flex flex-col-reverse md:flex-row">
+          <div className="flex-grow px-6 md:px-8 py-6 space-y-5">
+            <div className="flex flex-col md:flex-row md:items-start gap-1.5 md:gap-4">
+              <label className="w-full md:w-32 md:text-right text-sm text-on-surface md:pt-2 shrink-0">
                 Username
               </label>
-              <div className="flex-1 space-y-1">
+              <div className="flex-1 w-full space-y-1">
                 <input
                   type="text"
                   value={username}
@@ -116,8 +116,8 @@ export default function CustomerProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <label className="w-32 text-right text-sm text-on-surface shrink-0">Nama</label>
+            <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4">
+              <label className="w-full md:w-32 md:text-right text-sm text-on-surface shrink-0">Nama</label>
               <input
                 type="text"
                 value={fullname}
@@ -126,8 +126,8 @@ export default function CustomerProfilePage() {
               />
             </div>
 
-            <div className="flex items-center gap-4">
-              <label className="w-32 text-right text-sm text-on-surface shrink-0">Email</label>
+            <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4">
+              <label className="w-full md:w-32 md:text-right text-sm text-on-surface shrink-0">Email</label>
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-on-surface">{maskedEmail}</span>
                 <button type="button" className="text-primary text-sm hover:underline font-medium">
@@ -136,9 +136,9 @@ export default function CustomerProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <label className="w-32 text-right text-sm text-on-surface shrink-0">Jenis Kelamin</label>
-              <div className="flex items-center gap-4 text-sm text-on-surface">
+            <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4">
+              <label className="w-full md:w-32 md:text-right text-sm text-on-surface shrink-0">Jenis Kelamin</label>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-on-surface">
                 {["Laki-laki", "Perempuan", "Lainnya"].map((opt) => (
                   <label key={opt} className="flex items-center gap-1.5 cursor-pointer">
                     <input
@@ -155,8 +155,8 @@ export default function CustomerProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <label className="w-32 text-right text-sm text-on-surface shrink-0 flex items-center justify-end gap-1">
+            <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4">
+              <label className="w-full md:w-32 md:text-right text-sm text-on-surface shrink-0 flex items-center md:justify-end gap-1">
                 Tanggal lahir
                 <span
                   className="material-symbols-outlined text-[14px] text-secondary cursor-help"
@@ -174,12 +174,12 @@ export default function CustomerProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 pt-2">
-              <div className="w-32 shrink-0" />
+            <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 pt-2">
+              <div className="hidden md:block w-32 shrink-0" />
               <button
                 type="submit"
                 disabled={saving || avatarUploading}
-                className="px-8 py-2.5 bg-primary text-white font-semibold text-sm rounded hover:brightness-95 transition disabled:opacity-60"
+                className="w-full md:w-auto px-8 py-2.5 bg-primary text-white font-semibold text-sm rounded hover:brightness-95 transition disabled:opacity-60"
               >
                 {saving ? "Menyimpan..." : "Simpan"}
               </button>
@@ -188,7 +188,7 @@ export default function CustomerProfilePage() {
 
           <div className="hidden md:block w-px bg-surface-container my-6" />
 
-          <div className="flex flex-col items-center justify-start px-10 py-10 gap-4">
+          <div className="flex flex-col items-center justify-start px-6 md:px-10 py-6 md:py-10 gap-4 border-b border-surface-container md:border-b-0 w-full md:w-auto">
             <div className="w-24 h-24 rounded-full overflow-hidden border border-surface-container bg-[#E8E8E8] flex items-center justify-center relative">
               <img
                 src={avatarUrl}

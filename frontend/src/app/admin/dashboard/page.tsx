@@ -26,29 +26,31 @@ export default function AdminDashboardPage() {
       try {
         setIsLoading(true);
         
-        // 1. Total UMKM (Seller) Terdaftar
-        const { count: sellersCount, error: err1 } = await supabase
-          .from("seller")
-          .select("*", { count: "exact", head: true });
+        // Fetch all stats in parallel for faster load speeds
+        const [
+          sellersRes,
+          productsRes,
+          ordersRes,
+          pendingRes
+        ] = await Promise.all([
+          supabase.from("seller").select("*", { count: "exact", head: true }),
+          supabase.from("produk").select("*", { count: "exact", head: true }).eq("stat_produk", "tersedia"),
+          supabase.from("order").select("total_hrg").eq("stat_order", "selesai"),
+          supabase.from("order").select("*", { count: "exact", head: true }).eq("stat_order", "pending")
+        ]);
 
-        // 2. Total Produk Aktif (Tersedia)
-        const { count: productsCount, error: err2 } = await supabase
-          .from("produk")
-          .select("*", { count: "exact", head: true })
-          .eq("stat_produk", "tersedia");
+        const sellersCount = sellersRes.count;
+        const err1 = sellersRes.error;
 
-        // 3. Total Volume Transaksi (dari tabel "order" dengan status "selesai")
-        const { data: ordersData, error: err3 } = await supabase
-          .from("order")
-          .select("total_hrg")
-          .eq("stat_order", "selesai");
+        const productsCount = productsRes.count;
+        const err2 = productsRes.error;
+
+        const ordersData = ordersRes.data;
+        const err3 = ordersRes.error;
         const totalVolume = ordersData?.reduce((sum, item) => sum + Number(item.total_hrg), 0) || 0;
 
-        // 4. Perlu Dikirim (order dengan status pending)
-        const { count: pendingCount, error: err4 } = await supabase
-          .from("order")
-          .select("*", { count: "exact", head: true })
-          .eq("stat_order", "pending");
+        const pendingCount = pendingRes.count;
+        const err4 = pendingRes.error;
 
         if (err1 || err2 || err3 || err4) {
           console.error("Gagal mengambil data stat:", { err1, err2, err3, err4 });

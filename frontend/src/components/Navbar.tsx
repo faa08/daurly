@@ -47,6 +47,7 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
 
   const containerRef = useRef<HTMLDivElement>(null);
   const profileContainerRef = useRef<HTMLDivElement>(null);
+  const mobileSheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -72,7 +73,11 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
-      if (profileContainerRef.current && !profileContainerRef.current.contains(event.target as Node)) {
+      if (
+        profileContainerRef.current && 
+        !profileContainerRef.current.contains(event.target as Node) &&
+        (!mobileSheetRef.current || !mobileSheetRef.current.contains(event.target as Node))
+      ) {
         setIsProfileOpen(false);
       }
     }
@@ -104,7 +109,8 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
   };
 
   return (
-    <header className="site-header">
+    <>
+      <header className="site-header">
       <div className="navbar-top-row">
         {/* Left: Logo */}
         <div className="nav-brand">
@@ -312,6 +318,8 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
           )}
         </div>
       </div>
+    </header>
+
       {/* Mobile Bottom Sheet — only shown when logged in */}
       {isProfileOpen && isMobile && currentUser && (
         <div className="md:hidden">
@@ -319,7 +327,10 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
             className="fixed inset-0 bg-[#1F1B18]/40 backdrop-blur-xs z-[10050] animate-fade-in"
             onClick={() => setIsProfileOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[24px] border-t border-[#EAE5E0] shadow-2xl z-[10051] px-6 pb-8 pt-3 text-[#1F1B18] animate-slide-up normal-case tracking-normal flex flex-col">
+          <div 
+            ref={mobileSheetRef}
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[24px] border-t border-[#EAE5E0] shadow-2xl z-[10051] px-6 pb-8 pt-3 text-[#1F1B18] animate-slide-up normal-case tracking-normal flex flex-col"
+          >
             {/* Handlebar */}
             <div 
               className="w-12 h-1.5 bg-[#EAE5E0] rounded-full mx-auto mb-5 cursor-pointer"
@@ -387,6 +398,6 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
         </div>
       )}
       <LogoutConfirmDialog />
-    </header>
+    </>
   );
 }

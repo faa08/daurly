@@ -435,3 +435,10 @@
     right: 16px;
   }
 }
+
+@media (max-width: 768px) {
+  body:has(.pd-cta-row) .cs-fab {
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
+}
+

@@ -278,85 +278,79 @@ export default function CartPage() {
 
                 {/* Items */}
                 {items.map((item) => (
-                  <div key={item.id_cart_item} style={{
-                    background: C.card,
-                    border: `1px solid ${item.checked ? C.primary : C.border}`,
-                    borderRadius: 12,
-                    padding: 20,
-                    display: "flex",
-                    gap: 16,
-                    alignItems: "flex-start",
-                    transition: "border-color 0.2s",
-                  }}>
+                  <div 
+                    key={item.id_cart_item} 
+                    className={`bg-white border rounded-xl p-4 md:p-5 flex gap-3 md:gap-4 items-start transition duration-200 ${
+                      item.checked ? "border-primary/60 ring-1 ring-primary/10" : "border-surface-container"
+                    }`}
+                  >
                     {/* Checkbox */}
                     <input
                       type="checkbox"
                       checked={item.checked}
                       onChange={() => toggleItem(item.id_cart_item)}
-                      style={{ width: 16, height: 16, accentColor: C.primary, cursor: "pointer", marginTop: 4, flexShrink: 0 }}
+                      className="w-4 h-4 accent-primary cursor-pointer mt-1 md:mt-1.5 flex-shrink-0"
                     />
 
                     {/* Product Image */}
-                    <div style={{ position: "relative", width: 96, height: 96, borderRadius: 8, overflow: "hidden", background: "#F8F6F4", border: `1px solid ${C.border}`, flexShrink: 0 }}>
+                    <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden bg-[#F8F6F4] border border-surface-container flex-shrink-0">
                       <Image src={item.image} alt={item.name} fill style={{ objectFit: "cover" }} />
                     </div>
 
                     {/* Info */}
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
-                        <div>
-                          <p style={{ fontSize: "0.7rem", fontWeight: 700, color: C.textMuted, letterSpacing: "0.04em", margin: "0 0 4px 0", textTransform: "uppercase" }}>
+                    <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-bold text-[#8E8680] uppercase tracking-wider mb-0.5">
                             {item.seller}
                           </p>
-                          <Link href={`/produk/${item.slug || item.id_produk}`} style={{ fontSize: "0.9375rem", fontWeight: 700, color: C.text, textDecoration: "none", display: "block", lineHeight: 1.35 }}>
+                          <Link 
+                            href={`/produk/${item.slug || item.id_produk}`} 
+                            className="text-sm md:text-base font-bold text-on-surface hover:text-primary transition line-clamp-2 leading-snug"
+                          >
                             {item.name}
                           </Link>
                         </div>
-                        <button onClick={() => removeItem(item.id_cart_item)} style={{ background: "none", border: "none", cursor: "pointer", color: C.textMuted, padding: 4, flexShrink: 0 }}>
+                        <button onClick={() => removeItem(item.id_cart_item)} className="text-secondary hover:text-red-500 p-1 flex-shrink-0">
                           <Trash2 size={16} />
                         </button>
                       </div>
 
-                      {/* Price + Qty Row */}
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 8 }}>
+                      {/* Price + Qty + Subtotal Row */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-2 pt-2 border-t border-surface-container/50">
                         <div>
-                          <span style={{ fontSize: "1.0625rem", fontWeight: 800, color: C.primary }}>
+                          <span className="text-base font-extrabold text-primary">
                             {fmtPrice(item.price)}
                           </span>
                         </div>
 
-                        {/* Qty Controls */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 0, border: `1.5px solid ${C.borderStrong}`, borderRadius: 8, overflow: "hidden" }}>
-                          <button
-                            onClick={() => updateQty(item.id_cart_item, -1)}
-                            disabled={item.qty <= 1}
-                            style={{
-                              width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center",
-                              background: "none", border: "none", cursor: item.qty <= 1 ? "not-allowed" : "pointer",
-                              color: item.qty <= 1 ? C.textMuted : C.text, transition: "background 0.15s",
-                            }}
-                          >
-                            <Minus size={14} />
-                          </button>
-                          <span style={{ width: 36, textAlign: "center", fontSize: "0.875rem", fontWeight: 700, color: C.text }}>
-                            {item.qty}
-                          </span>
-                          <button
-                            onClick={() => updateQty(item.id_cart_item, 1)}
-                            style={{
-                              width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center",
-                              background: "none", border: "none", cursor: "pointer", color: C.text, transition: "background 0.15s",
-                            }}
-                          >
-                            <Plus size={14} />
-                          </button>
+                        <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                          {/* Qty Controls */}
+                          <div className="flex items-center border border-border-strong rounded-lg overflow-hidden bg-white">
+                            <button
+                              onClick={() => updateQty(item.id_cart_item, -1)}
+                              disabled={item.qty <= 1}
+                              className="w-8 h-8 flex items-center justify-center text-on-surface disabled:text-secondary disabled:cursor-not-allowed hover:bg-surface-container transition"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="w-9 text-center text-sm font-bold text-on-surface">
+                              {item.qty}
+                            </span>
+                            <button
+                              onClick={() => updateQty(item.id_cart_item, 1)}
+                              className="w-8 h-8 flex items-center justify-center text-on-surface hover:bg-surface-container transition"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
+
+                          <div className="text-right sm:text-left min-w-[80px]">
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-wider leading-none mb-0.5">Subtotal</p>
+                            <p className="text-xs font-bold text-on-surface">{fmtPrice(item.price * item.qty)}</p>
+                          </div>
                         </div>
                       </div>
-
-                      {/* Item Subtotal */}
-                      <p style={{ fontSize: "0.75rem", color: C.textMuted, margin: 0, textAlign: "right" }}>
-                        Subtotal: <strong style={{ color: C.text }}>{fmtPrice(item.price * item.qty)}</strong>
-                      </p>
                     </div>
                   </div>
                 ))}
@@ -414,16 +408,16 @@ export default function CartPage() {
                 </div>
 
                 {/* Trust Badges */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
-                    { icon: <ShieldCheck size={18} color={C.primary} />, title: "Pembayaran Aman", desc: "Data transaksi terenkripsi SSL" },
-                    { icon: <Truck size={18} color={C.primary} />, title: "Pengiriman Terjamin", desc: "Estimasi 2–5 hari kerja" },
+                    { icon: <ShieldCheck size={18} className="text-primary" />, title: "Pembayaran Aman", desc: "Data transaksi terenkripsi SSL" },
+                    { icon: <Truck size={18} className="text-primary" />, title: "Pengiriman Terjamin", desc: "Estimasi 2–5 hari kerja" },
                   ].map((b, i) => (
-                    <div key={i} style={{ background: C.primaryPale, border: `1px solid #FDDAC4`, borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-                      {b.icon}
+                    <div key={i} className="bg-primary-container border border-orange-100 rounded-xl p-3.5 flex items-center gap-3">
+                      <div className="shrink-0">{b.icon}</div>
                       <div>
-                        <p style={{ fontSize: "0.8" + "rem", fontWeight: 700, color: C.text, margin: 0 }}>{b.title}</p>
-                        <p style={{ fontSize: "0.7rem", color: C.textSec, margin: 0 }}>{b.desc}</p>
+                        <p className="text-xs font-bold text-on-surface">{b.title}</p>
+                        <p className="text-[10px] text-secondary">{b.desc}</p>
                       </div>
                     </div>
                   ))}

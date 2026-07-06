@@ -120,6 +120,10 @@
   z-index: 100;
 }
 
+.site-header--sheet-open {
+  z-index: 10052 !important;
+}
+
 /* Row 1: Brand / Menu / Actions */
 .navbar-top-row {
   display: flex;
@@ -163,10 +167,11 @@
 }
 
 .logo-text-bold {
-  font-size: 1.15rem;
+  font-family: var(--font-jakarta), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.25rem;
   font-weight: 800;
-  color: #1F1B18;
-  letter-spacing: -0.02em;
+  color: var(--primary);
+  letter-spacing: -0.03em;
 }
 
 /* Navigation center */
@@ -2633,6 +2638,11 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+
+  .products-grid-reco {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 

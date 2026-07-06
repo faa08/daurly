@@ -499,14 +499,14 @@ export default function CustomerOrdersPage() {
                       </div>
                     </div>
 
-                    <div className="flex md:flex-col justify-between md:items-end gap-3 text-right">
+                    <div className="flex flex-col sm:flex-row md:flex-col justify-between sm:items-center md:items-end gap-3 text-left sm:text-right">
                       <div>
                         <p className="text-[10px] font-bold text-secondary uppercase tracking-wider">Total Belanja</p>
                         <p className="font-headline font-extrabold text-base text-primary">
                           Rp {Number(ord.total_hrg).toLocaleString("id-ID")}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap justify-end">
+                      <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end">
                         {ord.tipe_pembayaran === "digital" &&
                           ["pending", "diproses", "dikirim", "selesai"].includes(ord.stat_order) && (
                           <Link href={`/account/orders/${ord.id_order}/chat`} className="px-4 py-2 border border-primary text-primary font-bold text-xs rounded hover:bg-primary-container transition">
