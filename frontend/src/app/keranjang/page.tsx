@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Trash2, Plus, Minus, Tag, ShoppingBag, ChevronRight, ShieldCheck, Truck, Loader2 } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ChevronRight, ShieldCheck, Truck, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
 import Footer from "@/components/Footer";
@@ -355,57 +355,7 @@ export default function CartPage() {
                   </div>
                 ))}
 
-                {/* Voucher Input */}
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                    <Tag size={16} color={C.primary} />
-                    <span style={{ fontSize: "0.875rem", fontWeight: 700, color: C.text }}>Kode Voucher</span>
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input
-                      type="text"
-                      placeholder="Masukkan kode voucher"
-                      value={voucher}
-                      onChange={(e) => setVoucher(e.target.value)}
-                      disabled={voucherApplied}
-                      style={{
-                        flex: 1, height: 40, border: `1.5px solid ${voucherApplied ? "#22C55E" : C.borderStrong}`,
-                        borderRadius: 8, padding: "0 14px", fontSize: "0.8125rem",
-                        color: C.text, fontFamily: "inherit", outline: "none",
-                        background: voucherApplied ? "#F0FDF4" : "white",
-                      }}
-                    />
-                    <button
-                      onClick={applyVoucher}
-                      disabled={voucherApplied}
-                      style={{
-                        height: 40, padding: "0 20px", borderRadius: 8,
-                        background: voucherApplied ? "#22C55E" : C.primary,
-                        color: "white", fontWeight: 700, fontSize: "0.8125rem",
-                        border: "none", cursor: voucherApplied ? "default" : "pointer", fontFamily: "inherit",
-                      }}
-                    >
-                      {voucherApplied ? "✓ Terpakai" : "Terapkan"}
-                    </button>
-                  </div>
-                  {voucherApplied && voucherDetails && (
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-                      <p style={{ fontSize: "0.75rem", color: "#16A34A", fontWeight: 600, margin: 0 }}>
-                        🎉 Voucher {voucherDetails.code} berhasil diterapkan! (Hemat {voucherDetails.discount_type === "percentage" ? `${voucherDetails.value}%` : fmtPrice(Number(voucherDetails.value))})
-                      </p>
-                      <button
-                        onClick={() => {
-                          setVoucherApplied(false);
-                          setVoucherDetails(null);
-                          setVoucher("");
-                        }}
-                        style={{ fontSize: "0.75rem", fontWeight: 700, color: "#DC2626", background: "none", border: "none", cursor: "pointer" }}
-                      >
-                        Batal
-                      </button>
-                    </div>
-                  )}
-                </div>
+
 
                 {/* Trust Badges */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -479,20 +429,7 @@ export default function CartPage() {
                   </p>
                 </div>
 
-                {/* Promo Banner */}
-                <div style={{
-                  background: "linear-gradient(135deg, #1D4ED8, #1E40AF)",
-                  borderRadius: 12, padding: "18px 20px",
-                  display: "flex", flexDirection: "column", gap: 8,
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Tag size={16} color="white" />
-                    <span style={{ fontSize: "0.875rem", fontWeight: 800, color: "white" }}>Promo Eksklusif</span>
-                  </div>
-                  <p style={{ fontSize: "0.8" + "rem", color: "rgba(255,255,255,0.85)", margin: 0, lineHeight: 1.5 }}>
-                    Hemat 10% dengan kode <strong style={{ color: "white" }}>LOKALBANGGA</strong> untuk produk kerajinan tangan pilihan.
-                  </p>
-                </div>
+
               </div>
             </div>
           )}
