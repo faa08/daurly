@@ -83,6 +83,7 @@ export default function ProductForm({
   const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
 
   const saveDraftRef = useRef<() => void>(() => {});
+  const skipDraftSave = useRef(false);
 
   function buildParsedVariants(): ProductVariant[] {
     return variants
@@ -137,6 +138,7 @@ export default function ProductForm({
   );
 
   saveDraftRef.current = () => {
+    if (skipDraftSave.current) return;
     const data = getDraftData();
     const hasContent =
       data.productName.trim() ||
@@ -474,6 +476,7 @@ export default function ProductForm({
       );
 
       if (success) {
+        skipDraftSave.current = true;
         clearAdminDraft(draftKey);
         alert("Produk berhasil diupdate!");
         router.push("/admin/products");
@@ -496,6 +499,7 @@ export default function ProductForm({
       );
 
       if (newProduct) {
+        skipDraftSave.current = true;
         clearAdminDraft(draftKey);
         alert("Produk berhasil ditambahkan!");
         router.push("/admin/products");

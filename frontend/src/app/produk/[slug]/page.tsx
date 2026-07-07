@@ -7,6 +7,7 @@ import Link from "next/link";
 import {
   ShoppingCart,
   Star,
+  ChevronLeft,
   ChevronRight,
   Store,
   ShieldCheck,
@@ -414,6 +415,32 @@ export default function ProductDetailPage() {
                   alt={product ? product.nama_produk : "Mangkuk Keramik Motif Batik"}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
+                {((product && galleryImages.length > 1) || (!product && THUMBNAILS.length > 1)) && (
+                  <>
+                    <button
+                      type="button"
+                      className="pd-nav-arrow left"
+                      onClick={() => {
+                        const total = product ? galleryImages.length : THUMBNAILS.length;
+                        setActiveImg((prev) => (prev - 1 + total) % total);
+                      }}
+                      aria-label="Gambar sebelumnya"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button
+                      type="button"
+                      className="pd-nav-arrow right"
+                      onClick={() => {
+                        const total = product ? galleryImages.length : THUMBNAILS.length;
+                        setActiveImg((prev) => (prev + 1) % total);
+                      }}
+                      aria-label="Gambar berikutnya"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* Thumbnails */}
