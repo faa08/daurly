@@ -70,7 +70,17 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const auth = await requireAuth(request);
-  if (!auth.ok) return auth.response;
+  if (!auth.ok) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      fs.writeFileSync(
+        path.join(process.cwd(), 'error-api.txt'),
+        `requireAuth failed: ok=false, status=${auth.response.status}`
+      );
+    } catch (e) {}
+    return auth.response;
+  }
 
   const { admin, user } = auth.ctx;
 
@@ -189,7 +199,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: "action tidak dikenal." }, { status: 400 });
   } catch (err: unknown) {
-    const e = err as { message?: string };
+    const e = err as { message?: string; stack?: string };
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      fs.writeFileSync(
+        path.join(process.cwd(), 'error-api.txt'),
+        `Error: ${e.message || 'unknown'}\nStack: ${e.stack || 'none'}\nFull: ${JSON.stringify(err)}`
+      );
+    } catch (fsErr) {}
     return NextResponse.json({ error: e.message || "Gagal memproses chat." }, { status: 500 });
   }
 }
