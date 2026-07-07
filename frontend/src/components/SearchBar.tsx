@@ -48,7 +48,7 @@ interface SearchBarProps {
 
 
 
-export default function SearchBar({ query: externalQuery = "", setQuery: externalSetQuery }: SearchBarProps) {
+export default function SearchBar({ query: externalQuery, setQuery: externalSetQuery }: SearchBarProps) {
 
   const [internalQuery, setInternalQuery] = useState("");
 

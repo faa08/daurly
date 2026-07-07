@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     if (context.user || context.pathname || topProductsText) {
       systemPrompt += "\n\n## DYNAMIC CONTEXT (Konteks Real-Time Halaman & Data Website saat ini):";
       if (context.user) {
-        systemPrompt += `\n- Pengguna aktif saat ini sedang login sebagai: ${context.user.nama_lengkap} (@${context.user.username}), dengan peran: ${context.user.role}. Sapalah dia dengan namanya jika sopan dan relevan.`;
+        systemPrompt += `\n- Pengguna aktif saat ini sedang login sebagai: ${context.user.nama_lengkap} (@${context.user.username}), dengan peran: ${context.user.role}. Sapalah dia secara sopan dan ramah (jika namanya 'admin' atau perannya 'admin', sapa dengan panggilan umum seperti 'Kak/Anda' saja alih-alih memanggil 'admin').`;
       } else {
         systemPrompt += "\n- Pengguna saat ini adalah Tamu (belum login).";
       }
