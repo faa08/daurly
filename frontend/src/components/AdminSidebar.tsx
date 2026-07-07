@@ -53,6 +53,7 @@ export default function AdminSidebar({
     { name: "Tarif & Komisi", href: "/admin/commission", icon: "payments" },
     { name: "Kebijakan & TOS", href: "/admin/policies", icon: "gavel" },
     { name: "Batas Waktu", href: "/admin/limits", icon: "hourglass_empty" },
+    { name: "Maintenance", href: "/admin/maintenance", icon: "construction" },
   ];
 
   return (

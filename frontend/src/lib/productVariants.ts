@@ -131,7 +131,7 @@ export function getSelectedVariantLabel(
 /** Galeri tampilan: foto varian terpilih di depan, lalu foto produk lainnya */
 export function getGalleryImages(
   product: Product,
-  activeVariants: Record<number, number>
+  activeVariants?: Record<number, number>
 ): string[] {
   const base = product.images?.length
     ? [...product.images]
@@ -139,11 +139,17 @@ export function getGalleryImages(
       ? [product.img]
       : [];
 
-  const variantImg = getSelectedVariantImage(product, activeVariants);
-  if (!variantImg) return base;
+  const variantOptionImages: string[] = [];
+  product.variants?.forEach((group) => {
+    group.options.forEach((opt) => {
+      const img = opt.image?.trim();
+      if (img && !variantOptionImages.includes(img) && !base.includes(img)) {
+        variantOptionImages.push(img);
+      }
+    });
+  });
 
-  const rest = base.filter((img) => img !== variantImg);
-  return [variantImg, ...rest];
+  return [...base, ...variantOptionImages];
 }
 
 /** Grup varian yang punya foto di opsi (motif/warna) */

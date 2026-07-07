@@ -33,6 +33,7 @@ import {
   getActiveVariantPicks,
   hasSelectedVariantPrice,
   isVisualVariantGroup,
+  getSelectedVariantImage,
 } from "@/lib/productVariants";
 import { useCustomerService } from "@/components/CustomerServiceProvider";
 
@@ -232,6 +233,19 @@ export default function ProductDetailPage() {
     }
   }, [product?.id_produk, product?.variants]);
 
+  useEffect(() => {
+    if (product && Object.keys(activeVariants).length > 0) {
+      const variantImg = getSelectedVariantImage(product, activeVariants);
+      if (variantImg) {
+        const list = getGalleryImages(product, activeVariants);
+        const idx = list.indexOf(variantImg);
+        if (idx !== -1) {
+          setActiveImg(idx);
+        }
+      }
+    }
+  }, [product, activeVariants]);
+
   const handleAddToCart = async (redirectToCheckout = false) => {
     if (!product) return;
     const user = authService.getCurrentUser();
@@ -327,7 +341,6 @@ export default function ProductDetailPage() {
   const handleVariantSelect = (groupIndex: number, optionIndex: number) => {
     const next = { ...activeVariants, [groupIndex]: optionIndex };
     setActiveVariants(next);
-    setActiveImg(0);
     if (product) {
       const stock = getSelectedVariantStock(product, next);
       setQty((q) => Math.max(1, Math.min(q, stock > 0 ? stock : 1)));

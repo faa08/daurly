@@ -203,28 +203,34 @@ function extractCoverImg(img: string | null | undefined): string | null {
 function resolveProductImages(cover_img?: string | null, img?: string | null): { cover: string; images: string[] } {
   const fallback = PRODUCT_IMG_PLACEHOLDER;
   const coverUrl = cover_img?.trim();
+  const raw = img?.trim();
+
+  let imagesList: string[] = [];
+  if (raw) {
+    if (raw.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(raw) as unknown[];
+        imagesList = parsed.map((item) => String(item ?? "").trim()).filter(Boolean);
+      } catch {
+        // ignore and fallback
+      }
+    } else {
+      imagesList = [raw];
+    }
+  }
+
+  if (imagesList.length > 0) {
+    return {
+      cover: coverUrl || imagesList[0],
+      images: imagesList,
+    };
+  }
+
   if (coverUrl) {
     return { cover: coverUrl, images: [coverUrl] };
   }
 
-  const raw = img?.trim();
-  if (!raw) {
-    return { cover: fallback, images: [] };
-  }
-
-  if (raw.startsWith("[")) {
-    try {
-      const parsed = JSON.parse(raw) as unknown[];
-      const images = parsed.map((item) => String(item ?? "").trim()).filter(Boolean);
-      if (images.length > 0) {
-        return { cover: images[0], images };
-      }
-    } catch {
-      // lanjut ke single string
-    }
-  }
-
-  return { cover: raw, images: [raw] };
+  return { cover: fallback, images: [] };
 }
 
 const mapDbRowToProduct = (p: Record<string, unknown>): Product => {

@@ -1153,5 +1153,33 @@ ALTER TABLE "order"
     ADD CONSTRAINT order_id_seller_fkey
     FOREIGN KEY (id_seller) REFERENCES seller(id_seller) ON DELETE CASCADE;
 
+-- ============================================================
+-- TABLE: system_settings
+-- ============================================================
+CREATE TABLE IF NOT EXISTS system_settings (
+    key          VARCHAR(100) PRIMARY KEY,
+    value        JSONB NOT NULL,
+    updated_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
+
+-- Policies for public read
+DROP POLICY IF EXISTS "Allow public read system_settings" ON system_settings;
+CREATE POLICY "Allow public read system_settings" ON system_settings
+    FOR SELECT USING (true);
+
+-- Policies for admin write
+DROP POLICY IF EXISTS "Admins manage system_settings" ON system_settings;
+CREATE POLICY "Admins manage system_settings" ON system_settings
+    FOR ALL USING (public.is_app_admin()) WITH CHECK (public.is_app_admin());
+
+-- Insert default maintenance_mode
+INSERT INTO system_settings (key, value)
+VALUES ('maintenance_mode', 'false'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
 NOTIFY pgrst, 'reload schema';
+
 
