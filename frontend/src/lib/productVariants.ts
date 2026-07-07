@@ -100,6 +100,15 @@ export function hasSelectedVariantPrice(
   product: Product,
   activeVariants: Record<number, number>
 ): boolean {
+  if (product.variantInventory?.length && product.variants?.length) {
+    const picks = product.variants.map((_, gi) => activeVariants[gi] ?? 0);
+    const key = picks.join(",");
+    const found = product.variantInventory.find((e) => e.picks.join(",") === key);
+    if (found?.price != null && found.price > 0) {
+      return true;
+    }
+  }
+
   return (
     product.variants?.some((group, gi) => {
       const opt = group.options[activeVariants[gi] ?? 0];
