@@ -494,7 +494,9 @@ export const authService = {
 
   async logout(): Promise<void> {
     if (!isPlaceholder()) {
-      await supabase.auth.signOut();
+      supabase.auth.signOut().catch((err) => {
+        console.warn("Signout background error:", err);
+      });
     }
     this.setCurrentUser(null);
     if (typeof window !== "undefined") {
