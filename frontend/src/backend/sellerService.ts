@@ -108,7 +108,7 @@ export function generateStoreEmail(storeName: string): string {
     typeof crypto !== "undefined"
       ? crypto.randomUUID().replace(/-/g, "").substring(0, 8)
       : Date.now().toString(36);
-  return `${slug}.${suffix}@pelataranumkm.id`;
+  return `${slug}.${suffix}@daurly.id`;
 }
 
 /** Insert toko langsung via anon key (cocok jika RLS users/seller sudah dimatikan) */

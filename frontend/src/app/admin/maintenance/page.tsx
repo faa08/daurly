@@ -60,7 +60,7 @@ export default function AdminMaintenancePage() {
       <header>
         <h2 className="font-headline text-3xl font-bold text-on-surface">Mode Pemeliharaan (Maintenance)</h2>
         <p className="font-body text-body-md text-[#3E3834] mt-1">
-          Kendalikan aksesibilitas publik untuk seluruh platform Pelataran UMKM selama pembaruan sistem berlangsung.
+          Kendalikan aksesibilitas publik untuk seluruh platform Daurly selama pembaruan sistem berlangsung.
         </p>
       </header>
 

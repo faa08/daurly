@@ -213,7 +213,7 @@ export default function OrderChatPage() {
                       <div className="flex justify-center">
                         <a
                           href="/qr.jpeg"
-                          download="QRIS_Pelataran_UMKM.jpeg"
+                          download="QRIS_Daurly.jpeg"
                           className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#F5F3F0] hover:bg-[#EBE8E2] text-xs font-bold text-gray-700 rounded-lg transition shadow-xs text-center decoration-transparent"
                         >
                           <span className="material-symbols-outlined text-[15px] align-middle">download</span>

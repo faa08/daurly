@@ -257,7 +257,7 @@ function AdminChatPanel() {
         <UserCircle size={40} className="cs-admin-login-icon" />
         <p className="cs-admin-login-title">Masuk untuk chat admin</p>
         <p className="cs-admin-login-desc">
-          Chat dengan tim Pelataran UMKM untuk bantuan pesanan, pembayaran, dan return.
+          Chat dengan tim Daurly untuk bantuan pesanan, pembayaran, dan return.
         </p>
         <Link href="/masuk?redirect=/chat" className="cs-admin-login-btn">
           Masuk / Daftar

@@ -312,7 +312,7 @@ export default function SearchBar({ query: externalQuery, setQuery: externalSetQ
 
             type="text"
 
-            placeholder="Cari produk, toko UMKM, atau kategori..."
+            placeholder="Cari produk daur ulang, toko perajin, atau kategori..."
 
             value={query}
 

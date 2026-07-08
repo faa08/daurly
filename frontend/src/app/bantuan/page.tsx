@@ -110,20 +110,20 @@ const FAQ_ARTICLES = [
     id: "faq-5",
     topicId: "pembayaran",
     question: "Metode pembayaran apa saja yang tersedia?",
-    answer: "Dua pilihan saat checkout: (1) Bayar Digital via Midtrans — VA, e-wallet, kartu kredit; (2) Ambil di Toko — bayar & ambil sendiri di lokasi Pelataran UMKM Cilegon tanpa ongkir."
+    answer: "Dua pilihan saat checkout: (1) Bayar Digital via Midtrans — VA, e-wallet, kartu kredit; (2) Ambil di Toko — bayar & ambil sendiri di lokasi Daurly Cilegon tanpa ongkir."
   },
   {
     id: "faq-6",
     topicId: "pembayaran",
     question: "Apa yang terjadi setelah saya bayar digital?",
-    answer: "Pembayaran diverifikasi otomatis. Admin platform akan menghubungi Anda lewat Chat Pengiriman untuk mengatur pengiriman — bukan penjual UMKM langsung."
+    answer: "Pembayaran diverifikasi otomatis. Admin platform akan menghubungi Anda lewat Chat Pengiriman untuk mengatur pengiriman — bukan perajin/penjual langsung."
   },
   // Pengiriman
   {
     id: "faq-7",
     topicId: "pengiriman",
     question: "Siapa yang mengatur pengiriman pesanan saya?",
-    answer: "Pelataran UMKM (platform) yang mengatur pengiriman dalam model konsinyasi. Setelah bayar digital, admin koordinasi alamat dan jadwal lewat chat. UMKM menitipkan barang, bukan mengirim sendiri ke pembeli."
+    answer: "Daurly (platform) yang mengatur pengiriman dalam model konsinyasi. Setelah bayar digital, admin koordinasi alamat dan jadwal lewat chat. Perajin menitipkan barang, bukan mengirim sendiri ke pembeli."
   },
   {
     id: "faq-8",
@@ -161,14 +161,14 @@ const FAQ_ARTICLES = [
   {
     id: "faq-13",
     topicId: "mitra",
-    question: "Bagaimana UMKM menitipkan produk (konsinyasi)?",
-    answer: "Hubungi tim Pelataran UMKM via halaman Kontak atau Customer Service. Setelah kerja sama konsinyasi disepakati, admin mendaftarkan toko dan produk UMKM. Platform yang urus transaksi, pembayaran, dan layanan ke pembeli — pendapatan dicatat ke saldo mitra."
+    question: "Bagaimana perajin/mitra menitipkan produk daur ulang (konsinyasi)?",
+    answer: "Hubungi tim Daurly via halaman Kontak atau Customer Service. Setelah kerja sama konsinyasi disepakati, admin mendaftarkan toko dan produk daur ulang Anda. Platform yang urus transaksi, pembayaran, dan layanan ke pembeli — pendapatan dicatat ke saldo mitra."
   },
   {
     id: "faq-14",
     topicId: "mitra",
-    question: "Apakah UMKM perlu mengirim pesanan sendiri?",
-    answer: "Tidak. Dalam model konsinyasi, pengiriman dan chat ke pembeli ditangani admin platform. UMKM fokus pada kualitas produk dan ketersediaan stok."
+    question: "Apakah perajin perlu mengirim pesanan sendiri?",
+    answer: "Tidak. Dalam model konsinyasi, pengiriman dan chat ke pembeli ditangani admin platform Daurly. Perajin fokus pada kualitas produk daur ulang dan ketersediaan stok."
   }
 ];
 

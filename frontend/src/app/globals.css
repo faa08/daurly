@@ -3,12 +3,12 @@
 /* stylelint-disable-next-line */
 /* @tailwindcss/vscode: @theme is a Tailwind v4 directive */
 @theme {
-  --color-primary: #1D4ED8;
-  --color-primary-dark: #1E40AF;
-  --color-primary-light: #3B82F6;
-  --color-primary-pale: #EFF6FF;
-  --color-primary-container: #EFF6FF;
-  --color-on-primary-container: #1D4ED8;
+  --color-primary: #16A34A;
+  --color-primary-dark: #15803D;
+  --color-primary-light: #4ADE80;
+  --color-primary-pale: #F0FDF4;
+  --color-primary-container: #DCFCE7;
+  --color-on-primary-container: #14532D;
   
   --color-surface: #FCFCFA;
   --color-surface-card: #FFFFFF;
@@ -30,12 +30,12 @@
 
 :root {
   /* Brand Colors */
-  --primary: #1D4ED8;
-  --primary-dark: #1E40AF;
-  --primary-light: #3B82F6;
-  --primary-pale: #EFF6FF;
-  --primary-container: #EFF6FF;
-  --on-primary-container: #1D4ED8;
+  --primary: #16A34A;
+  --primary-dark: #15803D;
+  --primary-light: #4ADE80;
+  --primary-pale: #F0FDF4;
+  --primary-container: #DCFCE7;
+  --on-primary-container: #14532D;
 
   /* Neutral / Warm */
   --surface: #FCFCFA;

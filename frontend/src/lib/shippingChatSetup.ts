@@ -1,7 +1,7 @@
 import { createSupabaseAdmin } from "@/lib/supabase-admin";
 
 const ADMIN_SHIPPING_GREETING =
-  "Halo! Pembayaran QRIS/digital Anda sudah berhasil ✅ Admin Pelataran UMKM akan mengatur pengiriman lewat chat ini. Mohon konfirmasi alamat lengkap, nomor HP aktif, dan jadwal penerimaan yang paling nyaman untuk Anda.";
+  "Halo! Pembayaran QRIS/digital Anda sudah berhasil ✅ Admin Daurly akan mengatur pengiriman lewat chat ini. Mohon konfirmasi alamat lengkap, nomor HP aktif, dan jadwal penerimaan yang paling nyaman untuk Anda.";
 
 /** Buat room chat pengiriman + notifikasi ke pembeli & semua admin */
 export async function setupShippingChatAfterDigitalPay(
@@ -45,7 +45,7 @@ export async function setupShippingChatAfterDigitalPay(
       ).join("\n");
     }
 
-    const greetingText = `Halo! Pembayaran QRIS/digital Anda sudah berhasil ✅ Admin Pelataran UMKM akan mengatur pengiriman lewat chat ini.${itemsText}\n\nMohon konfirmasi alamat lengkap, nomor HP aktif, dan jadwal penerimaan yang paling nyaman untuk Anda.`;
+    const greetingText = `Halo! Pembayaran QRIS/digital Anda sudah berhasil ✅ Admin Daurly akan mengatur pengiriman lewat chat ini.${itemsText}\n\nMohon konfirmasi alamat lengkap, nomor HP aktif, dan jadwal penerimaan yang paling nyaman untuk Anda.`;
 
     await admin.from("order_chat_message").insert({
       id_chat: chatId,

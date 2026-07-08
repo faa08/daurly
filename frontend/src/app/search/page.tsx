@@ -14,7 +14,7 @@ import { cartService } from "@/backend/cartService";
 import { authService } from "@/backend/authService";
 import { productToCard, type ProductCard, ProductGridImage } from "@/lib/productUi";
 
-const C = { primary: "#1D4ED8", primaryDark: "#1E40AF", primaryPale: "#EFF6FF", border: "#EAE5E0", borderStrong: "#D5CFC9", text: "#1F1B18", textSec: "#5C5550", textMuted: "#8E8680" };
+const C = { primary: "#16A34A", primaryDark: "#15803D", primaryPale: "#F0FDF4", border: "#EAE5E0", borderStrong: "#D5CFC9", text: "#1F1B18", textSec: "#5C5550", textMuted: "#8E8680" };
 
 const CATEGORIES = ["Semua", "Fashion", "Kerajinan", "Kuliner", "Kecantikan", "Jasa"];
 const SORT_OPTIONS = [{ value: "relevansi", label: "Relevansi" }, { value: "harga-asc", label: "Harga Terendah" }, { value: "harga-desc", label: "Harga Tertinggi" }, { value: "rating", label: "Rating Tertinggi" }];

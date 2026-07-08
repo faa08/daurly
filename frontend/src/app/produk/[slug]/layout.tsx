@@ -21,11 +21,11 @@ function parseCoverImage(img: unknown): string | undefined {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://pelataranumkm.id";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://daurly.id";
 
   const { client } = createSupabaseAdmin();
   if (!client) {
-    return { title: "Produk — Pelataran UMKM" };
+    return { title: "Produk — Daurly" };
   }
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
@@ -33,13 +33,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data } = await (isUuid ? query.eq("id_produk", slug) : query.eq("slug", slug)).maybeSingle();
 
   if (!data) {
-    return { title: "Produk tidak ditemukan — Pelataran UMKM" };
+    return { title: "Produk tidak ditemukan — Daurly" };
   }
 
-  const title = `${data.nama_produk} — Pelataran UMKM`;
+  const title = `${data.nama_produk} — Daurly`;
   const description =
     (typeof data.deskripsi === "string" && data.deskripsi.slice(0, 160)) ||
-    `Beli ${data.nama_produk} dari UMKM lokal di Pelataran UMKM.`;
+    `Beli ${data.nama_produk} dari perajin di Daurly.`;
   const image = parseCoverImage(data.img);
   const price = Number(data.harga);
 

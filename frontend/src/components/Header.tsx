@@ -152,7 +152,7 @@ export default function Header({
             <span className="stripe-orange"></span>
             <span className="stripe-gray"></span>
           </div>
-          <span className="logo-text-bold">Pelataran UMKM</span>
+          <span className="logo-text-bold">Daurly</span>
         </Link>
 
         {/* If minimalist (e.g. Login Screen), show only a back to home link */}
@@ -173,7 +173,7 @@ export default function Header({
                   <span className="material-symbols-outlined absolute left-3 text-secondary text-[18px] pointer-events-none">search</span>
                   <input 
                     type="text" 
-                    placeholder="Cari produk UMKM..." 
+                    placeholder="Cari produk daur ulang..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-4 py-2 bg-surface-container rounded-lg border border-[#EAE5E0] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs font-body text-[#1F1B18]"
@@ -390,7 +390,7 @@ export default function Header({
                         {/* Profile Info Header */}
                         <div className="flex items-center justify-between pb-3 mb-2 border-b border-gray-100 px-1">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 shrink-0 rounded-full bg-blue-500 flex items-center justify-center text-white text-lg font-bold">
+                            <div className="w-10 h-10 shrink-0 rounded-full bg-primary flex items-center justify-center text-white text-lg font-bold">
                               <User className="w-5 h-5 fill-white text-white" />
                             </div>
                             <div className="flex flex-col text-left">
@@ -496,7 +496,7 @@ export default function Header({
                   </>
                 ) : (
                   <>
-                    <div className="w-11 h-11 shrink-0 rounded-full bg-blue-500 flex items-center justify-center text-white text-base font-bold">
+                    <div className="w-11 h-11 shrink-0 rounded-full bg-primary flex items-center justify-center text-white text-base font-bold">
                       <User size={20} className="fill-white text-white" />
                     </div>
                     <div className="flex flex-col text-left">

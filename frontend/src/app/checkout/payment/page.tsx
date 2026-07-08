@@ -51,7 +51,7 @@ function PaymentContent() {
   
   // WhatsApp Link Setup
   const adminWaNumber = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP || "628138298543";
-  const waText = `Halo Admin Pelataran UMKM, saya ingin melakukan konfirmasi pembayaran untuk pesanan ${orderIdDisplay} sebesar Rp ${totalBill.toLocaleString("id-ID")} menggunakan QRIS E-Wallet.`;
+  const waText = `Halo Admin Daurly, saya ingin melakukan konfirmasi pembayaran untuk pesanan ${orderIdDisplay} sebesar Rp ${totalBill.toLocaleString("id-ID")} menggunakan QRIS E-Wallet.`;
   const waUrl = `https://wa.me/${adminWaNumber}?text=${encodeURIComponent(waText)}`;
 
   const handleFinishCheckout = () => {

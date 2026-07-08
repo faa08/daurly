@@ -65,7 +65,7 @@ export function getOrderPaymentDisplay(input: {
     return {
       kind: "pickup",
       label: "Bayar di Tempat",
-      desc: input.catatan || "Ambil di toko — bayar & ambil barang di lokasi Pelataran UMKM",
+      desc: input.catatan || "Ambil di toko — bayar & ambil barang di lokasi Daurly",
     };
   }
 

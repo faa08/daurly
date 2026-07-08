@@ -14,7 +14,7 @@ const DIGITAL_STEPS = [
 
 const PICKUP_STEPS = [
   { num: "1", title: "Pilih Ambil di Toko", desc: "Checkout dengan metode pickup, tanpa ongkir." },
-  { num: "2", title: "Datang ke Toko", desc: "Kunjungi lokasi Pelataran UMKM di Cilegon." },
+  { num: "2", title: "Datang ke Toko", desc: "Kunjungi lokasi Daurly di Cilegon." },
   { num: "3", title: "Bayar & Ambil", desc: "Bayar di tempat dan bawa pulang barang Anda." },
   { num: "4", title: "Tandai Selesai", desc: "Konfirmasi pesanan selesai di akun untuk menutup transaksi." },
 ];
@@ -39,8 +39,8 @@ export default function InfoPengirimanPage() {
             <h1 className="text-3xl font-extrabold text-on-surface">Pengiriman & Chat Admin</h1>
           </div>
           <p className="text-secondary text-sm max-w-2xl leading-relaxed">
-            Di model konsinyasi Pelataran UMKM, <strong>pengiriman diatur oleh platform</strong> — bukan dikirim
-            sendiri oleh penjual UMKM. Setelah bayar digital, admin koordinasi lewat chat.
+            Di model konsinyasi Daurly, <strong>pengiriman diatur oleh platform</strong> — bukan dikirim
+            sendiri oleh perajin/penjual. Setelah bayar digital, admin koordinasi lewat chat.
           </p>
         </div>
 

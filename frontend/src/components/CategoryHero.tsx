@@ -9,7 +9,7 @@ export interface CategoryHeroProps {
 }
 
 export default function CategoryHero({
-  badge = "Galeri UMKM Pilihan",
+  badge = "Galeri Daur Ulang Pilihan",
   title,
   description,
   backgroundImage,

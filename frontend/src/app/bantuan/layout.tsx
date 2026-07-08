@@ -60,7 +60,7 @@ export default function HelpCenterLayout({
                 <span className="stripe-orange-small"></span>
                 <span className="stripe-gray-small"></span>
               </div>
-              <span className="logo-text-bold-small text-on-surface">Pelataran</span>
+              <span className="logo-text-bold-small text-on-surface">Daurly</span>
               <span className="bg-primary text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded tracking-wide">CARE</span>
             </Link>
           </div>

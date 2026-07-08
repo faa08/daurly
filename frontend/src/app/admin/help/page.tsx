@@ -48,7 +48,7 @@ export default function AdminHelpPage() {
       <header>
         <h2 className="font-headline text-3xl font-bold text-on-surface">Pusat Bantuan Superadmin</h2>
         <p className="font-body text-body-md text-[#3E3834] mt-1">
-          Dapatkan panduan operasional sistem dan hubungi tim teknis developer Pelataran UMKM.
+          Dapatkan panduan operasional sistem dan hubungi tim teknis developer Daurly.
         </p>
       </header>
 

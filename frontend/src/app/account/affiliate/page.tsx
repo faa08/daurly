@@ -8,13 +8,13 @@ export default function AffiliatePage() {
       <header>
         <h2 className="font-headline text-3xl font-bold text-on-surface">Program Affiliate</h2>
         <p className="text-secondary mt-1 text-sm">
-          Bagikan link produk UMKM dan dapatkan komisi dari setiap transaksi berhasil.
+          Bagikan link produk daur ulang dan dapatkan komisi dari setiap transaksi berhasil.
         </p>
       </header>
       <div className="bg-white border border-surface-container rounded-xl p-8 shadow-sm space-y-4">
         <p className="text-sm text-secondary leading-relaxed">
           Fitur affiliate sedang dalam pengembangan. Saat ini kamu bisa mulai berbelanja dan
-          mendukung UMKM lokal melalui marketplace Pelataran UMKM.
+          mendukung perajin ramah lingkungan melalui marketplace Daurly.
         </p>
         <Link
           href="/"

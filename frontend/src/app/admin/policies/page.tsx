@@ -27,7 +27,7 @@ export default function AdminPoliciesPage() {
       );
       setPrivacyPolicy(
         "1. Kami mengumpulkan alamat email dan nomor telepon Anda untuk verifikasi keamanan akun.\n" +
-        "2. Data transaksi Anda tidak akan pernah kami bagikan kepada pihak ketiga di luar platform Pelataran UMKM."
+        "2. Data transaksi Anda tidak akan pernah kami bagikan kepada pihak ketiga di luar platform Daurly."
       );
     }
     setLoading(false);

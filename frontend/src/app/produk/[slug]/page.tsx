@@ -70,7 +70,7 @@ interface Review {
 function getProductDescription(product: Product): string {
   const desc = product.desc?.trim();
   if (desc) return desc;
-  return `${product.nama_produk} adalah produk UMKM dari Pelataran UMKM. Setiap pembelian mendukung pengrajin dan pelaku usaha lokal Indonesia.`;
+  return `${product.nama_produk} adalah produk daur ulang kreatif dari Daurly. Setiap pembelian mendukung perajin ramah lingkungan dan ekonomi hijau Indonesia.`;
 }
 
 export default function ProductDetailPage() {
@@ -988,12 +988,12 @@ export default function ProductDetailPage() {
                   )}
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18", margin: 0 }}>
-                      {seller?.nm_store || "Toko UMKM"}
+                      {seller?.nm_store || "Mitra Perajin"}
                     </p>
                     <p style={{ fontSize: "0.75rem", color: "#8E8680", marginTop: 2, margin: "2px 0 0 0" }}>
                       {seller?.addr
                         ? seller.addr.split(",").slice(0, 2).join(",").trim()
-                        : "Pelataran UMKM Indonesia"}
+                        : "Daurly Indonesia"}
                     </p>
                   </div>
                 </div>
@@ -1034,7 +1034,7 @@ export default function ProductDetailPage() {
                 </div>
                 <p style={{ fontSize: "0.8125rem", color: "#5C5550", lineHeight: 1.6, margin: 0 }}>
                   {seller?.deskripsi?.trim()
-                    || "Toko mitra UMKM di Pelataran UMKM — produk asli buatan pengrajin dan pelaku usaha lokal Indonesia."}
+                    || "Toko mitra perajin di Daurly — produk daur ulang kreatif, ramah lingkungan, dan upcycled."}
                 </p>
                 {seller?.no_telp && (
                   <p style={{ fontSize: "0.75rem", color: "#8E8680", margin: 0 }}>

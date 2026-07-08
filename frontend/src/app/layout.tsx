@@ -22,17 +22,17 @@ const jakarta = Plus_Jakarta_Sans({
  });
  
 export const metadata: Metadata = {
-  title: "Pelataran UMKM — Marketplace Produk Lokal Indonesia",
+  title: "Daurly — Marketplace Barang & Produk Daur Ulang Kreatif",
   description:
-    "Temukan produk UMKM terbaik Indonesia: kuliner, kerajinan tangan, fashion lokal, dan jasa kreatif dari pengrajin lokal terpercaya.",
-  keywords: "UMKM, produk lokal, marketplace Indonesia, kerajinan tangan, batik, kopi arabika",
+    "Temukan produk daur ulang terbaik Indonesia: kerajinan kreatif, busana ramah lingkungan, produk upcycled, dan jasa lingkungan dari perajin terpercaya.",
+  keywords: "daur ulang, eco-friendly, green products, upcycle, circular economy, kerajinan tangan",
   icons: {
     icon: [{ url: "/favicon.png", type: "image/png" }],
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-     title: "Pelataran UMKM — Marketplace Produk Lokal Indonesia",
-     description: "Platform e-commerce khusus UMKM Indonesia",
+     title: "Daurly — Marketplace Barang & Produk Daur Ulang Kreatif",
+     description: "Platform e-commerce khusus barang daur ulang kreatif",
      type: "website",
    },
  };

@@ -68,7 +68,7 @@ export default function MaintenanceGuard({ children }: { children: React.ReactNo
               <span className="h-1 bg-white/60 rounded-full w-2/3"></span>
             </div>
             <span className="font-headline text-lg font-black text-[#1F1B18] tracking-tight">
-              Pelataran <span className="text-[#1D4ED8]">UMKM</span>
+              Daurly
             </span>
           </div>
 

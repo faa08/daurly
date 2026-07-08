@@ -111,7 +111,7 @@ export default function AdminCouponsPage() {
       <header>
         <h2 className="font-headline text-3xl font-bold text-on-surface">Kupon & Diskon</h2>
         <p className="font-body text-body-md text-[#3E3834] mt-1">
-          Manajemen voucher promosi, potongan harga, dan kupon belanja platform Pelataran UMKM.
+          Manajemen voucher promosi, potongan harga, dan kupon belanja platform Daurly.
         </p>
       </header>
 

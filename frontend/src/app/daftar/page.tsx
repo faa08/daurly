@@ -13,9 +13,9 @@ import { supabase } from "@/backend/supabase";
 import { formatUnknownError } from "@/lib/formatError";
 
 const C = {
-  primary: "#1D4ED8",
-  primaryDark: "#1E40AF",
-  primaryPale: "#EFF6FF",
+  primary: "#16A34A",
+  primaryDark: "#15803D",
+  primaryPale: "#F0FDF4",
   border: "#EAE5E0",
   borderStrong: "#D5CFC9",
   text: "#1F1B18",
@@ -165,13 +165,13 @@ export default function RegisterPage() {
             {/* Headline */}
             <div>
               <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: C.text, lineHeight: 1.25, margin: "0 0 6px 0" }}>
-                Berdayakan Bisnis
+                Dukung Daur Ulang
               </h2>
               <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: C.primary, lineHeight: 1.25, margin: "0 0 16px 0" }}>
-                Lokal Anda
+                Kreatif Anda
               </h2>
               <p style={{ fontSize: "0.875rem", color: C.textSec, lineHeight: 1.6, margin: 0 }}>
-                Platform digital terpadu untuk menghubungkan produk unggulan UMKM Indonesia dengan pembeli di seluruh nusantara.
+                Platform digital terpadu untuk menghubungkan produk daur ulang kreatif Indonesia dengan pembeli peduli lingkungan.
               </p>
             </div>
 
@@ -184,7 +184,7 @@ export default function RegisterPage() {
               aspectRatio: "4/3",
               marginTop: "auto",
             }}>
-              <Image src="/register-umkm.png" alt="Produk UMKM Indonesia" fill style={{ objectFit: "cover" }} />
+              <Image src="/register-umkm.png" alt="Produk Daur Ulang Kreatif" fill style={{ objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 60%)" }} />
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function RegisterPage() {
             justifyContent: "center",
           }}>
             <h1 style={{ fontSize: "1.625rem", fontWeight: 800, color: C.text, margin: "0 0 6px 0" }}>Buat Akun Baru</h1>
-            <p style={{ fontSize: "0.875rem", color: C.textMuted, margin: "0 0 24px 0" }}>Mulai langkah suksesmu di Pelataran UMKM.</p>
+            <p style={{ fontSize: "0.875rem", color: C.textMuted, margin: "0 0 24px 0" }}>Mulai langkah peduli lingkungan bersama Daurly.</p>
 
             {/* Error Message */}
             {errorMsg && (

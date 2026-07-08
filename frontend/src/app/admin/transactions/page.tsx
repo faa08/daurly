@@ -177,7 +177,7 @@ export default function AdminTransactionsPage() {
       }
 
       // Store Title
-      const storeName = selectedStoreFilter === "all" ? "PELATARAN UMKM" : selectedStoreFilter;
+      const storeName = selectedStoreFilter === "all" ? "DAURLY" : selectedStoreFilter;
 
       if (format === "excel") {
         // Excel download using ExcelJS

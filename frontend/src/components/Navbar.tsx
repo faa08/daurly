@@ -119,7 +119,7 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
               <span className="stripe-orange"></span>
               <span className="stripe-gray"></span>
             </div>
-            <span className="logo-text-bold">Pelataran UMKM</span>
+            <span className="logo-text-bold">Daurly</span>
           </Link>
         </div>
 

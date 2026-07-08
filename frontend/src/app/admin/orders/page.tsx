@@ -126,7 +126,7 @@ export default function AdminOrdersPage() {
         <div>
           <h2 className="font-headline text-3xl font-bold text-[#1F1B18]">Manajemen Pesanan</h2>
           <p className="font-body text-body-md text-[#5C5550] mt-1">
-            Pantau dan kelola seluruh transaksi pesanan platform Pelataran UMKM.
+            Pantau dan kelola seluruh transaksi pesanan platform Daurly.
           </p>
         </div>
         <div className="relative w-full md:w-80">

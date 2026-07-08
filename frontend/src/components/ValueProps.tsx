@@ -16,13 +16,13 @@ const VALUE_PROPS = [
   {
     icon: Users,
     title: "Fokus Komunitas",
-    desc: "Kami menghubungkan langsung pembeli dengan ribuan pengusaha lokal di seluruh Indonesia untuk membangun ekonomi mandiri.",
+    desc: "Kami menghubungkan langsung pembeli dengan perajin barang daur ulang kreatif untuk mendukung gerakan zero-waste dan circular economy.",
     accentClass: "value-card-accent--community",
   },
   {
     icon: ShieldCheck,
     title: "Kualitas Terjamin",
-    desc: "Setiap produk di Pelataran UMKM telah melewati proses kurasi ketat untuk memastikan standar kualitas tinggi bagi pelanggan.",
+    desc: "Setiap produk di Daurly telah melewati proses kurasi ketat untuk memastikan produk daur ulang berkualitas tinggi, estetis, dan fungsional.",
     accentClass: "value-card-accent--quality",
   },
   {
@@ -38,7 +38,7 @@ const SHOPPING_STEPS = [
     step: 1,
     icon: Search,
     title: "Jelajahi Produk",
-    desc: "Cari dan temukan produk UMKM lokal favorit Anda dari berbagai kategori.",
+    desc: "Cari dan temukan produk daur ulang kreatif favorit Anda dari berbagai kategori.",
   },
   {
     step: 2,
@@ -72,11 +72,11 @@ export default function ValueProps() {
           </span>
           <h2 className="value-section-title">
             Mengapa harus beli di{" "}
-            <span className="value-section-title-accent">Pelataran UMKM</span>?
+            <span className="value-section-title-accent">Daurly</span>?
           </h2>
           <p className="value-section-subtitle">
-            Platform marketplace yang dirancang khusus untuk mendukung produk lokal
-            berkualitas dan transaksi yang nyaman bagi Anda.
+            Platform marketplace yang dirancang khusus untuk mendukung produk daur ulang
+            berkualitas dan gerakan ramah lingkungan.
           </p>
         </div>
 
@@ -103,9 +103,9 @@ export default function ValueProps() {
               <span className="value-section-badge value-section-badge-sm">
                 Alur Belanja
               </span>
-              <h3 className="customer-flow-title">Cara Belanja di Pelataran UMKM</h3>
+              <h3 className="customer-flow-title">Cara Belanja di Daurly</h3>
               <p className="customer-flow-subtitle">
-                Hanya 4 langkah mudah — dari mencari produk hingga pesanan sampai di tangan Anda.
+                Hanya 4 langkah mudah — dari mencari produk daur ulang hingga pesanan sampai di tangan Anda.
               </p>
             </div>
             <Link href="/kategori" className="customer-flow-cta">

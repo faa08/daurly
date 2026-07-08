@@ -48,9 +48,9 @@ function fmtPrice(p: number) {
    Styles (shared tokens)
  ───────────────────────────────────────── */
 const C = {
-  primary: "#1D4ED8",
-  primaryDark: "#1E40AF",
-  primaryPale: "#EFF6FF",
+  primary: "#16A34A",
+  primaryDark: "#15803D",
+  primaryPale: "#F0FDF4",
   surface: "#FCFCFA",
   card: "#FFFFFF",
   border: "#EAE5E0",
@@ -92,7 +92,7 @@ export default function CartPage() {
         id_produk: i.id_produk,
         slug: i.produk!.slug,
         name: i.produk!.nama_produk,
-        seller: i.produk!.nm_store || "Toko UMKM",
+        seller: i.produk!.nm_store || "Mitra Perajin",
         price: i.produk!.harga,
         qty: i.qty_cartitem,
         image: parseProductImg(i.produk!.img),
@@ -238,7 +238,7 @@ export default function CartPage() {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: 16, background: C.card, borderRadius: 12, border: `1px solid ${C.border}` }}>
               <ShoppingBag size={64} color={C.borderStrong} strokeWidth={1.2} />
               <h2 style={{ fontSize: "1.125rem", fontWeight: 700, color: C.textMuted, margin: 0 }}>Keranjang kamu masih kosong</h2>
-              <p style={{ fontSize: "0.875rem", color: C.textMuted, margin: 0 }}>Yuk, temukan produk UMKM pilihan dan mulai belanja!</p>
+              <p style={{ fontSize: "0.875rem", color: C.textMuted, margin: 0 }}>Yuk, temukan produk daur ulang pilihan dan mulai belanja!</p>
               <Link href="/" style={{ marginTop: 8, background: C.primary, color: "white", borderRadius: 8, padding: "10px 28px", fontWeight: 700, fontSize: "0.875rem", textDecoration: "none" }}>
                 Mulai Belanja
               </Link>
@@ -439,7 +439,7 @@ export default function CartPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <div>
                 <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text, margin: "0 0 4px 0" }}>Produk Rekomendasi</h2>
-                <p style={{ fontSize: "0.8125rem", color: C.textMuted, margin: 0 }}>Produk UMKM pilihan yang mungkin kamu suka</p>
+                <p style={{ fontSize: "0.8125rem", color: C.textMuted, margin: 0 }}>Produk daur ulang pilihan yang mungkin kamu suka</p>
               </div>
               <Link href="/" style={{ fontSize: "0.8125rem", fontWeight: 700, color: C.primary, textDecoration: "none" }}>
                 Lihat Semua →

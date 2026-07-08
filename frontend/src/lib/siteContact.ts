@@ -6,7 +6,7 @@ export const LINKPRODUCTIVE_LINKTREE_URL = "https://linktr.ee/linkproductive";
 
 export const LINKPRODUCTIVE_WEBSITE_URL = "https://www.linkproductive.com/";
 
-export const PELATARAN_INSTAGRAM_URL = "https://www.instagram.com/pelataranumkm.official/";
+export const PELATARAN_INSTAGRAM_URL = "https://www.instagram.com/daurly.official/";
 
 export const LINKPRODUCTIVE_INSTAGRAM_URL = "https://www.instagram.com/link.productive/";
 

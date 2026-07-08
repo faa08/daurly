@@ -66,60 +66,60 @@ export const DEFAULT_CATEGORY_HERO: Record<
 > = {
   "": {
     category_slug: "",
-    badge: "Galeri UMKM Pilihan",
+    badge: "Galeri Daur Ulang Pilihan",
     title_line1: "Semua Kategori Produk",
     description:
-      "Temukan barang kerajinan otentik, hidangan lezat kuliner nusantara, busana lokal tradisional, dan layanan jasa berkualitas langsung dari pelaku UMKM terpercaya.",
+      "Temukan barang kerajinan daur ulang kreatif, olahan makanan ramah lingkungan, busana eco-fashion, dan layanan ramah lingkungan dari perajin terpercaya.",
     image_url:
       "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1600&auto=format&fit=crop",
     image_position: "center center",
   },
   kuliner: {
     category_slug: "kuliner",
-    badge: "Galeri UMKM Pilihan",
+    badge: "Galeri Daur Ulang Pilihan",
     title_line1: "Kategori Kuliner",
     description:
-      "Nikmati cita rasa nusantara autentik — dari kopi pilihan, camilan tradisional, hingga olahan rumahan berkualitas dari UMKM kuliner terpercaya.",
+      "Nikmati cita rasa nusantara autentik — kuliner ramah lingkungan dengan kemasan minim plastik dari mitra terpercaya.",
     image_url:
       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1600&auto=format&fit=crop",
     image_position: "center 40%",
   },
   fashion: {
     category_slug: "fashion",
-    badge: "Galeri UMKM Pilihan",
+    badge: "Galeri Daur Ulang Pilihan",
     title_line1: "Kategori Fashion",
     description:
-      "Temukan busana lokal, batik modern, dan aksesori handmade yang memadukan tradisi dengan gaya kontemporer dari pengrajin fashion Indonesia.",
+      "Temukan busana ramah lingkungan (eco-fashion) dan aksesori daur ulang kreatif yang memadukan keindahan dengan gaya berkelanjutan.",
     image_url:
       "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&auto=format&fit=crop",
     image_position: "center center",
   },
   kerajinan: {
     category_slug: "kerajinan",
-    badge: "Galeri UMKM Pilihan",
+    badge: "Galeri Daur Ulang Pilihan",
     title_line1: "Kategori Kerajinan",
     description:
-      "Jelajahi kerajinan tangan otentik — keramik, anyaman, ukiran kayu, dan karya seni lokal yang dibuat dengan dedikasi para perajin UMKM.",
+      "Jelajahi kerajinan tangan daur ulang otentik — dekorasi rumah, wadah serbaguna, dan karya seni yang dibuat kreatif dari bahan daur ulang.",
     image_url:
       "https://images.unsplash.com/photo-1452860606245-08befc0ff4b5?q=80&w=1600&auto=format&fit=crop",
     image_position: "center center",
   },
   jasa: {
     category_slug: "jasa",
-    badge: "Galeri UMKM Pilihan",
+    badge: "Galeri Daur Ulang Pilihan",
     title_line1: "Kategori Jasa",
     description:
-      "Temukan layanan jasa berkualitas dari UMKM lokal — desain, fotografi, konsultasi, hingga jasa kreatif yang siap mendukung kebutuhan Anda.",
+      "Temukan layanan jasa ramah lingkungan — konsultasi pengelolaan limbah, workshop upcycling, dan jasa kreatif hijau.",
     image_url:
       "https://images.unsplash.com/photo-1521737711862-e3b97375f902?q=80&w=1600&auto=format&fit=crop",
     image_position: "center center",
   },
   kecantikan: {
     category_slug: "kecantikan",
-    badge: "Galeri UMKM Pilihan",
+    badge: "Galeri Daur Ulang Pilihan",
     title_line1: "Kategori Kecantikan",
     description:
-      "Produk kecantikan alami dan perawatan tubuh dari bahan lokal — sabun handmade, essential oil, dan kosmetik ramah kulit dari UMKM Indonesia.",
+      "Produk kecantikan alami, sabun handmade ramah lingkungan, dan perawatan tubuh organik bebas bahan kimia berbahaya.",
     image_url:
       "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1600&auto=format&fit=crop",
     image_position: "center center",

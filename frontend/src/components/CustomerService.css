@@ -7,10 +7,10 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #1D4ED8;
+  background: var(--primary);
   color: #FFFFFF;
   border: none;
-  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.4);
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,12 +20,12 @@
 
 .cs-fab:hover {
   transform: scale(1.06);
-  background: #1E40AF;
-  box-shadow: 0 8px 24px rgba(29, 78, 216, 0.5);
+  background: var(--primary-dark);
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.5);
 }
 
 .cs-fab--active {
-  background: #1E40AF;
+  background: var(--primary-dark);
 }
 
 .cs-backdrop {
@@ -76,7 +76,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: #FFFFFF;
   flex-shrink: 0;
 }
@@ -168,8 +168,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #EFF6FF;
-  color: #1D4ED8;
+  background: var(--primary-pale);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,7 +185,7 @@
 }
 
 .cs-message--user .cs-msg-bubble {
-  background: #1D4ED8;
+  background: var(--primary);
   color: #FFFFFF;
   border-bottom-right-radius: 4px;
 }
@@ -253,15 +253,15 @@
 }
 
 .cs-input:focus {
-  border-color: #1D4ED8;
-  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1);
 }
 
 .cs-send-btn {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #1D4ED8;
+  background: var(--primary);
   color: #FFFFFF;
   border: none;
   display: flex;
@@ -273,7 +273,7 @@
 }
 
 .cs-send-btn:hover:not(:disabled) {
-  background: #1E40AF;
+  background: var(--primary-dark);
 }
 
 .cs-send-btn:disabled {
@@ -406,7 +406,7 @@
 .cs-admin-login-btn {
   display: inline-block;
   padding: 10px 20px;
-  background: #1D4ED8;
+  background: var(--primary);
   color: #FFFFFF;
   font-size: 0.8125rem;
   font-weight: 700;
@@ -415,7 +415,7 @@
 }
 
 .cs-admin-login-btn:hover {
-  background: #1E40AF;
+  background: var(--primary-dark);
 }
 
 @media (max-width: 480px) {

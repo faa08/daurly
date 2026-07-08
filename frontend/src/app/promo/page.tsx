@@ -12,7 +12,7 @@ import { productToCard, promoDiscountPercent, ProductGridImage } from "@/lib/pro
 import { cartService } from "@/backend/cartService";
 import { authService } from "@/backend/authService";
 
-const C = { primary: "#1D4ED8", primaryDark: "#1E40AF", primaryPale: "#EFF6FF", border: "#EAE5E0", borderStrong: "#D5CFC9", text: "#1F1B18", textSec: "#5C5550", textMuted: "#8E8680" };
+const C = { primary: "#16A34A", primaryDark: "#15803D", primaryPale: "#F0FDF4", border: "#EAE5E0", borderStrong: "#D5CFC9", text: "#1F1B18", textSec: "#5C5550", textMuted: "#8E8680" };
 
 type PromoItem = {
   id: string;
@@ -99,8 +99,8 @@ export default function PromoPage() {
                 <Flame size={20} color="#FDE68A" />
                 <span style={{ fontSize: "0.8rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", opacity: 0.9 }}>Flash Sale Aktif</span>
               </div>
-              <h1 style={{ fontSize: "2.5rem", fontWeight: 900, margin: "0 0 8px 0", lineHeight: 1.15 }}>Promo Spesial UMKM</h1>
-              <p style={{ fontSize: "1rem", opacity: 0.85, margin: "0 0 28px 0", maxWidth: 480, lineHeight: 1.6 }}>Diskon hingga 30% untuk produk kerajinan, kuliner, fashion, dan kecantikan pilihan langsung dari pengrajin lokal Indonesia.</p>
+              <h1 style={{ fontSize: "2.5rem", fontWeight: 900, margin: "0 0 8px 0", lineHeight: 1.15 }}>Promo Spesial Daurly</h1>
+              <p style={{ fontSize: "1rem", opacity: 0.85, margin: "0 0 28px 0", maxWidth: 480, lineHeight: 1.6 }}>Diskon hingga 30% untuk produk kerajinan daur ulang, fashion ramah lingkungan, dan upcycling kreatif langsung dari perajin terpercaya.</p>
               <div>
                 <p style={{ fontSize: "0.75rem", fontWeight: 700, opacity: 0.8, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}><Clock size={14} /> Berakhir dalam:</p>
                 <div style={{ display: "flex", gap: 10 }}>

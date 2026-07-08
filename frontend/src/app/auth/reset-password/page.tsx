@@ -10,7 +10,7 @@ import { supabase } from "@/backend/supabase";
 import { authService } from "@/backend/authService";
 
 const C = {
-  primary: "#1D4ED8",
+  primary: "#16A34A",
   border: "#EAE5E0",
   text: "#1F1B18",
   textMuted: "#8E8680",
@@ -106,7 +106,7 @@ export default function ResetPasswordPage() {
         >
           <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: C.text, marginBottom: 8 }}>Reset Kata Sandi</h1>
           <p style={{ fontSize: "0.875rem", color: C.textMuted, marginBottom: 24 }}>
-            Buat kata sandi baru untuk akun Pelataran UMKM Anda.
+            Buat kata sandi baru untuk akun Daurly Anda.
           </p>
 
           {success ? (

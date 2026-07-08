@@ -179,44 +179,6 @@ CREATE TABLE produk (
 
 
 -- ============================================================
--- TABLE: review
--- ============================================================
-CREATE TABLE review (
-    id_review   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    id_user     UUID NOT NULL REFERENCES users(id_user) ON DELETE CASCADE,
-    id_produk   UUID NOT NULL REFERENCES produk(id_produk) ON DELETE CASCADE,
-    rating      SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    komentar    TEXT,
-    foto_review TEXT,                            -- URL foto lampiran review
-    id_order    UUID REFERENCES "order"(id_order) ON DELETE SET NULL,
-    created_at  TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (id_user, id_produk)
-);
-
-
--- ============================================================
--- TABLE: cart
--- ============================================================
-CREATE TABLE cart (
-    id_cart     UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    id_user     UUID NOT NULL UNIQUE REFERENCES users(id_user) ON DELETE CASCADE,
-    created_at  TIMESTAMPTZ DEFAULT NOW()
-);
-
-
--- ============================================================
--- TABLE: cart_item
--- ============================================================
-CREATE TABLE cart_item (
-    id_cart_item    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    id_cart         UUID NOT NULL REFERENCES cart(id_cart) ON DELETE CASCADE,
-    id_produk       UUID NOT NULL REFERENCES produk(id_produk) ON DELETE CASCADE,
-    qty_cartitem    INT NOT NULL DEFAULT 1 CHECK (qty_cartitem > 0),
-    added_at        TIMESTAMPTZ DEFAULT NOW()
-);
-
-
--- ============================================================
 -- TABLE: "order"
 -- (UPDATED: tambah id_seller, hapus kolom retur duplikat)
 -- 1 order = 1 seller. Saat checkout, cart items digroup
@@ -252,6 +214,44 @@ CREATE TABLE order_item (
     hrg_saat_beli   NUMERIC(15, 2) NOT NULL CHECK (hrg_saat_beli >= 0),
     nama_produk_snapshot VARCHAR(255),
     img_snapshot    TEXT
+);
+
+
+-- ============================================================
+-- TABLE: review
+-- ============================================================
+CREATE TABLE review (
+    id_review   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_user     UUID NOT NULL REFERENCES users(id_user) ON DELETE CASCADE,
+    id_produk   UUID NOT NULL REFERENCES produk(id_produk) ON DELETE CASCADE,
+    rating      SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    komentar    TEXT,
+    foto_review TEXT,                            -- URL foto lampiran review
+    id_order    UUID REFERENCES "order"(id_order) ON DELETE SET NULL,
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (id_user, id_produk)
+);
+
+
+-- ============================================================
+-- TABLE: cart
+-- ============================================================
+CREATE TABLE cart (
+    id_cart     UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_user     UUID NOT NULL UNIQUE REFERENCES users(id_user) ON DELETE CASCADE,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+-- ============================================================
+-- TABLE: cart_item
+-- ============================================================
+CREATE TABLE cart_item (
+    id_cart_item    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_cart         UUID NOT NULL REFERENCES cart(id_cart) ON DELETE CASCADE,
+    id_produk       UUID NOT NULL REFERENCES produk(id_produk) ON DELETE CASCADE,
+    qty_cartitem    INT NOT NULL DEFAULT 1 CHECK (qty_cartitem > 0),
+    added_at        TIMESTAMPTZ DEFAULT NOW()
 );
 
 

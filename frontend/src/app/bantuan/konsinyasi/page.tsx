@@ -6,8 +6,8 @@ import { PICKUP_STORE_ADDRESS } from "@/lib/checkoutConstants";
 
 const STEPS = [
   {
-    title: "UMKM titip produk",
-    desc: "Pelaku UMKM mendaftar dan menitipkan barang ke Pelataran UMKM. Stok dan katalog dikelola di platform.",
+    title: "Perajin titip produk",
+    desc: "Perajin mendaftar dan menitipkan barang ke Daurly. Stok dan katalog dikelola di platform.",
   },
   {
     title: "Platform yang jual",
@@ -22,8 +22,8 @@ const STEPS = [
     desc: "Setelah bayar digital, admin menghubungi pembeli via chat untuk koordinasi pengiriman.",
   },
   {
-    title: "UMKM terima hasil",
-    desc: "Setelah transaksi selesai, pendapatan dicatat ke saldo UMKM sesuai kebijakan platform.",
+    title: "Perajin terima hasil",
+    desc: "Setelah transaksi selesai, pendapatan dicatat ke saldo perajin/mitra sesuai kebijakan platform.",
   },
 ];
 
@@ -44,11 +44,11 @@ export default function KonsinyasiPage() {
             <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
               <Store size={20} className="text-indigo-600" />
             </div>
-            <h1 className="text-3xl font-extrabold text-on-surface">Model Konsinyasi UMKM</h1>
+            <h1 className="text-3xl font-extrabold text-on-surface">Model Konsinyasi Daurly</h1>
           </div>
           <p className="text-secondary text-sm max-w-2xl leading-relaxed">
-            Pelataran UMKM bukan marketplace tempat tiap penjual kirim sendiri. Ini platform <strong>titip jual</strong>:
-            UMKM menitipkan produk, kami yang urus penjualan, pembayaran, dan layanan ke pembeli.
+            Daurly bukan marketplace tempat tiap penjual kirim sendiri. Ini platform <strong>titip jual</strong>:
+            Perajin menitipkan produk daur ulang, kami yang urus penjualan, pembayaran, dan layanan ke pembeli.
           </p>
         </div>
 
@@ -75,14 +75,14 @@ export default function KonsinyasiPage() {
               <Package size={20} className="text-primary mb-3" />
               <p className="font-bold text-sm mb-1">Untuk Pembeli</p>
               <p className="text-xs text-secondary leading-relaxed">
-                Belanja produk UMKM terkurasi, bayar aman, ambil di toko atau kirim dengan bantuan admin.
+                Belanja produk daur ulang terkurasi, bayar aman, ambil di toko atau kirim dengan bantuan admin.
               </p>
             </div>
             <div className="bg-white border border-surface-container rounded-xl p-6 shadow-sm">
               <Wallet size={20} className="text-amber-600 mb-3" />
-              <p className="font-bold text-sm mb-1">Untuk UMKM</p>
+              <p className="font-bold text-sm mb-1">Untuk Perajin</p>
               <p className="text-xs text-secondary leading-relaxed">
-                Fokus produksi & kualitas barang. Penjualan, chat pengiriman, dan return ditangani platform.
+                Fokus produksi & kualitas barang daur ulang. Penjualan, chat pengiriman, dan return ditangani platform.
               </p>
             </div>
             <div className="bg-white border border-surface-container rounded-xl p-6 shadow-sm">
@@ -97,7 +97,7 @@ export default function KonsinyasiPage() {
 
           <section className="bg-primary/5 border border-primary/20 rounded-xl p-6">
             <p className="text-sm text-on-surface leading-relaxed">
-              Ingin menitipkan produk? Mitra UMKM didaftarkan oleh tim Pelataran UMKM (bukan lewat form online).
+              Ingin menitipkan produk? Mitra perajin didaftarkan oleh tim Daurly (bukan lewat form online).
               Hubungi kami lewat{" "}
               <Link href="/kontak" className="text-primary font-bold hover:underline">halaman Kontak</Link>
               {" "}atau Customer Service untuk koordinasi konsinyasi.

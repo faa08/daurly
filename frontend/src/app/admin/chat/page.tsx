@@ -51,7 +51,7 @@ function ChatBubble({
             <div className="flex justify-center">
               <a
                 href="/qr.jpeg"
-                download="QRIS_Pelataran_UMKM.jpeg"
+                download="QRIS_Daurly.jpeg"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-50 text-[11px] font-bold text-[#3E3834] rounded-md border border-gray-200 transition shadow-xs decoration-transparent"
               >
                 <span className="material-symbols-outlined text-[14px] align-middle">download</span>

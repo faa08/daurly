@@ -11,9 +11,9 @@ import Footer from "@/components/Footer";
 import { authService } from "@/backend/authService";
 
 const C = {
-  primary: "#1D4ED8",
-  primaryDark: "#1E40AF",
-  primaryPale: "#EFF6FF",
+  primary: "#16A34A",
+  primaryDark: "#15803D",
+  primaryPale: "#F0FDF4",
   border: "#EAE5E0",
   borderStrong: "#D5CFC9",
   text: "#1F1B18",
@@ -123,13 +123,13 @@ function LoginForm() {
 
             <div>
               <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: C.text, lineHeight: 1.25, margin: "0 0 6px 0" }}>
-                Berdayakan Bisnis
+                Dukung Daur Ulang
               </h2>
               <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: C.primary, lineHeight: 1.25, margin: "0 0 16px 0" }}>
-                Lokal Anda
+                Kreatif Anda
               </h2>
               <p style={{ fontSize: "0.875rem", color: C.textSec, lineHeight: 1.6, margin: 0 }}>
-                Masuk ke ekosistem digital UMKM terbesar dan mulai kelola toko Anda dengan fitur modern yang dirancang untuk pertumbuhan.
+                Masuk ke ekosistem digital Daurly dan mulai kelola toko Anda dengan fitur modern yang dirancang untuk pertumbuhan ramah lingkungan.
               </p>
             </div>
 
@@ -142,7 +142,7 @@ function LoginForm() {
               aspectRatio: "4/3",
               marginTop: "auto",
             }}>
-              <Image src="/login-artisan.png" alt="Perajin UMKM" fill style={{ objectFit: "cover" }} />
+              <Image src="/login-artisan.png" alt="Perajin Daur Ulang" fill style={{ objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 60%)" }} />
             </div>
           </div>

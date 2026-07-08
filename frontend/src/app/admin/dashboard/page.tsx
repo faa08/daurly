@@ -86,13 +86,13 @@ export default function AdminDashboardPage() {
       <header>
         <h2 className="font-headline text-3xl font-bold text-[#1F1B18]">Dashboard</h2>
         <p className="font-body text-body-md text-[#3E3834] mt-1">
-          Ringkasan performa platform Pelataran UMKM hari ini.
+          Ringkasan performa platform Daurly hari ini.
         </p>
       </header>
 
       {/* 4 Stats Cards Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Card 1: Total UMKM Terdaftar */}
+        {/* Card 1: Total Perajin Terdaftar */}
         <div className="bg-white p-6 rounded-xl flex items-center justify-between shadow-[0_8px_30px_rgb(0,0,0,0.02)] relative overflow-hidden">
           {isLoading ? (
             <div className="w-full space-y-3 animate-pulse">
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
                 <span className="material-symbols-outlined text-2xl">groups</span>
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-[#3E3834] tracking-wider">Total UMKM</p>
+                <p className="text-[10px] uppercase font-bold text-[#3E3834] tracking-wider">Total Perajin</p>
                 <div className="flex items-center gap-2 mt-1">
                   <h3 className="font-headline text-2xl font-extrabold text-[#1F1B18] leading-none">
                     {stats.totalSellers.toLocaleString("id-ID")}

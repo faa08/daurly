@@ -9,9 +9,9 @@ const FAQ_DATA = [
     category: "Akun & Pendaftaran",
     icon: <User size={16} />,
     items: [
-      { q: "Bagaimana cara mendaftar akun di Pelataran UMKM?", a: "Klik tombol 'Daftar' di sudut kanan atas, isi nama lengkap, email, dan kata sandi. Verifikasi email kamu, dan akun siap digunakan dalam hitungan menit." },
+      { q: "Bagaimana cara mendaftar akun di Daurly?", a: "Klik tombol 'Daftar' di sudut kanan atas, isi nama lengkap, email, dan kata sandi. Verifikasi email kamu, dan akun siap digunakan dalam hitungan menit." },
       { q: "Apakah pendaftaran gratis?", a: "Ya, pendaftaran sepenuhnya gratis untuk semua pengguna, baik pembeli maupun penjual. Kami hanya mengenakan biaya layanan kecil untuk setiap transaksi yang berhasil." },
-      { q: "Bagaimana UMKM bergabung sebagai mitra konsinyasi?", a: "UMKM tidak mendaftar sendiri lewat website. Hubungi tim Pelataran UMKM via halaman Kontak atau Customer Service. Setelah kerja sama disepakati, admin mendaftarkan toko dan produk di platform." },
+      { q: "Bagaimana perajin bergabung sebagai mitra konsinyasi?", a: "Perajin tidak mendaftar sendiri lewat website. Hubungi tim Daurly via halaman Kontak atau Customer Service. Setelah kerja sama disepakati, admin mendaftarkan toko dan produk di platform." },
       { q: "Saya lupa kata sandi, apa yang harus dilakukan?", a: "Klik 'Lupa Password?' di halaman login, masukkan email terdaftar, dan kami akan kirimkan link reset kata sandi yang berlaku 30 menit." },
     ],
   },
@@ -41,14 +41,14 @@ const FAQ_DATA = [
     items: [
       { q: "Bagaimana cara mengajukan retur?", a: "Buka halaman 'Pesanan Saya', pilih pesanan yang ingin diretur, klik 'Ajukan Retur', isi alasan dan unggah foto bukti kondisi barang. Retur bisa diajukan dalam 7 hari setelah diterima." },
       { q: "Barang seperti apa yang bisa diretur?", a: "Retur diterima jika: produk tidak sesuai deskripsi/foto, produk rusak/cacat saat diterima, atau terjadi kesalahan pengiriman (produk berbeda). Produk yang sudah dipakai, dimodifikasi, atau dirusak pembeli tidak bisa diretur." },
-      { q: "Berapa lama proses refund?", a: "Setelah retur disetujui, refund ke saldo Pelataran UMKM diproses dalam 1×24 jam. Refund ke kartu/rekening asal memerlukan 3–7 hari kerja tergantung bank/penyedia." },
+      { q: "Berapa lama proses refund?", a: "Setelah retur disetujui, refund ke saldo Daurly diproses dalam 1×24 jam. Refund ke kartu/rekening asal memerlukan 3–7 hari kerja tergantung bank/penyedia." },
     ],
   },
   {
-    category: "Untuk Mitra UMKM",
+    category: "Untuk Mitra Perajin",
     icon: <Store size={16} />,
     items: [
-      { q: "Berapa biaya jual di Pelataran UMKM?", a: "Pendaftaran toko gratis. Biaya layanan 2.5% per transaksi berhasil (lebih rendah dari marketplace lain). Tidak ada biaya listing produk." },
+      { q: "Berapa biaya jual di Daurly?", a: "Pendaftaran toko gratis. Biaya layanan 2.5% per transaksi berhasil (lebih rendah dari marketplace lain). Tidak ada biaya listing produk." },
       { q: "Kapan saldo penjualan bisa ditarik?", a: "Saldo masuk setelah pembeli konfirmasi penerimaan. Penarikan bisa dilakukan kapan saja, dengan minimum Rp 50.000, dan diproses dalam 1×24 jam kerja ke rekening terdaftar." },
       { q: "Bagaimana cara meningkatkan penjualan di toko?", a: "Lengkapi deskripsi produk dengan detail, gunakan foto berkualitas tinggi, aktifkan voucher toko, ikuti program flash sale, dan responsif terhadap pertanyaan pembeli untuk meningkatkan rating." },
     ],
@@ -87,7 +87,7 @@ export default function FAQPage() {
             <HelpCircle size={28} className="text-primary" />
           </div>
           <h1 className="text-3xl font-extrabold text-on-surface mb-3">Pertanyaan yang Sering Diajukan</h1>
-          <p className="text-secondary text-sm max-w-md mx-auto">Temukan jawaban atas pertanyaan paling umum tentang Pelataran UMKM.</p>
+          <p className="text-secondary text-sm max-w-md mx-auto">Temukan jawaban atas pertanyaan paling umum tentang Daurly.</p>
         </div>
 
         {/* Search */}

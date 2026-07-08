@@ -66,7 +66,7 @@ export default function PembayaranPage() {
             <h2 className="font-extrabold text-on-surface">Keamanan pembayaran</h2>
           </div>
           <p className="text-sm text-secondary leading-relaxed">
-            Pembayaran digital diproses melalui gateway Midtrans yang terenkripsi. Platform Pelataran UMKM
+            Pembayaran digital diproses melalui gateway Midtrans yang terenkripsi. Platform Daurly
             menerima pembayaran atas nama transaksi konsinyasi — bukan transfer langsung ke penjual perorangan.
           </p>
         </section>

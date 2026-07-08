@@ -23,7 +23,7 @@ export default function AdminContactPage() {
     } else {
       // Defaults
       setWaHotline("08138298543");
-      setSupportEmail("support@pelataranumkm.id");
+      setSupportEmail("support@daurly.id");
       setHqAddress("Jl. Jenderal Sudirman No. 123, Jakarta Selatan, DKI Jakarta 12190");
     }
     setLoading(false);
@@ -46,7 +46,7 @@ export default function AdminContactPage() {
       <header>
         <h2 className="font-headline text-3xl font-bold text-on-surface">Kontak & Customer Service</h2>
         <p className="font-body text-body-md text-[#3E3834] mt-1">
-          Atur informasi kontak resmi dan hotline layanan pelanggan untuk platform Pelataran UMKM.
+          Atur informasi kontak resmi dan hotline layanan pelanggan untuk platform Daurly.
         </p>
       </header>
 
@@ -86,7 +86,7 @@ export default function AdminContactPage() {
               required
               value={supportEmail}
               onChange={(e) => setSupportEmail(e.target.value)}
-              placeholder="support@pelataranumkm.id"
+              placeholder="support@daurly.id"
               className="w-full px-4 py-3 rounded border border-surface-container-highest bg-[#F5F5F5] focus:outline-none focus:ring-2 focus:ring-primary transition text-sm font-body font-bold"
             />
             <p className="text-[10px] text-[#5C5550]">

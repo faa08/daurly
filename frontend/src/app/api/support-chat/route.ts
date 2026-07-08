@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
         id_chat: created.id_chat,
         sender_role: "admin",
         sender_id: null,
-        text: "Halo! Saya admin Pelataran UMKM. Ada yang bisa kami bantu terkait pesanan, pembayaran, atau produk?",
+        text: "Halo! Saya admin Daurly. Ada yang bisa kami bantu terkait pesanan, pembayaran, atau produk?",
       });
 
       return NextResponse.json({ id_chat: created.id_chat });
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
           id_chat: chatId,
           sender_role: "admin",
           sender_id: null,
-          text: "Halo! Saya admin Pelataran UMKM. Ada yang bisa kami bantu terkait pesanan, pembayaran, atau produk?",
+          text: "Halo! Saya admin Daurly. Ada yang bisa kami bantu terkait pesanan, pembayaran, atau produk?",
         });
       }
 

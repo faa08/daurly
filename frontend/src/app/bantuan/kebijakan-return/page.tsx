@@ -25,7 +25,7 @@ export default function KebijakanReturnPage() {
           </div>
           <p className="text-secondary text-sm max-w-2xl leading-relaxed">
             Return diajukan dari tab <strong>Selesai</strong> di Pesanan Saya, lalu diproses lewat{" "}
-            <strong>chat admin</strong> — bukan langsung ke penjual UMKM.
+            <strong>chat admin</strong> — bukan langsung ke perajin/penjual.
           </p>
         </div>
 

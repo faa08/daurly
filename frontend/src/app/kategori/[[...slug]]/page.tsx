@@ -29,9 +29,9 @@ import { authService } from "@/backend/authService";
 
 // Brand Design Constants
 const C = {
-  primary: "#1D4ED8",
-  primaryDark: "#1E40AF",
-  primaryPale: "#EFF6FF",
+  primary: "#16A34A",
+  primaryDark: "#15803D",
+  primaryPale: "#F0FDF4",
   border: "#EAE5E0",
   borderStrong: "#D5CFC9",
   text: "#1F1B18",
@@ -100,7 +100,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug?: stri
   const heroDescription = categoryHero?.description || heroConfig.description;
   const heroImage = categoryHero?.image_url || heroConfig.backgroundImage;
   const heroPosition = categoryHero?.image_position || heroConfig.backgroundPosition;
-  const heroBadge = categoryHero?.badge || "Galeri UMKM Pilihan";
+  const heroBadge = categoryHero?.badge || "Galeri Daur Ulang Pilihan";
 
   // Filter products by selected category slug
   const filteredProducts = activeSlug

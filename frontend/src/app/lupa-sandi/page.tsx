@@ -8,9 +8,9 @@ import Footer from "@/components/Footer";
 import { authService } from "@/backend/authService";
 
 const C = {
-  primary: "#1D4ED8",
-  primaryDark: "#1E40AF",
-  primaryPale: "#EFF6FF",
+  primary: "#16A34A",
+  primaryDark: "#15803D",
+  primaryPale: "#F0FDF4",
   border: "#EAE5E0",
   borderStrong: "#D5CFC9",
   text: "#1F1B18",

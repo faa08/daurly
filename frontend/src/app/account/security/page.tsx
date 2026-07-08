@@ -238,7 +238,7 @@ export default function CustomerSecurityPage() {
             </div>
             
             <p className="text-xs text-[#5C5550] font-semibold leading-relaxed">
-              Tindakan ini tidak dapat dibatalkan. Semua data pesanan, transaksi, wishlist, dan biodata profil Anda akan dihapus secara permanen dari sistem Pelataran UMKM.
+              Tindakan ini tidak dapat dibatalkan. Semua data pesanan, transaksi, wishlist, dan biodata profil Anda akan dihapus secara permanen dari sistem Daurly.
             </p>
 
             <div className="space-y-2 text-xs">

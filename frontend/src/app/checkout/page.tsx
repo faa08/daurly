@@ -646,7 +646,7 @@ export default function CheckoutPage() {
                   <Link href="/bantuan/syarat-ketentuan" style={{ color: "#1D4ED8", fontWeight: 600 }}>
                     Syarat & Ketentuan
                   </Link>{" "}
-                  Pelataran UMKM.
+                  Daurly.
                 </p>
               </div>
 
