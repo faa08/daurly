@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Leaf, Info, Compass, ShieldCheck, ChevronRight, Calendar, BarChart3, Database } from "lucide-react";
 
 interface RegionData {
@@ -352,7 +353,7 @@ export default function IndonesiaWasteOverview() {
                 {currentData.storeCount} Toko / Mitra
               </span>
             </div>
-            <a
+            <Link
               href="/kategori"
               style={{
                 display: "inline-flex",
@@ -373,7 +374,7 @@ export default function IndonesiaWasteOverview() {
             >
               Belanja Produk Kreatif Wilayah Ini
               <ChevronRight size={14} />
-            </a>
+            </Link>
           </div>
         </div>
       </div>

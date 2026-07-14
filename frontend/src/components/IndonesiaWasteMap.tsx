@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Leaf, Info, Star, Compass, Trash2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 
 interface RegionData {
@@ -311,7 +312,7 @@ export default function IndonesiaWasteMap() {
                 {currentData.storeCount} Toko / Mitra
               </span>
             </div>
-            <a
+            <Link
               href="/kategori"
               style={{
                 display: "block",
@@ -329,7 +330,7 @@ export default function IndonesiaWasteMap() {
               onMouseOut={(e) => (e.currentTarget.style.background = "#16A34A")}
             >
               Belanja Produk Daur Ulang Kreatif
-            </a>
+            </Link>
           </div>
         </div>
       </div>
