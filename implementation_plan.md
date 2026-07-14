@@ -1,4 +1,4 @@
-# Pelataran UMKM - Homepage Plan
+# Daurly & Daur Ulang - Homepage Plan
 
 ## Stack
 - Next.js 14 (App Router)

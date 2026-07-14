@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -33,7 +33,7 @@ export default function AdminStoresPage() {
       id: s.id_seller,
       nama: s.nm_store,
       pemilik: s.users?.nama_lengkap || "Tanpa Nama",
-      kategori: "UMKM Lokal",
+      kategori: "Daur Ulang Lokal",
       status: s.is_verified ? "Aktif" : "Nonaktif",
       logo: s.logo_toko || "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=100&auto=format&fit=crop",
     }));
@@ -122,7 +122,7 @@ export default function AdminStoresPage() {
       <header>
         <h2 className="font-headline text-3xl font-bold text-on-surface">Manajemen Toko</h2>
         <p className="font-body text-body-md text-[#3E3834] mt-1">
-          Kelola dan awasi seluruh ekosistem pedagang UMKM Anda.
+          Kelola dan awasi seluruh ekosistem pedagang Daur Ulang Anda.
         </p>
       </header>
 
@@ -158,7 +158,7 @@ export default function AdminStoresPage() {
             <h3 className="font-headline text-3xl font-extrabold text-primary">{totalStores}</h3>
             <p className="text-xs text-[#3E3834] font-semibold">Toko terdaftar di sistem</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-primary">
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-primary">
             <span className="material-symbols-outlined">store</span>
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function AdminStoresPage() {
           </button>
           <Link
             href="/admin/stores/new"
-            className="flex items-center gap-2 px-4 py-3 bg-[#1D4ED8] hover:bg-blue-700 text-white font-semibold text-sm rounded-lg transition"
+            className="flex items-center gap-2 px-4 py-3 bg-[#16A34A] hover:bg-blue-700 text-white font-semibold text-sm rounded-lg transition"
           >
             <span className="material-symbols-outlined text-[20px]">add</span>
             Tambah Toko Baru

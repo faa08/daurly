@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import ToastProvider from "@/components/ToastProvider";
@@ -6,6 +6,7 @@ import CustomerServiceProvider from "@/components/CustomerServiceProvider";
 import AuthSessionProvider from "@/components/AuthSessionProvider";
 import AdminChatNotificationAlert from "@/components/AdminChatNotificationAlert";
 import MaintenanceGuard from "@/components/MaintenanceGuard";
+import AffiliateTracker from "@/components/AffiliateTracker";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -22,7 +23,7 @@ const jakarta = Plus_Jakarta_Sans({
  });
  
 export const metadata: Metadata = {
-  title: "Daurly — Marketplace Barang & Produk Daur Ulang Kreatif",
+  title: "Daurly — Marketplace Produk Lokal Indonesia",
   description:
     "Temukan produk daur ulang terbaik Indonesia: kerajinan kreatif, busana ramah lingkungan, produk upcycled, dan jasa lingkungan dari perajin terpercaya.",
   keywords: "daur ulang, eco-friendly, green products, upcycle, circular economy, kerajinan tangan",
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-     title: "Daurly — Marketplace Barang & Produk Daur Ulang Kreatif",
+     title: "Daurly — Marketplace Produk Lokal Indonesia",
      description: "Platform e-commerce khusus barang daur ulang kreatif",
      type: "website",
    },
@@ -56,6 +57,7 @@ export const metadata: Metadata = {
             <CustomerServiceProvider>
               <MaintenanceGuard>
                 {children}
+                <AffiliateTracker />
                 <AdminChatNotificationAlert />
               </MaintenanceGuard>
             </CustomerServiceProvider>

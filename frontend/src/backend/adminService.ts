@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+﻿import { supabase } from "./supabase";
 import { apiFetch } from "@/lib/api-client";
 import { getOrderPaymentDisplay, type OrderPaymentKind } from "@/lib/checkoutConstants";
 import { fetchAdminOrderRows, fetchAdminShipmentRows, formatDbError, mapAdminOrderRow, mapAdminShipmentRow } from "@/lib/adminOrderMapping";
@@ -180,7 +180,7 @@ export const adminService = {
           raw.push({
             id: row.id_saldo.substring(0, 8).toUpperCase(),
             date: formatDateId(row.created_at),
-            storeName: seller?.nm_store || "Toko UMKM",
+            storeName: seller?.nm_store || "Toko Daur Ulang",
             description,
             type: row.tipe as "masuk" | "keluar",
             amount: Number(row.jumlah),
@@ -224,7 +224,7 @@ export const adminService = {
           raw.push({
             id: pay.id_payment.substring(0, 8).toUpperCase(),
             date: formatDateId(pay.created_at),
-            storeName: seller?.nm_store || "Toko UMKM",
+            storeName: seller?.nm_store || "Toko Daur Ulang",
             description: `Pembayaran Order ${orderRef} (${pay.metod_pay})`,
             type: "masuk",
             amount: Number(pay.juml_pay),
@@ -428,7 +428,7 @@ export const adminService = {
           amount: Number(item.total_hrg),
           status: item.stat_order as string,
           avatar: initials(buyer),
-          storeName: s?.nm_store || "Toko UMKM",
+          storeName: s?.nm_store || "Toko Daur Ulang",
           createdRaw: item.created_at as string,
         };
       });
@@ -594,7 +594,7 @@ export const adminService = {
         const cur = storeMap.get(seller.id_seller) || {
           nama: seller.nm_store || "Toko",
           lokasi: seller.addr?.split(",")[0] || "Indonesia",
-          kategori: "UMKM",
+          kategori: "Daur Ulang",
           pesanan: 0,
           omzet: 0,
           logo: seller.logo_toko?.trim() || defaultLogo,
@@ -727,6 +727,244 @@ export const adminService = {
       return true;
     } catch (err) {
       console.error("adminService.confirmDigitalPayment failed:", err);
+      return false;
+    }
+  },
+
+  async getPendingAffiliates(): Promise<any[]> {
+    if (isPlaceholder()) return [];
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("id_user, username, nama_lengkap, email, affiliate_status, affiliate_phone, affiliate_social, affiliate_nik, affiliate_ktp_name, created_at")
+        .neq("affiliate_status", "none")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error("adminService.getPendingAffiliates failed:", err);
+      return [];
+    }
+  },
+
+  async reviewAffiliate(userId: string, approve: boolean): Promise<boolean> {
+    if (isPlaceholder()) return false;
+    try {
+      const status = approve ? "approved" : "rejected";
+      
+      const updateData: any = {
+        affiliate_status: status,
+      };
+
+      if (approve) {
+        updateData.is_affiliate = true;
+        
+        const { data: user } = await supabase
+          .from("users")
+          .select("username")
+          .eq("id_user", userId)
+          .maybeSingle();
+        
+        const base = (user?.username || "USER").substring(0, 8).toUpperCase().replace(/[^A-Z0-9]/g, "");
+        const digits = Math.floor(1000 + Math.random() * 9000);
+        updateData.affiliate_code = `AFF-${base}-${digits}`;
+      } else {
+        updateData.is_affiliate = false;
+        updateData.affiliate_code = null;
+      }
+
+      const { error } = await supabase
+        .from("users")
+        .update(updateData)
+        .eq("id_user", userId);
+
+      if (error) throw error;
+
+      await supabase.from("notifikasi").insert({
+        id_user: userId,
+        judul: approve ? "Pendaftaran Affiliate Disetujui! 🎉" : "Pendaftaran Affiliate Ditolak",
+        pesan: approve
+          ? `Selamat! Pendaftaran affiliate Anda telah disetujui oleh admin. Kode affiliate Anda adalah: ${updateData.affiliate_code}. Anda sekarang bisa mulai mempromosikan produk dan mendapatkan komisi!`
+          : "Maaf, pendaftaran affiliate Anda ditolak oleh admin karena belum memenuhi kriteria verifikasi. Silakan hubungi kami untuk informasi lebih lanjut.",
+        tipe: "info",
+        link: "/affiliate",
+        is_read: false,
+      });
+
+      return true;
+    } catch (err) {
+      console.error("adminService.reviewAffiliate failed:", err);
+      return false;
+    }
+  },
+
+  async deactivateAffiliate(userId: string): Promise<boolean> {
+    if (isPlaceholder()) return false;
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({
+          is_affiliate: false,
+          affiliate_status: "rejected",
+          affiliate_code: null,
+        })
+        .eq("id_user", userId);
+
+      if (error) throw error;
+
+      await supabase.from("notifikasi").insert({
+        id_user: userId,
+        judul: "Akun Affiliate Dinonaktifkan ⚠️",
+        pesan: "Akun partner affiliate Anda telah dinonaktifkan oleh admin Daurly. Silakan hubungi Customer Service untuk informasi lebih lanjut.",
+        tipe: "info",
+        link: "/affiliate",
+        is_read: false,
+      });
+
+      return true;
+    } catch (err) {
+      console.error("adminService.deactivateAffiliate failed:", err);
+      return false;
+    }
+  },
+
+  async deleteUserAccount(userId: string): Promise<boolean> {
+    if (isPlaceholder()) {
+      const storedUsers = localStorage.getItem("pelum_users");
+      if (storedUsers) {
+        try {
+          const users = JSON.parse(storedUsers);
+          const updatedUsers = users.filter((u: any) => u.id_user !== userId);
+          localStorage.setItem("pelum_users", JSON.stringify(updatedUsers));
+        } catch (e) {
+          console.error("Failed to parse local stored users:", e);
+        }
+      }
+      return true;
+    }
+
+    try {
+      const res = await apiFetch("/api/admin/users/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal menghapus akun.");
+      }
+      return true;
+    } catch (err) {
+      console.error("adminService.deleteUserAccount failed:", err);
+      return false;
+    }
+  },
+
+  async getUsers(): Promise<any[]> {
+    if (isPlaceholder()) {
+      const storedUsers = localStorage.getItem("pelum_users");
+      return storedUsers ? JSON.parse(storedUsers) : [];
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("id_user, username, nama_lengkap, email, no_telp, avatar, role, created_at, jenis_kelamin, tanggal_lahir, is_affiliate")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error("adminService.getUsers failed:", err);
+      return [];
+    }
+  },
+
+  async updateUserRole(userId: string, newRole: "customer" | "seller" | "admin" | "tester"): Promise<boolean> {
+    if (isPlaceholder()) {
+      const storedUsers = localStorage.getItem("pelum_users");
+      if (storedUsers) {
+        try {
+          const users = JSON.parse(storedUsers);
+          const updated = users.map((u: any) => u.id_user === userId ? { ...u, role: newRole } : u);
+          localStorage.setItem("pelum_users", JSON.stringify(updated));
+        } catch (e) {
+          console.error("Failed to update user role in localStorage:", e);
+        }
+      }
+      return true;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ role: newRole })
+        .eq("id_user", userId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error("adminService.updateUserRole failed:", err);
+      return false;
+    }
+  },
+
+  async suspendUserAccount(userId: string, suspend: boolean): Promise<boolean> {
+    if (isPlaceholder()) {
+      const storedUsers = localStorage.getItem("pelum_users");
+      if (storedUsers) {
+        try {
+          const users = JSON.parse(storedUsers);
+          const updated = users.map((u: any) => u.id_user === userId ? { ...u, is_suspended: suspend } : u);
+          localStorage.setItem("pelum_users", JSON.stringify(updated));
+        } catch (e) {
+          console.error("Failed to update user suspension in localStorage:", e);
+        }
+      }
+      return true;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ is_suspended: suspend })
+        .eq("id_user", userId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error("adminService.suspendUserAccount failed:", err);
+      return false;
+    }
+  },
+
+  async deleteTesterAccount(userId: string): Promise<boolean> {
+    if (isPlaceholder()) {
+      const storedUsers = localStorage.getItem("pelum_users");
+      if (storedUsers) {
+        try {
+          const users = JSON.parse(storedUsers);
+          const updatedUsers = users.filter((u: any) => u.id_user !== userId);
+          localStorage.setItem("pelum_users", JSON.stringify(updatedUsers));
+        } catch (e) {
+          console.error("Failed to delete local tester user:", e);
+        }
+      }
+      return true;
+    }
+
+    try {
+      const res = await apiFetch("/api/admin/users/delete-tester", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal menghapus akun tester.");
+      }
+      return true;
+    } catch (err) {
+      console.error("adminService.deleteTesterAccount failed:", err);
       return false;
     }
   }

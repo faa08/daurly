@@ -1,5 +1,5 @@
 ---
-name: Pelataran UMKM Core
+name: Daurly & Daur Ulang Core
 colors:
   surface: '#f9f9f9'
   surface-dim: '#dadada'

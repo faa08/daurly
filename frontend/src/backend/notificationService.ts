@@ -65,18 +65,23 @@ export const notificationService = {
       return raw ? JSON.parse(raw) : [];
     }
 
-    const { data, error } = await supabase
-      .from("notifikasi")
-      .select("id_notifikasi, judul, pesan, tipe, link, is_read, created_at")
-      .eq("id_user", userId)
-      .order("created_at", { ascending: false })
-      .limit(50);
+    try {
+      const { data, error } = await supabase
+        .from("notifikasi")
+        .select("id_notifikasi, judul, pesan, tipe, link, is_read, created_at")
+        .eq("id_user", userId)
+        .order("created_at", { ascending: false })
+        .limit(50);
 
-    if (error) {
-      console.error("notificationService.getForUser:", error.message);
+      if (error) {
+        console.error("notificationService.getForUser:", error.message);
+        return [];
+      }
+      return (data || []).map(mapRow);
+    } catch (err) {
+      console.warn("notificationService.getForUser network offline/glitch:", err);
       return [];
     }
-    return (data || []).map(mapRow);
   },
 
   async markAsRead(id: string, isRead: boolean): Promise<void> {

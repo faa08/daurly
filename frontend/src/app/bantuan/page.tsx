@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useMemo, useEffect } from "react";
 import { 
@@ -116,14 +116,14 @@ const FAQ_ARTICLES = [
     id: "faq-6",
     topicId: "pembayaran",
     question: "Apa yang terjadi setelah saya bayar digital?",
-    answer: "Pembayaran diverifikasi otomatis. Admin platform akan menghubungi Anda lewat Chat Pengiriman untuk mengatur pengiriman — bukan perajin/penjual langsung."
+    answer: "Pembayaran diverifikasi otomatis. Admin platform akan menghubungi Anda lewat Chat Pengiriman untuk mengatur pengiriman — bukan penjual daur ulang langsung."
   },
   // Pengiriman
   {
     id: "faq-7",
     topicId: "pengiriman",
     question: "Siapa yang mengatur pengiriman pesanan saya?",
-    answer: "Daurly (platform) yang mengatur pengiriman dalam model konsinyasi. Setelah bayar digital, admin koordinasi alamat dan jadwal lewat chat. Perajin menitipkan barang, bukan mengirim sendiri ke pembeli."
+    answer: "Daurly (platform) yang mengatur pengiriman dalam model konsinyasi. Setelah bayar digital, admin koordinasi alamat dan jadwal lewat chat. Daur Ulang menitipkan barang, bukan mengirim sendiri ke pembeli."
   },
   {
     id: "faq-8",
@@ -161,14 +161,14 @@ const FAQ_ARTICLES = [
   {
     id: "faq-13",
     topicId: "mitra",
-    question: "Bagaimana perajin/mitra menitipkan produk daur ulang (konsinyasi)?",
-    answer: "Hubungi tim Daurly via halaman Kontak atau Customer Service. Setelah kerja sama konsinyasi disepakati, admin mendaftarkan toko dan produk daur ulang Anda. Platform yang urus transaksi, pembayaran, dan layanan ke pembeli — pendapatan dicatat ke saldo mitra."
+    question: "Bagaimana Daur Ulang menitipkan produk (konsinyasi)?",
+    answer: "Hubungi tim Daurly via halaman Kontak atau Customer Service. Setelah kerja sama konsinyasi disepakati, admin mendaftarkan toko dan produk daur ulang. Platform yang urus transaksi, pembayaran, dan layanan ke pembeli — pendapatan dicatat ke saldo mitra."
   },
   {
     id: "faq-14",
     topicId: "mitra",
-    question: "Apakah perajin perlu mengirim pesanan sendiri?",
-    answer: "Tidak. Dalam model konsinyasi, pengiriman dan chat ke pembeli ditangani admin platform Daurly. Perajin fokus pada kualitas produk daur ulang dan ketersediaan stok."
+    question: "Apakah Daur Ulang perlu mengirim pesanan sendiri?",
+    answer: "Tidak. Dalam model konsinyasi, pengiriman dan chat ke pembeli ditangani admin platform. Daur Ulang fokus pada kualitas produk dan ketersediaan stok."
   }
 ];
 
@@ -257,7 +257,7 @@ export default function HelpCenterPage() {
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#EAE5E0] animate-[spin_40s_linear_infinite]" />
               
               {/* Inner Circle with Mascot elements representation */}
-              <div className="w-48 h-48 rounded-full bg-gradient-to-br from-[#EFF6FF] to-[#FFF9F6] border border-[#EAE5E0] flex items-center justify-center relative shadow-sm">
+              <div className="w-48 h-48 rounded-full bg-gradient-to-br from-[#F0FDF4] to-[#FFF9F6] border border-[#EAE5E0] flex items-center justify-center relative shadow-sm">
                 <div className="absolute top-4 right-4 w-12 h-12 rounded-lg bg-white border border-[#EAE5E0] flex items-center justify-center text-primary shadow-xs">
                   <ShieldCheck size={24} />
                 </div>
@@ -343,7 +343,7 @@ export default function HelpCenterPage() {
           <h3 className="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
             Pertanyaan Terpopuler
             {selectedTopic && (
-              <span className="bg-[#EFF6FF] text-[#1D4ED8] text-[9px] font-extrabold px-2 py-0.5 rounded capitalize">
+              <span className="bg-[#F0FDF4] text-[#16A34A] text-[9px] font-extrabold px-2 py-0.5 rounded capitalize">
                 {selectedTopic}
               </span>
             )}

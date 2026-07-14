@@ -38,26 +38,20 @@ export default function HeroBanner() {
 
   if (!slides.length) {
     return (
-      <section className="hero-section-container">
-        <div className="container">
-          <div
-            className="hero-banner-inner"
-            style={{ position: "relative", height: "380px", background: "#EAE5E0" }}
-          />
-        </div>
-      </section>
+      <div
+        className="hero-banner-inner"
+        style={{ position: "relative", height: "380px", background: "#EAE5E0" }}
+      />
     );
   }
 
   return (
-    <section className="hero-section-container">
-      <div className="container">
-        <div
-          className="hero-banner-inner"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          style={{ position: "relative", height: "380px" }}
-        >
+    <div
+      className="hero-banner-inner"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ position: "relative", height: "380px" }}
+    >
           {slides.map((slide, idx) => {
             const isActive = idx === current;
             const imgSrc = slide.image_url || "/hero-banner.png";
@@ -175,7 +169,5 @@ export default function HeroBanner() {
             </>
           )}
         </div>
-      </div>
-    </section>
   );
 }

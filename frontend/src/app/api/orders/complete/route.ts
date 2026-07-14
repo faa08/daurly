@@ -59,6 +59,9 @@ export async function POST(request: NextRequest) {
       .update({ stat_kirim: "sampai" })
       .eq("id_order", orderId);
 
+    const { settleOrderBalances } = await import("@/lib/settleOrderBalances");
+    await settleOrderBalances(admin, orderId);
+
     await admin.from("notifikasi").insert({
       id_user: userId,
       judul: "Pesanan Selesai",

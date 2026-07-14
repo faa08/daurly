@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -38,6 +38,7 @@ export default function AdminSidebar({
 
   const menuItems = [
     { name: "Dashboard", href: "/admin/dashboard", icon: "grid_view" },
+    { name: "Manajemen User", href: "/admin/users", icon: "manage_accounts" },
     { name: "Manajemen Toko", href: "/admin/stores", icon: "storefront" },
     { name: "Manajemen Produk", href: "/admin/products", icon: "inventory_2" },
     { name: "Kategori Produk", href: "/admin/categories", icon: "category" },
@@ -51,6 +52,7 @@ export default function AdminSidebar({
     { name: "Kupon & Diskon", href: "/admin/coupons", icon: "percent" },
     { name: "Kontak & CS", href: "/admin/contact", icon: "contact_support" },
     { name: "Tarif & Komisi", href: "/admin/commission", icon: "payments" },
+    { name: "Affiliate Partner", href: "/admin/affiliates", icon: "handshake" },
     { name: "Kebijakan & TOS", href: "/admin/policies", icon: "gavel" },
     { name: "Batas Waktu", href: "/admin/limits", icon: "hourglass_empty" },
     { name: "Maintenance", href: "/admin/maintenance", icon: "construction" },
@@ -92,7 +94,7 @@ export default function AdminSidebar({
               onClick={onNavigate}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm transition ${
                 isActive
-                  ? "bg-[#1D4ED8] text-white font-bold"
+                  ? "bg-[#16A34A] text-white font-bold"
                   : "text-[#3E3834] hover:bg-[#F5F3F0] hover:text-[#1F1B18]"
               }`}
             >
@@ -101,7 +103,7 @@ export default function AdminSidebar({
               {badge !== null && (
                 <span
                   className={`text-[10px] min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center font-extrabold ${
-                    isActive ? "bg-white text-[#1D4ED8]" : "bg-[#1D4ED8] text-white"
+                    isActive ? "bg-white text-[#16A34A]" : "bg-[#16A34A] text-white"
                   }`}
                 >
                   {badge}
@@ -125,7 +127,7 @@ export default function AdminSidebar({
         <button
           type="button"
           onClick={requestLogout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm text-[#1D4ED8] hover:bg-[#EFF6FF] transition w-full text-left"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm text-[#16A34A] hover:bg-[#F0FDF4] transition w-full text-left"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
           <span>Logout</span>

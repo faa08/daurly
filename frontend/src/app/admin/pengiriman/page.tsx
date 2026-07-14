@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Package, Truck, CheckCircle2, X, MapPin, AlertCircle, MessageCircle, Store } from "lucide-react";
@@ -122,7 +122,7 @@ export default function AdminPengirimanPage() {
         </div>
         <button
           onClick={fetchOrders}
-          className="flex items-center gap-1.5 text-[#1D4ED8] text-xs font-bold hover:underline"
+          className="flex items-center gap-1.5 text-[#16A34A] text-xs font-bold hover:underline"
         >
           <span className="material-symbols-outlined text-sm">refresh</span>
           Refresh
@@ -149,7 +149,7 @@ export default function AdminPengirimanPage() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-5 py-2.5 rounded font-bold text-xs uppercase tracking-wider transition flex items-center gap-2 ${
-              activeTab === tab ? "bg-[#1D4ED8] text-white" : "text-[#5C5550] hover:bg-[#F5F3F0] hover:text-[#1F1B18]"
+              activeTab === tab ? "bg-[#16A34A] text-white" : "text-[#5C5550] hover:bg-[#F5F3F0] hover:text-[#1F1B18]"
             }`}
           >
             {tab === "Perlu Dikirim" && <Package size={13} />}
@@ -170,7 +170,7 @@ export default function AdminPengirimanPage() {
       <section className="space-y-4">
         {loading ? (
           <div className="bg-white border border-[#EAE5E0] rounded-xl p-12 text-center">
-            <div className="w-6 h-6 border-2 border-[#1D4ED8] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-6 h-6 border-2 border-[#16A34A] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-[#8E8680] font-semibold">Memuat data pengiriman...</p>
           </div>
         ) : filtered.length === 0 ? (
@@ -231,10 +231,10 @@ export default function AdminPengirimanPage() {
                     }
                     className="flex items-start gap-2 text-left w-full group"
                   >
-                    <MapPin size={13} className="text-[#1D4ED8] mt-0.5 flex-shrink-0 group-hover:scale-110 transition" />
-                    <p className="text-xs text-[#5C5550] leading-relaxed group-hover:text-[#1D4ED8]">
+                    <MapPin size={13} className="text-[#16A34A] mt-0.5 flex-shrink-0 group-hover:scale-110 transition" />
+                    <p className="text-xs text-[#5C5550] leading-relaxed group-hover:text-[#16A34A]">
                       {order.address}
-                      <span className="block text-[10px] font-bold text-[#1D4ED8] mt-1">Klik untuk lihat di peta →</span>
+                      <span className="block text-[10px] font-bold text-[#16A34A] mt-1">Klik untuk lihat di peta →</span>
                     </p>
                   </button>
                   {order.status !== "Perlu Dikirim" && order.courier && (
@@ -272,7 +272,7 @@ export default function AdminPengirimanPage() {
                       </Link>
                       <button
                         onClick={() => openModal(order)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#1D4ED8] text-white font-bold text-xs rounded-lg hover:bg-blue-700 transition"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-[#16A34A] text-white font-bold text-xs rounded-lg hover:bg-blue-700 transition"
                       >
                         <Truck size={14} />
                         Input Resi
@@ -339,8 +339,8 @@ export default function AdminPengirimanPage() {
                         onClick={() => setCourier(c)}
                         className={`py-2 rounded-lg text-xs font-bold border-2 transition ${
                           courier === c
-                            ? "border-[#1D4ED8] bg-blue-50 text-[#1D4ED8]"
-                            : "border-[#EAE5E0] text-[#5C5550] hover:border-[#1D4ED8]"
+                            ? "border-[#16A34A] bg-blue-50 text-[#16A34A]"
+                            : "border-[#EAE5E0] text-[#5C5550] hover:border-[#16A34A]"
                         }`}
                       >
                         {c}
@@ -358,7 +358,7 @@ export default function AdminPengirimanPage() {
                     value={resi}
                     onChange={(e) => setResi(e.target.value)}
                     required
-                    className="w-full h-11 border border-[#D5CFC9] rounded-lg px-4 text-sm font-semibold text-[#1F1B18] outline-none focus:border-[#1D4ED8] transition bg-[#F5F3F0]"
+                    className="w-full h-11 border border-[#D5CFC9] rounded-lg px-4 text-sm font-semibold text-[#1F1B18] outline-none focus:border-[#16A34A] transition bg-[#F5F3F0]"
                   />
                 </div>
                 <div>
@@ -370,13 +370,13 @@ export default function AdminPengirimanPage() {
                     value={eta}
                     onChange={(e) => setEta(e.target.value)}
                     required
-                    className="w-full h-11 border border-[#D5CFC9] rounded-lg px-4 text-sm font-semibold text-[#1F1B18] outline-none focus:border-[#1D4ED8] transition bg-[#F5F3F0]"
+                    className="w-full h-11 border border-[#D5CFC9] rounded-lg px-4 text-sm font-semibold text-[#1F1B18] outline-none focus:border-[#16A34A] transition bg-[#F5F3F0]"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full h-12 bg-[#1D4ED8] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full h-12 bg-[#16A34A] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {submitting ? (
                     <>

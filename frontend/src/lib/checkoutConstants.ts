@@ -1,4 +1,4 @@
-export const PICKUP_STORE_ADDRESS =
+﻿export const PICKUP_STORE_ADDRESS =
   "Ruko BBS, Jl. Bukit Baja Sejahtera No.9 Blok B3, Ciwaduk, Kec. Cilegon, Kota Cilegon, Banten 42415";
 
 export const PICKUP_STORE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(PICKUP_STORE_ADDRESS)}`;

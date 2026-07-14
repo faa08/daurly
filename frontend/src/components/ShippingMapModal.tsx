@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ExternalLink, Loader2, MapPin, X } from "lucide-react";
@@ -210,7 +210,7 @@ export default function ShippingMapModal({
         <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-[#EAE5E0]">
           <div className="min-w-0">
             <h3 id="shipping-map-title" className="font-bold text-[#1F1B18] text-sm flex items-center gap-2">
-              <MapPin size={16} className="text-[#1D4ED8] flex-shrink-0" />
+              <MapPin size={16} className="text-[#16A34A] flex-shrink-0" />
               {title}
             </h3>
             <p className="text-[11px] text-[#5C5550] mt-1 whitespace-pre-line leading-relaxed">{addressText}</p>
@@ -228,7 +228,7 @@ export default function ShippingMapModal({
         <div className="relative">
           {loading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#F5F3F0]/90">
-              <Loader2 size={24} className="animate-spin text-[#1D4ED8]" />
+              <Loader2 size={24} className="animate-spin text-[#16A34A]" />
             </div>
           )}
           <div ref={mapRef} className="address-map-canvas w-full h-64 bg-[#E8E8E8]" />
@@ -244,7 +244,7 @@ export default function ShippingMapModal({
             href={mapsHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#1D4ED8] text-white text-xs font-bold rounded-lg hover:brightness-95"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#16A34A] text-white text-xs font-bold rounded-lg hover:brightness-95"
           >
             <ExternalLink size={14} />
             Buka di Google Maps

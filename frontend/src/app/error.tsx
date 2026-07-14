@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -49,7 +49,7 @@ export default function GlobalError({
                 onClick={() => reset()}
                 style={{
                   height: 44,
-                  background: "#1D4ED8",
+                  background: "#16A34A",
                   color: "white",
                   border: "none",
                   borderRadius: 8,
@@ -59,7 +59,7 @@ export default function GlobalError({
               >
                 Coba Lagi
               </button>
-              <Link href="/" style={{ fontSize: "0.8125rem", color: "#1D4ED8", fontWeight: 700 }}>
+              <Link href="/" style={{ fontSize: "0.8125rem", color: "#16A34A", fontWeight: 700 }}>
                 Kembali ke Beranda
               </Link>
             </div>

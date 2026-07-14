@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -14,6 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import AddressMapPicker, { type AddressFromMap } from "@/components/AddressMapPicker";
 import Footer from "@/components/Footer";
 import { authService } from "@/backend/authService";
 import { cartService } from "@/backend/cartService";
@@ -57,16 +58,25 @@ const isPlaceholder = () =>
 
 export default function CheckoutPage() {
   const router = useRouter();
+  interface AlamatState {
+    label: string;
+    nama_penerima: string;
+    no_telp: string;
+    provinsi: string;
+    kota: string;
+    kecamatan: string;
+    kode_pos: string;
+    detail_alamat: string;
+    lat?: number | null;
+    lng?: number | null;
+    is_utama: boolean;
+  }
+
+  const [address, setAddress] = useState<AlamatState | null>(null);
+  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false);
+  const [tempAddress, setTempAddress] = useState<AlamatState | null>(null);
   const [loading, setLoading] = useState(true);
   const [addressId, setAddressId] = useState<string | null>(null);
-  // Address State
-  const [address, setAddress] = useState({
-    name: "",
-    phone: "",
-    details: "",
-  });
-  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false);
-  const [tempAddress, setTempAddress] = useState({ ...address });
 
   // Order Items State
   const [items, setItems] = useState<CheckoutItem[]>([]);
@@ -138,11 +148,18 @@ export default function CheckoutPage() {
         if (addresses?.length) {
           const primary = addresses.find((a) => a.is_utama) || addresses[0];
           setAddressId(primary.id_alamat);
-          const details = `${primary.detail_alamat}, ${primary.kecamatan}, ${primary.kota}, ${primary.provinsi}${primary.kode_pos ? ` ${primary.kode_pos}` : ""}`;
           const addr = {
-            name: `${primary.nama_penerima}${primary.is_utama ? " (Utama)" : ""}`,
-            phone: primary.no_telp,
-            details,
+            label: primary.label || "Rumah",
+            nama_penerima: primary.nama_penerima.replace(/\s*\(Utama\)\s*/gi, ""),
+            no_telp: primary.no_telp,
+            provinsi: primary.provinsi || "",
+            kota: primary.kota || "",
+            kecamatan: primary.kecamatan || "",
+            kode_pos: primary.kode_pos || "",
+            detail_alamat: primary.detail_alamat || "",
+            lat: primary.lat || null,
+            lng: primary.lng || null,
+            is_utama: primary.is_utama,
           };
           setAddress(addr);
           setTempAddress(addr);
@@ -323,23 +340,46 @@ export default function CheckoutPage() {
 
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tempAddress || !addressId || isPlaceholder()) return;
+
     setAddress({ ...tempAddress });
     setIsEditAddressOpen(false);
 
-    if (!addressId || isPlaceholder()) return;
     const user = authService.getCurrentUser();
     if (!user) return;
 
-    const parts = tempAddress.details.split(",").map((s) => s.trim());
     await supabase
       .from("alamat")
       .update({
-        nama_penerima: tempAddress.name.replace(/\s*\(Utama\)\s*$/, ""),
-        no_telp: tempAddress.phone,
-        detail_alamat: parts[0] || tempAddress.details,
+        label: tempAddress.label,
+        nama_penerima: tempAddress.nama_penerima,
+        no_telp: tempAddress.no_telp,
+        provinsi: tempAddress.provinsi,
+        kota: tempAddress.kota,
+        kecamatan: tempAddress.kecamatan,
+        kode_pos: tempAddress.kode_pos || null,
+        detail_alamat: tempAddress.detail_alamat,
+        lat: tempAddress.lat || null,
+        lng: tempAddress.lng || null,
       })
       .eq("id_alamat", addressId)
       .eq("id_user", user.id_user);
+  };
+
+  const handleMapPick = (picked: AddressFromMap) => {
+    setTempAddress((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        provinsi: picked.provinsi,
+        kota: picked.kota,
+        kecamatan: picked.kecamatan,
+        kode_pos: picked.kode_pos,
+        detail_alamat: picked.detail_alamat,
+        lat: picked.lat,
+        lng: picked.lng,
+      };
+    });
   };
 
   if (loading) {
@@ -347,7 +387,7 @@ export default function CheckoutPage() {
       <>
         <Navbar />
         <main style={{ background: "#FCFCFA", minHeight: "85vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Loader2 size={32} color="#1D4ED8" className="animate-spin" />
+          <Loader2 size={32} color="#16A34A" className="animate-spin" />
         </main>
         <Footer />
       </>
@@ -384,17 +424,19 @@ export default function CheckoutPage() {
                       {!isOffline && (
                       <button 
                         onClick={() => {
-                          setTempAddress({ ...address });
-                          setIsEditAddressOpen(true);
+                          if (address) {
+                            setTempAddress({ ...address });
+                            setIsEditAddressOpen(true);
+                          }
                         }}
-                        style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8", border: "none", cursor: "pointer", background: "none" }}
+                        style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#16A34A", border: "none", cursor: "pointer", background: "none" }}
                       >
                         Ubah
                       </button>
                       )}
                     </div>
                     <div style={{ display: "flex", gap: 12 }}>
-                      <div style={{ color: "#1D4ED8", marginTop: 2 }}>
+                      <div style={{ color: "#16A34A", marginTop: 2 }}>
                         <MapPin size={18} />
                       </div>
                       {isOffline ? (
@@ -406,13 +448,13 @@ export default function CheckoutPage() {
                             {PICKUP_STORE_ADDRESS}
                           </p>
                         </div>
-                      ) : addressId ? (
+                      ) : addressId && address ? (
                         <div>
                           <p style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18", marginBottom: 4 }}>
-                            {address.name} <span style={{ fontWeight: 500, color: "#5C5550" }}>({address.phone})</span>
+                            {address.nama_penerima} {address.is_utama && <span style={{ color: "#16A34A", fontWeight: 700 }}>(Utama)</span>} <span style={{ fontWeight: 500, color: "#5C5550" }}>({address.no_telp})</span>
                           </p>
                           <p style={{ fontSize: "0.8125rem", color: "#5C5550", lineHeight: 1.5 }}>
-                            {address.details}
+                            {address.detail_alamat}, {address.kecamatan}, {address.kota}, {address.provinsi}{address.kode_pos ? ` ${address.kode_pos}` : ""}
                           </p>
                         </div>
                       ) : (
@@ -420,7 +462,7 @@ export default function CheckoutPage() {
                           <p style={{ fontSize: "0.875rem", fontWeight: 700, color: "#DC2626", marginBottom: 8 }}>
                             Belum ada alamat pengiriman
                           </p>
-                          <Link href="/account/address" style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8" }}>
+                          <Link href="/account/address" style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#16A34A" }}>
                             Tambah alamat →
                           </Link>
                         </div>
@@ -452,7 +494,7 @@ export default function CheckoutPage() {
                               <p style={{ fontSize: "0.75rem", color: "#8E8680", marginBottom: 2 }}>
                                 {item.quantity} Barang ({item.weight * item.quantity} gr)
                               </p>
-                              <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#1D4ED8" }}>
+                              <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#16A34A" }}>
                                 Rp {item.price.toLocaleString("id-ID")}
                               </p>
                             </div>
@@ -528,10 +570,10 @@ export default function CheckoutPage() {
                             key={method.id}
                             onClick={() => setSelectedPaymentType(method.id)}
                             style={{
-                              border: isSelected ? "1.5px solid #1D4ED8" : "1.5px solid #EAE5E0",
+                              border: isSelected ? "1.5px solid #16A34A" : "1.5px solid #EAE5E0",
                               borderRadius: 8,
                               padding: 16,
-                              background: isSelected ? "#EFF6FF" : "white",
+                              background: isSelected ? "#F0FDF4" : "white",
                               cursor: "pointer",
                               display: "flex",
                               alignItems: "center",
@@ -543,7 +585,7 @@ export default function CheckoutPage() {
                               width: 18,
                               height: 18,
                               borderRadius: "50%",
-                              border: isSelected ? "5.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
+                              border: isSelected ? "5.5px solid #16A34A" : "1.5px solid #D5CFC9",
                               background: "white",
                               flexShrink: 0,
                               transition: "all 0.15s ease",
@@ -604,7 +646,7 @@ export default function CheckoutPage() {
 
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", fontSize: "0.875rem", fontWeight: 800 }}>
                         <span style={{ color: "#1F1B18" }}>Total Tagihan</span>
-                        <span style={{ color: "#1D4ED8", fontSize: "1.25rem", letterSpacing: "-0.02em" }}>
+                        <span style={{ color: "#16A34A", fontSize: "1.25rem", letterSpacing: "-0.02em" }}>
                           Rp {totalBill.toLocaleString("id-ID")}
                         </span>
                       </div>
@@ -616,7 +658,7 @@ export default function CheckoutPage() {
                   style={{
                     width: "100%",
                     height: 48,
-                    background: "#1D4ED8",
+                    background: "#16A34A",
                     color: "white",
                     border: "none",
                     borderRadius: 8,
@@ -643,7 +685,7 @@ export default function CheckoutPage() {
 
                 <p style={{ fontSize: "0.725rem", color: "#8E8680", textAlign: "center", lineHeight: 1.4, marginTop: 12, margin: "12px 0 0" }}>
                   Dengan membayar, Anda menyetujui{" "}
-                  <Link href="/bantuan/syarat-ketentuan" style={{ color: "#1D4ED8", fontWeight: 600 }}>
+                  <Link href="/bantuan/syarat-ketentuan" style={{ color: "#16A34A", fontWeight: 600 }}>
                     Syarat & Ketentuan
                   </Link>{" "}
                   Daurly.
@@ -657,76 +699,144 @@ export default function CheckoutPage() {
       </main>
 
       {/* EDIT ADDRESS MODAL */}
-      {isEditAddressOpen && (
+      {isEditAddressOpen && tempAddress && (
         <div style={{
           position: "fixed",
           inset: 0,
-          background: "rgba(31, 27, 24, 0.4)",
+          background: "rgba(31, 27, 24, 0.45)",
           backdropFilter: "blur(4px)",
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "center",
           zIndex: 1100,
+          padding: "40px 24px",
+          overflowY: "auto",
         }}>
           <div style={{
             background: "white",
             width: "100%",
-            maxWidth: 480,
-            borderRadius: 12,
+            maxWidth: 600,
+            borderRadius: 16,
             border: "1px solid #EAE5E0",
-            padding: 24,
+            padding: 28,
             boxShadow: "var(--shadow-lg)",
-            animation: "notif-slide-down 0.2s ease",
           }}>
             <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "#1F1B18", marginBottom: 16 }}>
               Ubah Alamat Pengiriman
             </h3>
             <form onSubmit={handleSaveAddress} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
-                  Nama Penerima
-                </label>
-                <div style={{ position: "relative" }}>
-                  <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#8E8680" }}>
-                    <User size={14} />
-                  </span>
+              
+              <div style={{ border: "1px solid #EAE5E0", borderRadius: 8, overflow: "hidden", marginBottom: 4 }}>
+                <AddressMapPicker onPick={handleMapPick} />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
+                    LABEL
+                  </label>
+                  <select
+                    value={tempAddress.label}
+                    onChange={(e) => setTempAddress({ ...tempAddress, label: e.target.value })}
+                    style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }}
+                  >
+                    {["Rumah", "Kantor", "Kos", "Lainnya"].map((l) => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
+                    NAMA PENERIMA
+                  </label>
                   <input
                     type="text"
                     required
-                    value={tempAddress.name}
-                    onChange={(e) => setTempAddress({ ...tempAddress, name: e.target.value })}
-                    style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px 0 34px", fontSize: "0.8125rem", fontFamily: "inherit" }}
+                    value={tempAddress.nama_penerima}
+                    onChange={(e) => setTempAddress({ ...tempAddress, nama_penerima: e.target.value })}
+                    style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
+                    NOMOR TELEPON
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={tempAddress.no_telp}
+                    onChange={(e) => setTempAddress({ ...tempAddress, no_telp: e.target.value })}
+                    style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
+                    PROVINSI
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={tempAddress.provinsi}
+                    onChange={(e) => setTempAddress({ ...tempAddress, provinsi: e.target.value })}
+                    style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
+                    KOTA / KABUPATEN
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={tempAddress.kota}
+                    onChange={(e) => setTempAddress({ ...tempAddress, kota: e.target.value })}
+                    style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
+                    KECAMATAN
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={tempAddress.kecamatan}
+                    onChange={(e) => setTempAddress({ ...tempAddress, kecamatan: e.target.value })}
+                    style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }}
                   />
                 </div>
               </div>
 
               <div>
                 <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
-                  Nomor HP
+                  KODE POS (OPSIONAL)
                 </label>
-                <div style={{ position: "relative" }}>
-                  <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#8E8680" }}>
-                    <Phone size={14} />
-                  </span>
-                  <input
-                    type="text"
-                    required
-                    value={tempAddress.phone}
-                    onChange={(e) => setTempAddress({ ...tempAddress, phone: e.target.value })}
-                    style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px 0 34px", fontSize: "0.8125rem", fontFamily: "inherit" }}
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={tempAddress.kode_pos}
+                  onChange={(e) => setTempAddress({ ...tempAddress, kode_pos: e.target.value })}
+                  style={{ width: "100%", height: 38, border: "1.5px solid #D5CFC9", borderRadius: 6, padding: "0 12px", fontSize: "0.8125rem", fontFamily: "inherit" }}
+                />
               </div>
 
               <div>
                 <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#5C5550", marginBottom: 6 }}>
-                  Alamat Lengkap
+                  DETAIL ALAMAT
                 </label>
                 <textarea
                   required
-                  rows={3}
-                  value={tempAddress.details}
-                  onChange={(e) => setTempAddress({ ...tempAddress, details: e.target.value })}
+                  rows={2}
+                  value={tempAddress.detail_alamat}
+                  onChange={(e) => setTempAddress({ ...tempAddress, detail_alamat: e.target.value })}
                   style={{ width: "100%", border: "1.5px solid #D5CFC9", borderRadius: 6, padding: 12, fontSize: "0.8125rem", fontFamily: "inherit", resize: "none" }}
                 />
               </div>
@@ -741,7 +851,7 @@ export default function CheckoutPage() {
                 </button>
                 <button
                   type="submit"
-                  style={{ height: 38, padding: "0 16px", background: "#1D4ED8", color: "white", border: "none", borderRadius: 6, fontSize: "0.8125rem", fontWeight: 700, cursor: "pointer" }}
+                  style={{ height: 38, padding: "0 16px", background: "#16A34A", color: "white", border: "none", borderRadius: 6, fontSize: "0.8125rem", fontWeight: 700, cursor: "pointer" }}
                 >
                   Simpan Alamat
                 </button>
@@ -780,7 +890,7 @@ export default function CheckoutPage() {
               Pesanan ini akan diambil langsung di toko kami. Silakan datang ke alamat berikut untuk bayar dan ambil barang:
             </p>
             <div style={{
-              background: "#EFF6FF",
+              background: "#F0FDF4",
               border: "1px solid #BFDBFE",
               borderRadius: 10,
               padding: 16,
@@ -810,7 +920,7 @@ export default function CheckoutPage() {
                 disabled={!pickupCanConfirm || isProcessing}
                 style={{
                   flex: 1, height: 44,
-                  background: pickupCanConfirm ? "#1D4ED8" : "#93C5FD",
+                  background: pickupCanConfirm ? "#16A34A" : "#93C5FD",
                   color: "white", border: "none", borderRadius: 8,
                   fontSize: "0.875rem", fontWeight: 700,
                   cursor: pickupCanConfirm && !isProcessing ? "pointer" : "not-allowed",
@@ -893,7 +1003,7 @@ export default function CheckoutPage() {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "#8E8680" }}>Total</span>
-                <span style={{ fontWeight: 800, color: "#1D4ED8" }}>Rp {totalBill.toLocaleString("id-ID")}</span>
+                <span style={{ fontWeight: 800, color: "#16A34A" }}>Rp {totalBill.toLocaleString("id-ID")}</span>
               </div>
             </div>
 
@@ -920,7 +1030,7 @@ export default function CheckoutPage() {
             <Link href={successMode === "offline" ? "/account/orders" : "/"} style={{
               width: "100%",
               height: 44,
-              background: "#1D4ED8",
+              background: "#16A34A",
               color: "white",
               borderRadius: 8,
               fontSize: "0.875rem",

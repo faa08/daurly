@@ -18,14 +18,14 @@ export default function KebijakanReturnPage() {
 
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
-              <RotateCcw size={20} className="text-orange-600" />
+            <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+              <RotateCcw size={20} className="text-emerald-600" />
             </div>
             <h1 className="text-3xl font-extrabold text-on-surface">Kebijakan Return</h1>
           </div>
           <p className="text-secondary text-sm max-w-2xl leading-relaxed">
             Return diajukan dari tab <strong>Selesai</strong> di Pesanan Saya, lalu diproses lewat{" "}
-            <strong>chat admin</strong> — bukan langsung ke perajin/penjual.
+            <strong>chat admin</strong> — bukan langsung ke penjual daur ulang.
           </p>
         </div>
 
@@ -46,12 +46,12 @@ export default function KebijakanReturnPage() {
             </p>
           </section>
 
-          <section className="bg-white border border-orange-200 rounded-xl p-8 shadow-sm">
+          <section className="bg-white border border-emerald-200 rounded-xl p-8 shadow-sm">
             <h2 className="text-lg font-extrabold text-on-surface mb-5">Bukti yang wajib disiapkan</h2>
             <div className="space-y-5">
               {RETURN_EVIDENCE_GUIDE.map((section) => (
                 <div key={section.title}>
-                  <p className={`text-sm font-bold mb-2 ${section.highlight ? "text-orange-700" : "text-on-surface"}`}>
+                  <p className={`text-sm font-bold mb-2 ${section.highlight ? "text-emerald-700" : "text-on-surface"}`}>
                     {section.highlight && "★ "}
                     {section.title}
                   </p>
@@ -63,7 +63,7 @@ export default function KebijakanReturnPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-6 text-xs text-orange-800/90 border-t border-orange-200 pt-4 leading-relaxed">
+            <p className="mt-6 text-xs text-emerald-800/90 border-t border-emerald-200 pt-4 leading-relaxed">
               {RETURN_EVIDENCE_NOTE}
             </p>
           </section>

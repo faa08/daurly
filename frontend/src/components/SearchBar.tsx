@@ -280,7 +280,7 @@ export default function SearchBar({ query: externalQuery, setQuery: externalSetQ
 
     if (item.type === "store") {
 
-      return { background: "#1D4ED8", color: "white" };
+      return { background: "#16A34A", color: "white" };
 
     }
 
@@ -312,7 +312,7 @@ export default function SearchBar({ query: externalQuery, setQuery: externalSetQ
 
             type="text"
 
-            placeholder="Cari produk daur ulang, toko perajin, atau kategori..."
+            placeholder="Cari produk, toko daur ulang, atau kategori..."
 
             value={query}
 

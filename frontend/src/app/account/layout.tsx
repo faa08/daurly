@@ -11,7 +11,6 @@ function getAccountPageTitle(pathname: string): string {
   if (pathname.startsWith("/account/address")) return "Alamat";
   if (pathname.startsWith("/account/orders")) return "Pesanan Saya";
   if (pathname.startsWith("/account/security")) return "Keamanan";
-  if (pathname.startsWith("/account/affiliate")) return "Program Affiliate";
   if (pathname.startsWith("/account/wishlist")) return "Wishlist";
   return "Akun Saya";
 }

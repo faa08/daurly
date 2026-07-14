@@ -1,4 +1,4 @@
-import { createSupabaseAdmin } from "@/lib/supabase-admin";
+﻿import { createSupabaseAdmin } from "@/lib/supabase-admin";
 
 const ADMIN_SHIPPING_GREETING =
   "Halo! Pembayaran QRIS/digital Anda sudah berhasil ✅ Admin Daurly akan mengatur pengiriman lewat chat ini. Mohon konfirmasi alamat lengkap, nomor HP aktif, dan jadwal penerimaan yang paling nyaman untuk Anda.";

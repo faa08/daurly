@@ -20,7 +20,7 @@ interface AiMessage {
 }
 
 interface CustomerServiceContextValue {
-  open: () => void;
+  open: (mode?: ChatMode | React.MouseEvent<any>) => void;
   close: () => void;
   toggle: () => void;
   isOpen: boolean;
@@ -368,6 +368,10 @@ function CustomerServiceChat({
 }) {
   const [mode, setMode] = useState<ChatMode>(initialMode);
 
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
+
   return (
     <div className={`cs-chat ${fullPage ? "cs-chat--full" : ""}`}>
       <div className="cs-chat-header">
@@ -416,12 +420,97 @@ function CustomerServiceChat({
 
 export default function CustomerServiceProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeMode, setActiveMode] = useState<ChatMode>("ai");
   const pathname = usePathname();
   const isChatPage = pathname === "/chat";
 
-  const open = useCallback(() => setIsOpen(true), []);
+  const open = useCallback((mode?: ChatMode | React.MouseEvent<any>) => {
+    if (typeof mode === "string") {
+      setActiveMode(mode);
+    } else {
+      setActiveMode("ai");
+    }
+    setIsOpen(true);
+  }, []);
   const close = useCallback(() => setIsOpen(false), []);
   const toggle = useCallback(() => setIsOpen((v) => !v), []);
+
+  // Draggable Floating Button logic (Ref-based for 60fps performance & no re-renders)
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const currentPos = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const hasDragged = useRef(false);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    isDragging.current = true;
+    hasDragged.current = false;
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    dragOffset.current = { ...currentPos.current };
+    
+    if (buttonRef.current) {
+      buttonRef.current.style.transition = "none";
+      buttonRef.current.style.cursor = "grabbing";
+    }
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      hasDragged.current = true;
+    }
+    
+    const newX = dragOffset.current.x - dx;
+    const newY = dragOffset.current.y - dy;
+    
+    const boundX = Math.max(-12, Math.min(newX, window.innerWidth - 80));
+    const boundY = Math.max(-12, Math.min(newY, window.innerHeight - 80));
+    
+    currentPos.current = { x: boundX, y: boundY };
+    
+    if (buttonRef.current) {
+      buttonRef.current.style.transform = `translate3d(${-boundX}px, ${-boundY}px, 0)`;
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    isDragging.current = false;
+    
+    if (buttonRef.current) {
+      buttonRef.current.style.cursor = "grab";
+    }
+
+    // Magnetic Snap to Left or Right edge
+    const btnRight = 24 + currentPos.current.x;
+    const isCloserToLeftEdge = btnRight > window.innerWidth / 2;
+    
+    let snappedX = 0;
+    if (isCloserToLeftEdge) {
+      snappedX = window.innerWidth - 56 - 24 - 12; // snap left
+    } else {
+      snappedX = 0; // snap right
+    }
+
+    currentPos.current.x = snappedX;
+    
+    if (buttonRef.current) {
+      buttonRef.current.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+      buttonRef.current.style.transform = `translate3d(${-snappedX}px, ${-currentPos.current.y}px, 0)`;
+    }
+
+    setPosition({ x: snappedX, y: currentPos.current.y });
+
+    if (!hasDragged.current) {
+      toggle();
+    }
+  };
 
   return (
     <CustomerServiceContext.Provider value={{ open, close, toggle, isOpen }}>
@@ -430,9 +519,21 @@ export default function CustomerServiceProvider({ children }: { children: React.
       {!isChatPage && (
         <>
           <button
+            ref={buttonRef}
             type="button"
             className={`cs-fab ${isOpen ? "cs-fab--active" : ""}`}
-            onClick={toggle}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            style={{
+              position: "fixed",
+              right: "24px",
+              bottom: "24px",
+              transform: `translate3d(${-position.x}px, ${-position.y}px, 0)`,
+              touchAction: "none",
+              zIndex: 1105,
+              cursor: "grab",
+            }}
             aria-label="Customer Service"
             title="Customer Service"
           >
@@ -443,7 +544,7 @@ export default function CustomerServiceProvider({ children }: { children: React.
             <>
               <div className="cs-backdrop" onClick={close} aria-hidden="true" />
               <div className="cs-panel">
-                <CustomerServiceChat onClose={close} />
+                <CustomerServiceChat onClose={close} initialMode={activeMode} />
               </div>
             </>
           )}

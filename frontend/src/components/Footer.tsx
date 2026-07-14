@@ -5,7 +5,7 @@ import { Mail, MapPin, Globe } from "lucide-react";
 import Link from "next/link";
 import {
   CONTACT_EMAIL_MAILTO,
-  PELATARAN_INSTAGRAM_URL,
+  Daurly_INSTAGRAM_URL,
   LINKPRODUCTIVE_INSTAGRAM_URL,
   LINKPRODUCTIVE_YOUTUBE_URL,
   LINKPRODUCTIVE_WEBSITE_URL,
@@ -58,7 +58,7 @@ export default function Footer({ isMinimalist = false }: FooterProps) {
   if (isMinimalist) {
     return (
       <footer style={{ textAlign: "center", padding: "20px 0", fontSize: "0.75rem", color: "#8E8680", borderTop: "1px solid #EAE5E0", background: "white" }}>
-        <p>© {new Date().getFullYear()} Daurly Digital. Eco-friendly recycled goods.</p>
+        <p>© {new Date().getFullYear()} Daurly Digital. Supporting local businesses.</p>
         <p style={{ marginTop: 6, opacity: 0.85 }}>Dikembangkan oleh PT Integrasi Produktivitas Indonesia</p>
       </footer>
     );
@@ -78,7 +78,7 @@ export default function Footer({ isMinimalist = false }: FooterProps) {
               <span className="logo-text-bold-small">Daurly</span>
             </div>
             <p className="footer-desc-custom">
-              Platform titip jual (konsinyasi) barang daur ulang. Kami urus penjualan, pembayaran, dan pengiriman — perajin fokus pada karya terbaiknya.
+              Platform titip jual (konsinyasi) produk daur ulang Indonesia. Kami urus penjualan, pembayaran, dan pengiriman — mitra daur ulang fokus pada karya terbaiknya.
             </p>
             <div className="footer-location-custom">
               <p className="footer-desc-custom">{PICKUP_STORE_ADDRESS}</p>
@@ -104,7 +104,7 @@ export default function Footer({ isMinimalist = false }: FooterProps) {
                 <Globe size={16} />
               </a>
               <a
-                href={PELATARAN_INSTAGRAM_URL}
+                href={Daurly_INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="social-btn-custom"
@@ -209,7 +209,7 @@ export default function Footer({ isMinimalist = false }: FooterProps) {
         <div className="footer-divider-custom" />
         
         <div className="footer-bottom-custom">
-          <p>© {new Date().getFullYear()} Daurly. Eco-friendly recycled goods.</p>
+          <p>© {new Date().getFullYear()} Daurly. Supporting local businesses.</p>
           <p className="footer-dev-credit">
             Dikembangkan oleh{" "}
             <a

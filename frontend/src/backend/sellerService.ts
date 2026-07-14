@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+﻿import { supabase } from "./supabase";
 import { productService } from "./productService";
 import { apiFetch } from "@/lib/api-client";
 
@@ -307,8 +307,8 @@ export const sellerService = {
     try {
       const pattern = `%${q.replace(/[%_\\]/g, "\\$&")}%`;
       const { data, error } = await supabase
-        .from("seller")
-        .select(`*, users(nama_lengkap)`)
+        .from("v_sellers_public")
+        .select(`*`)
         .eq("is_verified", true)
         .or(`nm_store.ilike.${pattern},deskripsi.ilike.${pattern}`)
         .order("created_at", { ascending: false })
@@ -346,7 +346,7 @@ export const sellerService = {
 
       if (isUuid) {
         const { data, error } = await supabase
-          .from("seller")
+          .from("v_sellers_public")
           .select("*")
           .eq("id_seller", idOrSlug)
           .maybeSingle();
@@ -359,7 +359,7 @@ export const sellerService = {
       // so we cannot reliably reverse it via SQL. Instead, fetch all sellers and
       // compare slugs client-side using the same function.
       const { data: allSellers, error } = await supabase
-        .from("seller")
+        .from("v_sellers_public")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -665,7 +665,7 @@ export const sellerService = {
         supabase.from("produk").select("id_produk", { count: "exact", head: true }).eq("id_seller", sellerId),
         supabase.from("ikut_toko").select("*", { count: "exact", head: true }).eq("id_seller", sellerId),
         supabase.from("review_toko").select("rating").eq("id_seller", sellerId),
-        supabase.from("seller").select("created_at").eq("id_seller", sellerId).maybeSingle(),
+        supabase.from("v_sellers_public").select("created_at").eq("id_seller", sellerId).maybeSingle(),
         supabase.from("order").select("id_order").eq("id_seller", sellerId).eq("stat_order", "selesai"),
       ]);
 

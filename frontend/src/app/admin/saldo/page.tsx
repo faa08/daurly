@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Wallet, Clock, ArrowDownCircle, TrendingUp, X, CheckCircle, AlertCircle } from "lucide-react";
@@ -87,12 +87,12 @@ export default function AdminSaldoPage() {
         <div>
           <h2 className="font-headline text-3xl font-bold text-[#1F1B18]">Keuangan & Saldo Platform</h2>
           <p className="font-body text-body-md text-[#5C5550] mt-1">
-            Pantau arus kas masuk, saldo pending, dan penarikan dana dari seluruh mitra UMKM.
+            Pantau arus kas masuk, saldo pending, dan penarikan dana dari seluruh mitra daur ulang.
           </p>
         </div>
         <button
           onClick={fetchData}
-          className="flex items-center gap-1.5 text-[#1D4ED8] text-xs font-bold hover:underline"
+          className="flex items-center gap-1.5 text-[#16A34A] text-xs font-bold hover:underline"
         >
           <span className="material-symbols-outlined text-sm">refresh</span>
           Refresh
@@ -114,7 +114,7 @@ export default function AdminSaldoPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] text-white rounded-xl p-6 shadow-lg flex justify-between items-start">
+        <div className="md:col-span-2 bg-gradient-to-br from-[#16A34A] to-[#15803D] text-white rounded-xl p-6 shadow-lg flex justify-between items-start">
           <div className="space-y-2">
             <div className="flex items-center gap-2 opacity-80">
               <Wallet size={16} />
@@ -123,11 +123,11 @@ export default function AdminSaldoPage() {
             <p className="text-3xl font-extrabold tracking-tight">
               {loading ? "..." : fmtRp(summary.totalAvailable)}
             </p>
-            <p className="text-xs opacity-70 font-medium">Saldo gabungan seluruh mitra UMKM yang dapat ditarik</p>
+            <p className="text-xs opacity-70 font-medium">Saldo gabungan seluruh mitra daur ulang yang dapat ditarik</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-white text-[#1D4ED8] font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-slate-50 transition shadow-md"
+            className="flex items-center gap-2 bg-white text-[#16A34A] font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-slate-50 transition shadow-md"
           >
             <ArrowDownCircle size={16} /> Cairkan Dana
           </button>
@@ -169,7 +169,7 @@ export default function AdminSaldoPage() {
         </div>
         {loading ? (
           <div className="py-16 text-center text-[#8E8680] text-sm font-semibold">
-            <div className="w-6 h-6 border-2 border-[#1D4ED8] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-6 h-6 border-2 border-[#16A34A] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             Memuat data saldo...
           </div>
         ) : (
@@ -177,7 +177,7 @@ export default function AdminSaldoPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-[#F5F3F0] border-b border-[#EAE5E0]">
-                  {["ID", "Tanggal", "Toko UMKM", "Deskripsi", "Tipe", "Jumlah", "Status"].map((h) => (
+                  {["ID", "Tanggal", "Toko Daur Ulang", "Deskripsi", "Tipe", "Jumlah", "Status"].map((h) => (
                     <th key={h} className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-[#5C5550]">
                       {h}
                     </th>
@@ -267,7 +267,7 @@ export default function AdminSaldoPage() {
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       required
                       min={50000}
-                      className="w-full h-11 border border-[#D5CFC9] rounded-lg px-4 text-sm font-semibold text-[#1F1B18] outline-none focus:border-[#1D4ED8] bg-[#F5F3F0] transition"
+                      className="w-full h-11 border border-[#D5CFC9] rounded-lg px-4 text-sm font-semibold text-[#1F1B18] outline-none focus:border-[#16A34A] bg-[#F5F3F0] transition"
                     />
                     <p className="text-[10px] text-[#8E8680] mt-1.5 font-medium">
                       Minimum pencairan dana platform Rp 50.000
@@ -285,8 +285,8 @@ export default function AdminSaldoPage() {
                           onClick={() => setSelectedBank(bank)}
                           className={`py-2.5 rounded-lg text-xs font-bold border-2 transition ${
                             selectedBank === bank
-                              ? "border-[#1D4ED8] bg-blue-50 text-[#1D4ED8]"
-                              : "border-[#EAE5E0] text-[#5C5550] hover:border-[#1D4ED8]"
+                              ? "border-[#16A34A] bg-blue-50 text-[#16A34A]"
+                              : "border-[#EAE5E0] text-[#5C5550] hover:border-[#16A34A]"
                           }`}
                         >
                           {bank}
@@ -304,13 +304,13 @@ export default function AdminSaldoPage() {
                       value={accountNumber}
                       onChange={(e) => setAccountNumber(e.target.value)}
                       required
-                      className="w-full h-11 border border-[#D5CFC9] rounded-lg px-4 text-sm font-semibold text-[#1F1B18] outline-none focus:border-[#1D4ED8] bg-[#F5F3F0] transition"
+                      className="w-full h-11 border border-[#D5CFC9] rounded-lg px-4 text-sm font-semibold text-[#1F1B18] outline-none focus:border-[#16A34A] bg-[#F5F3F0] transition"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full h-12 bg-[#1D4ED8] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition disabled:opacity-60"
+                    className="w-full h-12 bg-[#16A34A] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition disabled:opacity-60"
                   >
                     {submitting ? "Menyimpan..." : "Konfirmasi Pencairan"}
                   </button>
@@ -329,7 +329,7 @@ export default function AdminSaldoPage() {
                   </div>
                   <button
                     onClick={closeModal}
-                    className="mt-2 px-8 py-2.5 bg-[#1D4ED8] text-white font-bold text-xs rounded-lg hover:bg-blue-700 transition"
+                    className="mt-2 px-8 py-2.5 bg-[#16A34A] text-white font-bold text-xs rounded-lg hover:bg-blue-700 transition"
                   >
                     Tutup
                   </button>

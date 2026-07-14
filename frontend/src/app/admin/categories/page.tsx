@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/backend/supabase";
@@ -121,8 +121,59 @@ export default function AdminCategoriesPage() {
     }
   };
 
+  const handleArchive = async (id: string, name: string) => {
+    const ok = window.confirm(`Apakah Anda yakin ingin mengarsipkan kategori "${name}"?`);
+    if (!ok) return;
+
+    if (isPlaceholder()) {
+      setCategories(categories.map((c) => c.id_kategori === id ? { ...c, is_active: false } : c));
+      alert("Kategori berhasil diarsipkan (Mode Uji Coba)!");
+      return;
+    }
+
+    try {
+      const res = await apiFetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "archive", id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal mengarsipkan kategori");
+
+      alert("Kategori berhasil diarsipkan!");
+      fetchCategories();
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Gagal mengarsipkan kategori");
+    }
+  };
+
+  const handleRestore = async (id: string, name: string) => {
+    if (isPlaceholder()) {
+      setCategories(categories.map((c) => c.id_kategori === id ? { ...c, is_active: true } : c));
+      alert("Kategori berhasil diaktifkan kembali (Mode Uji Coba)!");
+      return;
+    }
+
+    try {
+      const res = await apiFetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "restore", id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal mengaktifkan kategori");
+
+      alert("Kategori berhasil diaktifkan kembali!");
+      fetchCategories();
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Gagal mengaktifkan kategori");
+    }
+  };
+
   const handleDelete = async (id: string, name: string) => {
-    const ok = window.confirm(`Apakah Anda yakin ingin menghapus kategori "${name}"?`);
+    const ok = window.confirm(`Apakah Anda yakin ingin menghapus permanen kategori "${name}"?`);
     if (!ok) return;
 
     if (isPlaceholder()) {
@@ -215,7 +266,7 @@ export default function AdminCategoriesPage() {
               <button
                 type="button"
                 onClick={handleInitDefaultCategories}
-                className="px-4 py-2 border-2 border-[#1D4ED8] text-[#1D4ED8] hover:bg-[#EFF6FF] font-bold text-xs rounded-lg transition flex items-center gap-1"
+                className="px-4 py-2 border-2 border-[#16A34A] text-[#16A34A] hover:bg-[#F0FDF4] font-bold text-xs rounded-lg transition flex items-center gap-1"
               >
                 <span className="material-symbols-outlined text-[16px]">auto_awesome</span>
                 Inisialisasi Kategori Bawaan
@@ -266,19 +317,20 @@ export default function AdminCategoriesPage() {
                 <th className="px-6 py-4">Slug URL</th>
                 <th className="px-6 py-4">ID Kategori</th>
                 <th className="px-6 py-4">Tanggal Dibuat</th>
+                <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F5F3F0] font-semibold text-[#1F1B18]">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[#8E8680]">
+                  <td colSpan={6} className="px-6 py-12 text-center text-[#8E8680]">
                     Memuat data kategori...
                   </td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[#8E8680]">
+                  <td colSpan={6} className="px-6 py-12 text-center text-[#8E8680]">
                     Belum ada kategori terdaftar. Silakan tambah kategori baru.
                   </td>
                 </tr>
@@ -312,6 +364,19 @@ export default function AdminCategoriesPage() {
                           year: "numeric"
                         })}
                       </td>
+                      <td className="px-6 py-4">
+                        {cat.is_active === false ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-100 text-zinc-600 border border-zinc-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                            Diarsipkan
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F4EA] text-[#137333] border border-[#D2E3FC]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#34A853]"></span>
+                            Aktif
+                          </span>
+                        )}
+                      </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex items-center justify-center gap-2">
                           {isEditing ? (
@@ -338,19 +403,40 @@ export default function AdminCategoriesPage() {
                               <button
                                 type="button"
                                 onClick={() => handleStartEdit(cat.id_kategori, cat.nama_kategori)}
-                                className="text-[#8E8680] hover:text-[#1D4ED8] transition p-1 hover:bg-[#F5F3F0] rounded"
+                                className="text-[#8E8680] hover:text-[#16A34A] transition p-1 hover:bg-[#F5F3F0] rounded"
                                 title="Ubah Nama"
                               >
                                 <span className="material-symbols-outlined text-[18px]">edit</span>
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDelete(cat.id_kategori, cat.nama_kategori)}
-                                className="text-[#8E8680] hover:text-red-600 transition p-1 hover:bg-[#F5F3F0] rounded"
-                                title="Hapus Kategori"
-                              >
-                                <span className="material-symbols-outlined text-[18px]">delete</span>
-                              </button>
+                              {cat.is_active === false ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRestore(cat.id_kategori, cat.nama_kategori)}
+                                    className="text-[#8E8680] hover:text-green-600 transition p-1 hover:bg-[#F5F3F0] rounded"
+                                    title="Aktifkan Kembali Kategori"
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">unarchive</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDelete(cat.id_kategori, cat.nama_kategori)}
+                                    className="text-[#8E8680] hover:text-red-600 transition p-1 hover:bg-[#F5F3F0] rounded"
+                                    title="Hapus Kategori"
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleArchive(cat.id_kategori, cat.nama_kategori)}
+                                  className="text-[#8E8680] hover:text-amber-600 transition p-1 hover:bg-[#F5F3F0] rounded"
+                                  title="Arsipkan Kategori"
+                                >
+                                  <span className="material-symbols-outlined text-[18px]">archive</span>
+                                </button>
+                              )}
                             </>
                           )}
                         </div>

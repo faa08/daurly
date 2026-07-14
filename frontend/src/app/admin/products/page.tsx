@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -148,12 +148,12 @@ export default function AdminProductsPage() {
         <div>
           <h2 className="font-headline text-3xl font-bold text-[#1F1B18]">Manajemen Produk</h2>
           <p className="font-body text-body-md text-[#5C5550] mt-1">
-            Kelola katalog produk dari seluruh mitra UMKM di satu dashboard superadmin.
+            Kelola katalog produk dari seluruh mitra daur ulang di satu dashboard superadmin.
           </p>
         </div>
         <Link
           href="/admin/products/new"
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#1D4ED8] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#16A34A] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition"
         >
           <span className="material-symbols-outlined text-[20px]">add_circle</span>
           Tambah Produk Baru
@@ -167,7 +167,7 @@ export default function AdminProductsPage() {
         </div>
         <div className="bg-white border border-[#EAE5E0] p-6 rounded-xl space-y-1 shadow-sm">
           <p className="text-xs uppercase font-bold text-[#8E8680] tracking-wider">Aktif</p>
-          <h3 className="font-headline text-2xl font-extrabold text-[#1D4ED8] flex items-center justify-between">
+          <h3 className="font-headline text-2xl font-extrabold text-[#16A34A] flex items-center justify-between">
             {products.filter((p) => p.status === "Aktif").length}
             {products.length > 0 ? (
               <span className="text-[10px] bg-green-50 border border-green-200 text-green-600 px-2 py-0.5 rounded uppercase">
@@ -202,7 +202,7 @@ export default function AdminProductsPage() {
             placeholder="Cari nama produk, SKU, brand, atau kode..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-2.5 rounded border border-[#D5CFC9] bg-white focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] transition text-xs font-body text-[#1F1B18]"
+            className="w-full pl-12 pr-4 py-2.5 rounded border border-[#D5CFC9] bg-white focus:outline-none focus:ring-2 focus:ring-[#16A34A] transition text-xs font-body text-[#1F1B18]"
           />
         </div>
         <div className="flex flex-wrap gap-3">
@@ -264,7 +264,7 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-xs text-[#5C5550] font-semibold">{getSellerName(p.id_seller)}</td>
-                  <td className="px-6 py-4 text-xs text-[#1F1B18] font-bold">{p.nama_brand || "UMKM Lokal"}</td>
+                  <td className="px-6 py-4 text-xs text-[#1F1B18] font-bold">{p.nama_brand || "Daur Ulang Lokal"}</td>
                   <td className="px-6 py-4 text-xs text-[#5C5550] font-mono">{p.kode_produk || "-"}</td>
                   <td className="px-6 py-4 text-xs text-[#8E8680] font-semibold">{p.sku}</td>
                   <td className="px-6 py-4 font-bold text-sm text-[#1F1B18]">Rp {p.harga.toLocaleString("id-ID")}</td>

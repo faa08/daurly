@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -69,7 +69,7 @@ export default function HelpCenterLayout({
             <button
               type="button"
               onClick={openCustomerService}
-              className="flex items-center gap-1.5 text-xs font-bold text-secondary hover:text-[#1D4ED8] transition"
+              className="flex items-center gap-1.5 text-xs font-bold text-secondary hover:text-[#16A34A] transition"
             >
               <Headphones size={15} />
               Customer Service

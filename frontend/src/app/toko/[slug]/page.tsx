@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, use, useEffect } from "react";
 import Image from "next/image";
@@ -175,7 +175,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
     }
   }
 
-  const shopName = seller?.nm_store || "Toko UMKM";
+  const shopName = seller?.nm_store || "Toko Daur Ulang";
   const shopLocation = seller?.addr?.trim() || "Indonesia";
   const shopLogo = seller?.logo_toko?.trim() || "";
 
@@ -315,7 +315,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                 <div className="flex items-center gap-2 flex-wrap mb-1.5">
                   <h1 className="font-headline text-lg font-bold text-on-surface">{shopName}</h1>
                   {seller?.is_verified !== false && (
-                    <span className="bg-[#EFF6FF] text-[#1D4ED8] text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-[#BFDBFE] flex items-center gap-1 select-none">
+                    <span className="bg-[#F0FDF4] text-[#16A34A] text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-[#BFDBFE] flex items-center gap-1 select-none">
                       <ShieldCheck size={9} />
                       Verified Merchant
                     </span>

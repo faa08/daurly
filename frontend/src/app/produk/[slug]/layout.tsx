@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { createSupabaseAdmin } from "@/lib/supabase-admin";
 
 type Props = {
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${data.nama_produk} — Daurly`;
   const description =
     (typeof data.deskripsi === "string" && data.deskripsi.slice(0, 160)) ||
-    `Beli ${data.nama_produk} dari perajin di Daurly.`;
+    `Beli ${data.nama_produk} dari Daur Ulang lokal di Daurly.`;
   const image = parseCoverImage(data.img);
   const price = Number(data.harga);
 

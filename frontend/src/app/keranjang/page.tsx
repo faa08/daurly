@@ -92,7 +92,7 @@ export default function CartPage() {
         id_produk: i.id_produk,
         slug: i.produk!.slug,
         name: i.produk!.nama_produk,
-        seller: i.produk!.nm_store || "Mitra Perajin",
+        seller: i.produk!.nm_store || "Toko Daur Ulang",
         price: i.produk!.harga,
         qty: i.qty_cartitem,
         image: parseProductImg(i.produk!.img),
@@ -197,7 +197,9 @@ export default function CartPage() {
     return (
       <>
         <Navbar />
-        <SearchBar />
+        <div className="responsive-hide-desktop">
+          <SearchBar />
+        </div>
         <main style={{ background: C.surface, minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Loader2 size={32} color={C.primary} className="animate-spin" />
         </main>
@@ -210,7 +212,9 @@ export default function CartPage() {
   return (
     <>
       <Navbar />
-      <SearchBar />
+      <div className="responsive-hide-desktop">
+        <SearchBar />
+      </div>
 
       <main style={{ background: C.surface, minHeight: "70vh", paddingBottom: 72 }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
@@ -363,7 +367,7 @@ export default function CartPage() {
                     { icon: <ShieldCheck size={18} className="text-primary" />, title: "Pembayaran Aman", desc: "Data transaksi terenkripsi SSL" },
                     { icon: <Truck size={18} className="text-primary" />, title: "Pengiriman Terjamin", desc: "Estimasi 2–5 hari kerja" },
                   ].map((b, i) => (
-                    <div key={i} className="bg-primary-container border border-orange-100 rounded-xl p-3.5 flex items-center gap-3">
+                    <div key={i} className="bg-primary-container border border-emerald-100 rounded-xl p-3.5 flex items-center gap-3">
                       <div className="shrink-0">{b.icon}</div>
                       <div>
                         <p className="text-xs font-bold text-on-surface">{b.title}</p>
@@ -439,7 +443,7 @@ export default function CartPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <div>
                 <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: C.text, margin: "0 0 4px 0" }}>Produk Rekomendasi</h2>
-                <p style={{ fontSize: "0.8125rem", color: C.textMuted, margin: 0 }}>Produk daur ulang pilihan yang mungkin kamu suka</p>
+                <p style={{ fontSize: "0.8125rem", color: C.textMuted, margin: 0 }}>produk daur ulang pilihan yang mungkin kamu suka</p>
               </div>
               <Link href="/" style={{ fontSize: "0.8125rem", fontWeight: 700, color: C.primary, textDecoration: "none" }}>
                 Lihat Semua →

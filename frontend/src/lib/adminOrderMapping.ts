@@ -335,7 +335,7 @@ export function mapAdminOrderRow(o: any): AdminOrder {
     date: formatDateId(o.created_at, true),
     buyer: buyerName,
     avatar: initials(buyerName),
-    storeName: seller?.nm_store || "Toko UMKM",
+    storeName: seller?.nm_store || "Toko Daur Ulang",
     productName: produk?.nama_produk || "Produk",
     productDetail:
       items.length > 1 ? `${items.length} item (${totalQty} pcs)` : `${items[0]?.qty_orderitem || 1} pcs`,
@@ -393,7 +393,7 @@ export function mapAdminShipmentRow(o: any): AdminShipmentOrder | null {
     id: formatOrderId(o.id_order),
     uuid: o.id_order,
     buyer: user?.nama_lengkap || "Pembeli",
-    storeName: seller?.nm_store || "Toko UMKM",
+    storeName: seller?.nm_store || "Toko Daur Ulang",
     product: produk?.nama_produk || "Produk",
     productImg: resolveProductImageSrc(produk),
     qty: totalQty,

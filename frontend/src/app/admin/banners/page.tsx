@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useCallback, useEffect, useState } from "react";
 import { AlertCircle, ImageIcon, Plus, Trash2 } from "lucide-react";
@@ -19,7 +19,7 @@ import {
 type Tab = "home" | "category";
 
 const inputClass =
-  "w-full px-3 py-2.5 rounded-lg border border-[#D5CFC9] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]";
+  "w-full px-3 py-2.5 rounded-lg border border-[#D5CFC9] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#16A34A]";
 
 function emptyHomeSlide(sortOrder: number): SiteBannerInput {
   return {
@@ -120,7 +120,7 @@ export default function AdminBannersPage() {
       id_banner: `draft-cat-${categorySlug}`,
       banner_kind: "category_hero",
       category_slug: categorySlug,
-      badge: def?.badge ?? "Galeri UMKM Pilihan",
+      badge: def?.badge ?? "Galeri Daur Ulang Pilihan",
       title_line1: def?.title_line1 ?? "",
       title_line2: null,
       description: def?.description ?? "",
@@ -169,7 +169,7 @@ export default function AdminBannersPage() {
             type="button"
             onClick={() => setTab(t.id)}
             className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
-              tab === t.id ? "bg-[#1D4ED8] text-white" : "bg-white border border-[#EAE5E0] text-[#5C5550]"
+              tab === t.id ? "bg-[#16A34A] text-white" : "bg-white border border-[#EAE5E0] text-[#5C5550]"
             }`}
           >
             {t.label}
@@ -191,7 +191,7 @@ export default function AdminBannersPage() {
                   { ...draft, id_banner: `draft-new-${Date.now()}` } as SiteBanner,
                 ]);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-[#1D4ED8] text-white text-xs font-bold rounded-lg hover:brightness-95"
+              className="flex items-center gap-2 px-4 py-2 bg-[#16A34A] text-white text-xs font-bold rounded-lg hover:brightness-95"
             >
               <Plus size={14} />
               Tambah Slide
@@ -253,8 +253,8 @@ function BannerImageUpload({
       <label
         className={`relative flex flex-col items-center justify-center w-full h-24 rounded-lg border-2 border-dashed transition cursor-pointer ${
           uploading
-            ? "border-[#1D4ED8] bg-[#EFF6FF] opacity-70 pointer-events-none"
-            : "border-[#D5CFC9] bg-[#FAFAF8] hover:border-[#1D4ED8] hover:bg-[#EFF6FF]"
+            ? "border-[#16A34A] bg-[#F0FDF4] opacity-70 pointer-events-none"
+            : "border-[#D5CFC9] bg-[#FAFAF8] hover:border-[#16A34A] hover:bg-[#F0FDF4]"
         }`}
       >
         <input
@@ -386,7 +386,7 @@ function HomeSlideForm({
         </div>
       </div>
 
-      <button type="submit" disabled={saving} className="px-5 py-2.5 bg-[#1D4ED8] text-white text-xs font-bold rounded-lg disabled:opacity-60">
+      <button type="submit" disabled={saving} className="px-5 py-2.5 bg-[#16A34A] text-white text-xs font-bold rounded-lg disabled:opacity-60">
         {saving ? "Menyimpan..." : "Simpan Slide"}
       </button>
     </form>
@@ -499,7 +499,7 @@ function CategoryBannerForm({
         </div>
       </div>
 
-      <button type="submit" disabled={saving} className="px-5 py-2.5 bg-[#1D4ED8] text-white text-xs font-bold rounded-lg disabled:opacity-60">
+      <button type="submit" disabled={saving} className="px-5 py-2.5 bg-[#16A34A] text-white text-xs font-bold rounded-lg disabled:opacity-60">
         {saving ? "Menyimpan..." : "Simpan Banner Kategori"}
       </button>
     </form>

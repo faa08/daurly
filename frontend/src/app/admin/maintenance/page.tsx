@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { systemSettingsService } from "@/backend/systemSettingsService";
@@ -48,7 +48,7 @@ export default function AdminMaintenancePage() {
   if (loading) {
     return (
       <div className="flex h-[300px] items-center justify-center text-sm font-semibold text-[#8E8680] gap-2">
-        <Loader2 className="w-5 h-5 animate-spin text-[#1D4ED8]" />
+        <Loader2 className="w-5 h-5 animate-spin text-[#16A34A]" />
         Memuat status mode pemeliharaan...
       </div>
     );
@@ -118,7 +118,7 @@ export default function AdminMaintenancePage() {
               <span className="text-sm font-bold font-headline">Keamanan & Persistensi</span>
             </div>
             <p className="text-xs text-[#5C5550] leading-relaxed">
-              Pengaturan ini disimpan langsung ke dalam database utama secara real-time. Jika Anda mengaktifkannya, pastikan untuk mematikannya kembali setelah proses perbaikan fitur selesai agar toko UMKM dapat berjualan kembali secara normal.
+              Pengaturan ini disimpan langsung ke dalam database utama secara real-time. Jika Anda mengaktifkannya, pastikan untuk mematikannya kembali setelah proses perbaikan fitur selesai agar Toko Daur Ulang dapat berjualan kembali secara normal.
             </p>
           </div>
         </div>

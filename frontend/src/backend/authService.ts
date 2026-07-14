@@ -13,11 +13,19 @@ export interface User {
   nama_lengkap: string;
   no_telp: string;
   avatar: string;
-  role: "customer" | "seller" | "admin";
+  role: "customer" | "seller" | "admin" | "tester";
   created_at: string;
   nama_toko?: string;
   jenis_kelamin?: string;
   tanggal_lahir?: string;
+  is_affiliate?: boolean;
+  affiliate_code?: string;
+  affiliate_status?: "none" | "pending" | "approved" | "rejected";
+  affiliate_phone?: string;
+  affiliate_social?: string;
+  affiliate_nik?: string;
+  affiliate_ktp_name?: string;
+  is_suspended?: boolean;
 }
 
 export interface ProfileUpdate {
@@ -40,7 +48,8 @@ export type LoginError =
   | "wrong_password"
   | "no_password"
   | "email_not_confirmed"
-  | "db_error";
+  | "db_error"
+  | "suspended";
 
 export type LoginResult = { user: User | null; error?: LoginError };
 
@@ -139,6 +148,13 @@ export const authService = {
     }
 
     if (profile) {
+      if (profile.is_suspended) {
+        if (!isPlaceholder()) {
+          supabase.auth.signOut().catch(() => {});
+        }
+        this.setCurrentUser(null);
+        return null;
+      }
       this.setCurrentUser(profile);
       return profile;
     }
@@ -159,8 +175,12 @@ export const authService = {
             return { user: null, error: "wrong_password" };
           }
           const { password: _p, ...safe } = user;
-          this.setCurrentUser(safe as User);
-          return { user: safe as User };
+          const castUser = safe as User & { is_suspended?: boolean };
+          if (castUser.is_suspended) {
+            return { user: null, error: "suspended" };
+          }
+          this.setCurrentUser(castUser as User);
+          return { user: castUser as User };
         }
       }
       return { user: null, error: "not_found" };
@@ -202,6 +222,11 @@ export const authService = {
 
       if (!profile) {
         return { user: null, error: "db_error" };
+      }
+
+      if (profile.is_suspended) {
+        await supabase.auth.signOut().catch(() => {});
+        return { user: null, error: "suspended" };
       }
 
       this.setCurrentUser(profile);

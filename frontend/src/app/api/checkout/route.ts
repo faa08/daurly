@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, denyForeignUser } from "@/lib/api-auth";
 import { formatShippingAddressText } from "@/lib/formatShippingAddress";
 import { extractProductCoverUrl } from "@/lib/productUi";
@@ -18,12 +18,13 @@ type CartRow = {
     varian?: unknown;
     img?: string | null;
     cover_img?: string | null;
+    komisi_persen?: number | null;
     seller: { nm_store: string } | { nm_store: string }[];
   } | null;
 };
 
 function normalizeSeller(produk: CartRow["produk"]) {
-  if (!produk?.seller) return "Toko UMKM";
+  if (!produk?.seller) return "Toko Daur Ulang";
   return Array.isArray(produk.seller) ? produk.seller[0]?.nm_store : produk.seller.nm_store;
 }
 
@@ -60,6 +61,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const affiliateCookie = request.cookies.get("daurly_affiliate_code")?.value || null;
+    let affiliateId: string | null = null;
+    if (affiliateCookie) {
+      const { data: affUser } = await admin
+        .from("users")
+        .select("id_user")
+        .eq("affiliate_code", affiliateCookie)
+        .eq("is_affiliate", true)
+        .maybeSingle();
+      if (affUser && affUser.id_user !== userId) {
+        affiliateId = affUser.id_user;
+      }
+    }
+
     const { data: cart, error: cartErr } = await admin
       .from("cart")
       .select("id_cart")
@@ -75,7 +90,7 @@ export async function POST(request: NextRequest) {
       .from("cart_item")
       .select(
         `id_cart_item, id_produk, qty_cartitem, pilihan_varian,
-        produk ( id_produk, id_seller, nama_produk, harga, produk_stock, berat, varian, img, cover_img, seller ( nm_store ) )`
+        produk ( id_produk, id_seller, nama_produk, harga, produk_stock, berat, varian, img, cover_img, komisi_persen, seller ( nm_store ) )`
       )
       .eq("id_cart", cart.id_cart)
       .in("id_cart_item", cartItemIds);
@@ -187,6 +202,8 @@ export async function POST(request: NextRequest) {
       const orderItems = items.map((i) => {
         const p = i.produk!;
         const imgSnap = extractProductCoverUrl({ cover_img: p.cover_img, img: p.img });
+        const komisiPersen = affiliateId ? (Number(p.komisi_persen) || 5.00) : 0;
+        const komisiJumlah = affiliateId ? Math.round((Number(p.harga) * komisiPersen) / 100) * i.qty_cartitem : 0;
         return {
           id_order_item: crypto.randomUUID(),
           id_order,
@@ -196,6 +213,8 @@ export async function POST(request: NextRequest) {
           pilihan_varian: i.pilihan_varian ?? null,
           nama_produk_snapshot: p.nama_produk,
           img_snapshot: imgSnap,
+          id_affiliate: affiliateId,
+          komisi_jumlah: komisiJumlah,
         };
       });
 
@@ -239,16 +258,34 @@ export async function POST(request: NextRequest) {
         })();
       }
 
+      const saldoAffiliateEntries = orderItems
+        .filter((item) => item.komisi_jumlah > 0)
+        .map((item) => ({
+          id_saldo_aff: crypto.randomUUID(),
+          id_user: affiliateId!,
+          id_order_item: item.id_order_item,
+          jumlah: item.komisi_jumlah,
+          tipe: "masuk",
+          status: "pending",
+          keterangan: `Komisi rujukan produk "${item.nama_produk_snapshot}"`,
+        }));
+
+      const saldoAffPromise = saldoAffiliateEntries.length > 0
+        ? admin.from("saldo_affiliate").insert(saldoAffiliateEntries)
+        : Promise.resolve({ error: null });
+
       const results = await Promise.all([
         orderItemPromise,
         paymentPromise,
         pengirimanPromise,
         chatPromise,
+        saldoAffPromise,
       ]);
 
       if (results[0].error) throw results[0].error;
       if (results[1].error) throw results[1].error;
       if (results[2].error) throw results[2].error;
+      if (results[4] && (results[4] as any).error) throw (results[4] as any).error;
 
       createdOrders.push({
         id_order,

@@ -37,8 +37,11 @@ export default function CustomerSidebar({
     { name: "Alamat", href: "/account/address", icon: "location_on" },
     { name: "Pesanan Saya", href: "/account/orders", icon: "receipt" },
     { name: "Keamanan", href: "/account/security", icon: "shield" },
-    { name: "Program Affiliate", href: "/account/affiliate", icon: "share" },
-
+    {
+      name: user?.is_affiliate ? "Affiliate Center" : "Bergabung Menjadi Affiliate",
+      href: "/affiliate",
+      icon: "share",
+    },
   ];
 
   const displayName = user?.nama_lengkap || user?.username || "Pengguna";

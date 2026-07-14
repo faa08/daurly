@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { formatDraftTime } from "@/lib/adminDrafts";
@@ -21,7 +21,7 @@ export default function AdminFormShell({
   children: React.ReactNode;
 }) {
   const backClass =
-    "inline-flex items-center gap-1.5 text-xs font-bold text-[#5C5550] hover:text-[#1D4ED8] w-fit transition";
+    "inline-flex items-center gap-1.5 text-xs font-bold text-[#5C5550] hover:text-[#16A34A] w-fit transition";
 
   return (
     <div className="space-y-6">

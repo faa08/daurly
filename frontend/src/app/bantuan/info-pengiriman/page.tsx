@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { ChevronRight, Truck, MessageSquare, Store, Package, CheckCircle2 } from "lucide-react";
@@ -40,7 +40,7 @@ export default function InfoPengirimanPage() {
           </div>
           <p className="text-secondary text-sm max-w-2xl leading-relaxed">
             Di model konsinyasi Daurly, <strong>pengiriman diatur oleh platform</strong> — bukan dikirim
-            sendiri oleh perajin/penjual. Setelah bayar digital, admin koordinasi lewat chat.
+            sendiri oleh penjual daur ulang. Setelah bayar digital, admin koordinasi lewat chat.
           </p>
         </div>
 
@@ -70,13 +70,13 @@ export default function InfoPengirimanPage() {
 
           <section className="bg-white border border-surface-container rounded-xl p-8 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
-              <Store size={18} className="text-orange-600" />
+              <Store size={18} className="text-emerald-600" />
               <h2 className="text-lg font-extrabold text-on-surface">Alur — Ambil di Toko (Pickup)</h2>
             </div>
             <div className="space-y-4 mb-5">
               {PICKUP_STEPS.map((step) => (
                 <div key={step.num} className="flex gap-4">
-                  <div className="w-9 h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-extrabold text-sm shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center font-extrabold text-sm shrink-0">
                     {step.num}
                   </div>
                   <div>
@@ -86,8 +86,8 @@ export default function InfoPengirimanPage() {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-secondary flex gap-2 items-start bg-orange-50 border border-orange-100 rounded-lg p-4">
-              <Package size={16} className="shrink-0 text-orange-600 mt-0.5" />
+            <p className="text-xs text-secondary flex gap-2 items-start bg-emerald-50 border border-emerald-100 rounded-lg p-4">
+              <Package size={16} className="shrink-0 text-emerald-600 mt-0.5" />
               <span>{PICKUP_STORE_ADDRESS}</span>
             </p>
           </section>

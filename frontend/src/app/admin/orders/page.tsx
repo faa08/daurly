@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -138,7 +138,7 @@ export default function AdminOrdersPage() {
             placeholder="Cari ID, Pelanggan, Toko, atau Produk..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-[#D5CFC9] rounded-lg bg-white text-xs font-body focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] transition text-[#1F1B18]"
+            className="w-full pl-10 pr-4 py-2.5 border border-[#D5CFC9] rounded-lg bg-white text-xs font-body focus:outline-none focus:ring-2 focus:ring-[#16A34A] transition text-[#1F1B18]"
           />
         </div>
       </header>
@@ -177,7 +177,7 @@ export default function AdminOrdersPage() {
             <p className="text-xs mt-0.5 text-indigo-700">
               Alamat pengiriman pembeli tampil di kolom &quot;Alamat&quot;. Gunakan chat untuk konfirmasi jadwal & kurir.
             </p>
-            <Link href="/admin/chat?tab=shipping" className="inline-block mt-2 text-xs font-bold text-[#1D4ED8] hover:underline">
+            <Link href="/admin/chat?tab=shipping" className="inline-block mt-2 text-xs font-bold text-[#16A34A] hover:underline">
               Buka Pusat Chat Pengiriman →
             </Link>
           </div>
@@ -192,14 +192,14 @@ export default function AdminOrdersPage() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex items-center gap-1.5 px-4 py-3 rounded font-bold text-xs uppercase tracking-wider transition ${
-                isSelected ? "bg-[#1D4ED8] text-white" : "text-[#5C5550] hover:bg-[#F5F3F0] hover:text-[#1F1B18]"
+                isSelected ? "bg-[#16A34A] text-white" : "text-[#5C5550] hover:bg-[#F5F3F0] hover:text-[#1F1B18]"
               }`}
             >
               <span>{tab}</span>
               {tab === "Perlu Dikirim" && needShippingCount > 0 && (
                 <span
                   className={`text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold ${
-                    isSelected ? "bg-white text-[#1D4ED8]" : "bg-[#1D4ED8] text-white"
+                    isSelected ? "bg-white text-[#16A34A]" : "bg-[#16A34A] text-white"
                   }`}
                 >
                   {needShippingCount}
@@ -213,7 +213,7 @@ export default function AdminOrdersPage() {
       <section className="bg-white border border-[#EAE5E0] rounded-xl overflow-hidden shadow-sm">
         {loading ? (
           <div className="py-16 text-center text-[#8E8680] text-sm font-semibold">
-            <div className="w-6 h-6 border-2 border-[#1D4ED8] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-6 h-6 border-2 border-[#16A34A] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             Memuat data pesanan...
           </div>
         ) : (
@@ -221,7 +221,7 @@ export default function AdminOrdersPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#F5F3F0] border-b border-[#EAE5E0]">
-                  {["ID Pesanan", "Tanggal", "Toko UMKM", "Pelanggan", "Produk", "Total", "Alamat", "Pembayaran", "Status"].map((h) => (
+                  {["ID Pesanan", "Tanggal", "Toko Daur Ulang", "Pelanggan", "Produk", "Total", "Alamat", "Pembayaran", "Status"].map((h) => (
                     <th key={h} className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-[#5C5550]">
                       {h}
                     </th>
@@ -264,7 +264,7 @@ export default function AdminOrdersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-bold text-sm text-[#1D4ED8]">
+                    <td className="px-6 py-4 font-bold text-sm text-[#16A34A]">
                       Rp {order.total.toLocaleString("id-ID")}
                     </td>
                     <td className="px-6 py-4 max-w-[220px]">
@@ -282,8 +282,8 @@ export default function AdminOrdersPage() {
                           }
                           className="flex gap-2 text-left group"
                         >
-                          <MapPin size={14} className="text-[#1D4ED8] flex-shrink-0 mt-0.5 group-hover:scale-110 transition" />
-                          <span className="text-[10px] text-[#1D4ED8] font-bold group-hover:underline">
+                          <MapPin size={14} className="text-[#16A34A] flex-shrink-0 mt-0.5 group-hover:scale-110 transition" />
+                          <span className="text-[10px] text-[#16A34A] font-bold group-hover:underline">
                             Lihat lokasi toko
                           </span>
                         </button>
@@ -301,11 +301,11 @@ export default function AdminOrdersPage() {
                           }
                           className="flex gap-2 text-left group w-full"
                         >
-                          <MapPin size={14} className="text-[#1D4ED8] flex-shrink-0 mt-0.5 group-hover:scale-110 transition" />
-                          <p className="text-[10px] text-[#5C5550] leading-snug whitespace-pre-line font-medium group-hover:text-[#1D4ED8]">
+                          <MapPin size={14} className="text-[#16A34A] flex-shrink-0 mt-0.5 group-hover:scale-110 transition" />
+                          <p className="text-[10px] text-[#5C5550] leading-snug whitespace-pre-line font-medium group-hover:text-[#16A34A]">
                             {order.shippingAddress}
                           </p>
-                          <span className="text-[9px] font-bold text-[#1D4ED8] mt-0.5 block">Klik untuk lihat di peta →</span>
+                          <span className="text-[9px] font-bold text-[#16A34A] mt-0.5 block">Klik untuk lihat di peta →</span>
                         </button>
                       )}
                     </td>
@@ -348,7 +348,7 @@ export default function AdminOrdersPage() {
                         {order.status === "Perlu Dikirim" && order.paymentKind === "digital" && (
                           <button
                             onClick={() => handleShipOrder(order.uuid)}
-                            className="bg-[#1D4ED8] text-white text-[10px] font-bold px-3 py-1.5 rounded hover:bg-blue-700 transition"
+                            className="bg-[#16A34A] text-white text-[10px] font-bold px-3 py-1.5 rounded hover:bg-blue-700 transition"
                           >
                             Kirim Barang
                           </button>
@@ -411,7 +411,7 @@ export default function AdminOrdersPage() {
           <p>{loading ? "Memuat..." : `Menampilkan ${filteredOrders.length} dari ${orders.length} pesanan`}</p>
           <button
             onClick={fetchOrders}
-            className="flex items-center gap-1.5 text-[#1D4ED8] hover:underline text-xs font-bold"
+            className="flex items-center gap-1.5 text-[#16A34A] hover:underline text-xs font-bold"
           >
             <span className="material-symbols-outlined text-sm">refresh</span>
             Refresh

@@ -130,13 +130,13 @@ export default function AdminChatNotificationAlert() {
         style={{
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 40px rgba(255, 111, 0, 0.15)",
           animation: "admin-alert-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both",
-          borderLeft: "8px solid #FF6F00"
+          borderLeft: "8px solid #16A34A"
         }}
       >
         <div className="flex justify-between items-start gap-4">
           <div className="flex gap-3">
-            <div className="w-12 h-12 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-primary flex-shrink-0">
-              <Bell className="animate-wiggle" size={24} style={{ color: "#FF6F00" }} />
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-primary flex-shrink-0">
+              <Bell className="animate-wiggle" size={24} style={{ color: "#16A34A" }} />
             </div>
             <div className="space-y-1">
               <h4 className="font-headline font-extrabold text-base text-[#1F1B18] flex items-center gap-1.5">

@@ -175,7 +175,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            {/* UMKM Photo */}
+            {/* Daur Ulang Photo */}
             <div style={{
               position: "relative",
               width: "100%",
@@ -184,7 +184,7 @@ export default function RegisterPage() {
               aspectRatio: "4/3",
               marginTop: "auto",
             }}>
-              <Image src="/register-umkm.png" alt="Produk Daur Ulang Kreatif" fill style={{ objectFit: "cover" }} />
+              <Image src="___REGISTER_Daur Ulang_PNG___" alt="Produk Daur Ulang Kreatif" fill style={{ objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 60%)" }} />
             </div>
           </div>

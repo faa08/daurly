@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -137,21 +137,23 @@ export default function ProductForm({
     ]
   );
 
-  saveDraftRef.current = () => {
-    if (skipDraftSave.current) return;
-    const data = getDraftData();
-    const hasContent =
-      data.productName.trim() ||
-      data.description.trim() ||
-      data.images.length > 0 ||
-      data.price.trim() ||
-      Object.values(data.variantStockMap).some((v) => v.trim()) ||
-      Object.values(data.variantPriceMap || {}).some((v) => v.trim()) ||
-      Object.values(data.variantImageMap || {}).some((v) => v.trim());
-    if (!hasContent) return;
-    saveAdminDraft(draftKey, data);
-    setDraftSavedAt(Date.now());
-  };
+  useEffect(() => {
+    saveDraftRef.current = () => {
+      if (skipDraftSave.current) return;
+      const data = getDraftData();
+      const hasContent =
+        data.productName.trim() ||
+        data.description.trim() ||
+        data.images.length > 0 ||
+        data.price.trim() ||
+        Object.values(data.variantStockMap).some((v) => v.trim()) ||
+        Object.values(data.variantPriceMap || {}).some((v) => v.trim()) ||
+        Object.values(data.variantImageMap || {}).some((v) => v.trim());
+      if (!hasContent) return;
+      saveAdminDraft(draftKey, data);
+      setDraftSavedAt(Date.now());
+    };
+  });
 
   useEffect(() => {
     return () => {
@@ -533,7 +535,7 @@ export default function ProductForm({
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
             placeholder="Kemeja Batik Klasik..."
-            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
+            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs font-body text-[#1F1B18]"
           />
         </div>
 
@@ -580,7 +582,7 @@ export default function ProductForm({
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
               placeholder="Nama Brand..."
-              className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
+              className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs font-body text-[#1F1B18]"
             />
           </div>
 
@@ -593,7 +595,7 @@ export default function ProductForm({
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="Kosongkan untuk auto-generate"
-              className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
+              className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs font-body text-[#1F1B18]"
             />
           </div>
         </div>
@@ -603,11 +605,11 @@ export default function ProductForm({
           <label className="block text-[11px] uppercase tracking-wider text-[#8E8680]">Gambar Produk</label>
 
           {uploadProgress !== null && (
-            <div className="w-full text-center space-y-1 p-2 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg">
-              <p className="text-[10px] font-bold text-[#1D4ED8]">Mengunggah Gambar: {uploadProgress}%</p>
+            <div className="w-full text-center space-y-1 p-2 bg-[#F0FDF4] border border-[#BFDBFE] rounded-lg">
+              <p className="text-[10px] font-bold text-[#16A34A]">Mengunggah Gambar: {uploadProgress}%</p>
               <div className="w-full h-1.5 bg-blue-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#1D4ED8] transition-all duration-100"
+                  className="h-full bg-[#16A34A] transition-all duration-100"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
@@ -622,7 +624,7 @@ export default function ProductForm({
               >
                 <img src={imgUrl} alt={`Gambar ${index + 1}`} className="w-full h-full object-cover" />
                 {index === 0 && (
-                  <span className="absolute top-1 left-1 bg-[#1D4ED8] text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded shadow">
+                  <span className="absolute top-1 left-1 bg-[#16A34A] text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded shadow">
                     Utama
                   </span>
                 )}
@@ -638,7 +640,7 @@ export default function ProductForm({
                         });
                       }}
                       title="Jadikan Foto Utama"
-                      className="p-1 bg-white hover:bg-blue-50 text-[#1D4ED8] rounded-full shadow-xs transition"
+                      className="p-1 bg-white hover:bg-blue-50 text-[#16A34A] rounded-full shadow-xs transition"
                     >
                       <span className="material-symbols-outlined text-[14px]">star</span>
                     </button>
@@ -656,7 +658,7 @@ export default function ProductForm({
             ))}
 
             {images.length < MAX_PRODUCT_IMAGES && !useManualUrl && (
-              <div className="relative aspect-square border border-dashed border-[#D5CFC9] rounded-lg bg-[#FCFCFA] hover:bg-[#F5F3F0]/50 hover:border-[#1D4ED8] transition flex flex-col items-center justify-center cursor-pointer text-center p-2">
+              <div className="relative aspect-square border border-dashed border-[#D5CFC9] rounded-lg bg-[#FCFCFA] hover:bg-[#F5F3F0]/50 hover:border-[#16A34A] transition flex flex-col items-center justify-center cursor-pointer text-center p-2">
                 <input
                   type="file"
                   accept="image/*"
@@ -681,7 +683,7 @@ export default function ProductForm({
                   value={manualUrl}
                   onChange={(e) => setManualUrl(e.target.value)}
                   placeholder="Masukkan URL gambar (https://...)"
-                  className="flex-1 px-3 py-2 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
+                  className="flex-1 px-3 py-2 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs font-body text-[#1F1B18]"
                 />
                 <button
                   type="button"
@@ -694,7 +696,7 @@ export default function ProductForm({
                     setImages((prev) => [...prev, manualUrl.trim()]);
                     setManualUrl("");
                   }}
-                  className="px-3 py-2 bg-[#1D4ED8] text-white text-xs font-bold rounded hover:bg-blue-700 transition"
+                  className="px-3 py-2 bg-[#16A34A] text-white text-xs font-bold rounded hover:bg-blue-700 transition"
                 >
                   Tambah
                 </button>
@@ -702,7 +704,7 @@ export default function ProductForm({
               <button
                 type="button"
                 onClick={() => setUseManualUrl(false)}
-                className="text-[10px] text-[#1D4ED8] font-bold hover:underline"
+                className="text-[10px] text-[#16A34A] font-bold hover:underline"
               >
                 ← Gunakan Pengunggah File
               </button>
@@ -728,7 +730,7 @@ export default function ProductForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Tulis spesifikasi, ukuran, dan deskripsi produk..."
-            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs font-body text-[#1F1B18]"
+            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs font-body text-[#1F1B18]"
           />
         </div>
 
@@ -745,7 +747,7 @@ export default function ProductForm({
               onClick={() =>
                 setVariants((prev) => [...prev, { label: "", options: [{ name: "", image: "", price: "" }] }])
               }
-              className="text-[10px] font-bold text-[#1D4ED8] hover:underline whitespace-nowrap"
+              className="text-[10px] font-bold text-[#16A34A] hover:underline whitespace-nowrap"
             >
               + Grup Varian
             </button>
@@ -826,7 +828,7 @@ export default function ProductForm({
                     };
                     setVariants(next);
                   }}
-                  className="text-[10px] font-bold text-[#1D4ED8] hover:underline"
+                  className="text-[10px] font-bold text-[#16A34A] hover:underline"
                 >
                   + Tambah Pilihan
                 </button>
@@ -860,7 +862,7 @@ export default function ProductForm({
                       <div className="flex items-center gap-1">
                         <div
                           className={`relative w-8 h-8 flex-shrink-0 rounded border flex items-center justify-center overflow-hidden bg-[#F5F3F0] ${
-                            variantImageMap[key] ? "border-[#1D4ED8]" : "border-[#D5CFC9]"
+                            variantImageMap[key] ? "border-[#16A34A]" : "border-[#D5CFC9]"
                           }`}
                         >
                           {variantImageMap[key] ? (
@@ -932,7 +934,7 @@ export default function ProductForm({
               })}
             </div>
             {inventoryFromMap(buildParsedVariants(), variantStockMap).length > 0 && (
-              <p className="text-[10px] font-bold text-[#1D4ED8]">
+              <p className="text-[10px] font-bold text-[#16A34A]">
                 Total stok: {totalInventoryStock(inventoryFromMap(buildParsedVariants(), variantStockMap))}{" "}
                 unit
               </p>
@@ -950,7 +952,7 @@ export default function ProductForm({
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-[#1D4ED8] text-white text-xs font-bold rounded hover:bg-blue-700 transition"
+            className="px-4 py-2 bg-[#16A34A] text-white text-xs font-bold rounded hover:bg-blue-700 transition"
           >
             {mode === "edit" ? "Simpan Perubahan" : "Simpan Produk"}
           </button>

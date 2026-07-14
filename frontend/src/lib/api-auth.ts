@@ -86,6 +86,16 @@ export async function requireAuth(
     return { ok: false, response: unauthorized("Profil pengguna tidak ditemukan.") };
   }
 
+  if (dbRow.is_suspended) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: "Akun Anda telah ditangguhkan karena melanggar ketentuan." },
+        { status: 403 }
+      ),
+    };
+  }
+
   return {
     ok: true,
     ctx: {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/backend/supabase";
@@ -241,7 +241,7 @@ export default function AdminCouponsPage() {
               ) : (
                 vouchers.map((v) => (
                   <tr key={v.id_voucher} className="hover:bg-surface-container-low/20 transition">
-                    <td className="px-6 py-4 font-bold text-blue-600 text-sm uppercase">{v.code}</td>
+                    <td className="px-6 py-4 font-bold text-primary text-sm uppercase">{v.code}</td>
                     <td className="px-6 py-4 capitalize">{v.discount_type === "percentage" ? "Persentase" : "Nominal Tetap"}</td>
                     <td className="px-6 py-4 font-bold">
                       {v.discount_type === "percentage" ? `${v.value}%` : `Rp ${Number(v.value).toLocaleString("id-ID")}`}

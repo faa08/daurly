@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -36,7 +36,7 @@ function ChatBubble({
       <div
         className={`max-w-[78%] rounded-xl px-4 py-2.5 text-sm ${
           isAdmin
-            ? "bg-[#1D4ED8] text-white rounded-br-sm"
+            ? "bg-[#16A34A] text-white rounded-br-sm"
             : "bg-[#F5F3F0] text-[#1F1B18] rounded-bl-sm"
         }`}
       >
@@ -51,7 +51,7 @@ function ChatBubble({
             <div className="flex justify-center">
               <a
                 href="/qr.jpeg"
-                download="QRIS_Daurly.jpeg"
+                download="QRIS_Daurly_Daur Ulang.jpeg"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-50 text-[11px] font-bold text-[#3E3834] rounded-md border border-gray-200 transition shadow-xs decoration-transparent"
               >
                 <span className="material-symbols-outlined text-[14px] align-middle">download</span>
@@ -165,7 +165,7 @@ function SupportPanel() {
               type="button"
               onClick={() => setSelectedId(room.id_chat)}
               className={`w-full text-left px-4 py-3 border-b border-[#F5F3F0] transition ${
-                room.id_chat === selectedId ? "bg-[#EFF6FF]" : "hover:bg-[#FCFCFA]"
+                room.id_chat === selectedId ? "bg-[#F0FDF4]" : "hover:bg-[#FCFCFA]"
               }`}
             >
               <p className="font-bold text-sm text-[#1F1B18]">{user?.nama_lengkap || user?.email || "Pelanggan"}</p>
@@ -317,7 +317,7 @@ function ShippingPanel({ focusOrderId }: { focusOrderId?: string | null }) {
             type="button"
             onClick={() => setSelectedId(room.id_chat)}
             className={`w-full text-left px-4 py-3 border-b border-[#F5F3F0] transition ${
-              room.id_chat === selectedId ? "bg-[#EFF6FF]" : "hover:bg-[#FCFCFA]"
+              room.id_chat === selectedId ? "bg-[#F0FDF4]" : "hover:bg-[#FCFCFA]"
             }`}
           >
             <p className="font-bold text-sm text-[#1F1B18]">{user?.nama_lengkap || user?.email || "Pelanggan"}</p>
@@ -417,7 +417,7 @@ function ReturnPanel() {
             type="button"
             onClick={() => setSelectedId(room.id_chat)}
             className={`w-full text-left px-4 py-3 border-b border-[#F5F3F0] transition ${
-              room.id_chat === selectedId ? "bg-orange-50" : "hover:bg-[#FCFCFA]"
+              room.id_chat === selectedId ? "bg-emerald-50" : "hover:bg-[#FCFCFA]"
             }`}
           >
             <p className="font-bold text-sm text-[#1F1B18]">{user?.nama_lengkap || user?.email || "Pelanggan"}</p>
@@ -443,7 +443,7 @@ function ReturnPanel() {
       sending={sending}
       hasSelection={!!selectedId}
       placeholder="Balas pengajuan return..."
-      sendClassName="bg-[#EA580C] hover:bg-orange-700"
+      sendClassName="bg-[#15803D] hover:bg-emerald-700"
     />
   );
 }
@@ -464,7 +464,7 @@ function ChatLayout({
   sending,
   hasSelection,
   placeholder,
-  sendClassName = "bg-[#1D4ED8] hover:bg-blue-700",
+  sendClassName = "bg-[#16A34A] hover:bg-blue-700",
   onDelete,
   onSendQris,
   headerExtra,
@@ -539,7 +539,7 @@ function ChatLayout({
                   type="button"
                   onClick={onSendQris}
                   disabled={sending}
-                  className="px-3 h-10 border border-primary text-primary hover:bg-orange-50 font-bold text-xs rounded-lg flex items-center gap-1.5 flex-shrink-0 transition"
+                  className="px-3 h-10 border border-primary text-primary hover:bg-emerald-50 font-bold text-xs rounded-lg flex items-center gap-1.5 flex-shrink-0 transition"
                   title="Kirim QRIS Platform"
                 >
                   <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
@@ -551,7 +551,7 @@ function ChatLayout({
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder={placeholder}
-                className="flex-1 h-10 px-4 rounded-lg border border-[#D5CFC9] text-sm outline-none focus:border-[#1D4ED8]"
+                className="flex-1 h-10 px-4 rounded-lg border border-[#D5CFC9] text-sm outline-none focus:border-[#16A34A]"
               />
               <button
                 type="submit"
@@ -601,7 +601,7 @@ function AdminChatHubContent() {
             onClick={() => setTab(tab.id)}
             className={`px-4 py-2.5 rounded-lg text-left transition min-w-[140px] ${
               activeTab === tab.id
-                ? "bg-[#1D4ED8] text-white shadow-sm"
+                ? "bg-[#16A34A] text-white shadow-sm"
                 : "hover:bg-[#F5F3F0] text-[#5C5550]"
             }`}
           >

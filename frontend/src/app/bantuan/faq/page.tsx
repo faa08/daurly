@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -11,7 +11,7 @@ const FAQ_DATA = [
     items: [
       { q: "Bagaimana cara mendaftar akun di Daurly?", a: "Klik tombol 'Daftar' di sudut kanan atas, isi nama lengkap, email, dan kata sandi. Verifikasi email kamu, dan akun siap digunakan dalam hitungan menit." },
       { q: "Apakah pendaftaran gratis?", a: "Ya, pendaftaran sepenuhnya gratis untuk semua pengguna, baik pembeli maupun penjual. Kami hanya mengenakan biaya layanan kecil untuk setiap transaksi yang berhasil." },
-      { q: "Bagaimana perajin bergabung sebagai mitra konsinyasi?", a: "Perajin tidak mendaftar sendiri lewat website. Hubungi tim Daurly via halaman Kontak atau Customer Service. Setelah kerja sama disepakati, admin mendaftarkan toko dan produk di platform." },
+      { q: "Bagaimana Daur Ulang bergabung sebagai mitra konsinyasi?", a: "Daur Ulang tidak mendaftar sendiri lewat website. Hubungi tim Daurly via halaman Kontak atau Customer Service. Setelah kerja sama disepakati, admin mendaftarkan toko dan produk di platform." },
       { q: "Saya lupa kata sandi, apa yang harus dilakukan?", a: "Klik 'Lupa Password?' di halaman login, masukkan email terdaftar, dan kami akan kirimkan link reset kata sandi yang berlaku 30 menit." },
     ],
   },
@@ -45,7 +45,7 @@ const FAQ_DATA = [
     ],
   },
   {
-    category: "Untuk Mitra Perajin",
+    category: "Untuk mitra daur ulang",
     icon: <Store size={16} />,
     items: [
       { q: "Berapa biaya jual di Daurly?", a: "Pendaftaran toko gratis. Biaya layanan 2.5% per transaksi berhasil (lebih rendah dari marketplace lain). Tidak ada biaya listing produk." },

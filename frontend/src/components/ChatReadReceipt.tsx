@@ -1,4 +1,4 @@
-import { getChatReceiptStatus, type ChatReceiptFields } from "@/lib/chatReadReceipts";
+﻿import { getChatReceiptStatus, type ChatReceiptFields } from "@/lib/chatReadReceipts";
 
 export default function ChatReadReceipt({
   message,
@@ -11,7 +11,7 @@ export default function ChatReadReceipt({
   const status = getChatReceiptStatus(message);
 
   const gray = onLight ? "rgba(255,255,255,0.75)" : "#9CA3AF";
-  const blue = onLight ? "#BFDBFE" : "#3B82F6";
+  const blue = onLight ? "#BFDBFE" : "#4ADE80";
   const color = status === "read" ? blue : gray;
 
   if (status === "sent") {

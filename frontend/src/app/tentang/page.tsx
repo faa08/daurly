@@ -7,9 +7,9 @@ import Footer from "@/components/Footer";
 import { PICKUP_STORE_ADDRESS } from "@/lib/checkoutConstants";
 
 const VALUES = [
-  { icon: <Heart size={20} />, title: "Dukung Daur Ulang", desc: "Kami percaya setiap barang daur ulang kreatif memiliki nilai estetika dan kontribusi nyata bagi bumi." },
+  { icon: <Heart size={20} />, title: "Berdayakan Daur Ulang", desc: "Kami percaya setiap produk lokal punya cerita dan kualitas yang layak dikenal dunia." },
   { icon: <Shield size={20} />, title: "Transaksi Aman", desc: "Sistem escrow dan enkripsi SSL memastikan setiap transaksi berjalan aman dan terpercaya." },
-  { icon: <Zap size={20} />, title: "Teknologi Modern", desc: "Platform kami dirancang untuk kemudahan seller dan buyer, dari desa hingga kota besar." },
+  { icon: <Zap size={20} />, title: "Teknologi Modern", desc: "Platform kami dirancang untuk kemudahan seller and buyer, dari desa hingga kota besar." },
 ];
 
 export default function TentangPage() {
@@ -28,17 +28,17 @@ export default function TentangPage() {
         </div>
 
         {/* Hero */}
-        <div className="bg-gradient-to-br from-primary to-[#1E40AF] text-white">
+        <div className="bg-gradient-to-br from-primary to-[#15803D] text-white">
           <div className="max-w-[1100px] mx-auto px-6 py-20 text-center">
             <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-1.5 text-xs font-bold mb-6 uppercase tracking-wider">
-              Platform Daur Ulang Kreatif
+              Platform Daur Ulang Indonesia
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-5">
-              Memajukan Produk Daur Ulang<br />
-              <span className="opacity-80">Menuju Ekonomi Hijau</span>
+              Memajukan Daur Ulang Indonesia<br />
+              <span className="opacity-80">Satu Produk Lokal</span>
             </h1>
             <p className="text-base opacity-85 max-w-2xl mx-auto leading-relaxed mb-8">
-              Daurly adalah platform <strong>titip jual (konsinyasi)</strong> yang menghubungkan karya daur ulang kreatif
+              Daurly adalah platform <strong>titip jual (konsinyasi)</strong> yang menghubungkan produk daur ulang Indonesia
               dengan pembeli — kami urus penjualan, pembayaran, dan pengiriman.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
@@ -66,27 +66,29 @@ export default function TentangPage() {
                 </p>
                 <p>
                   Sejak awal berdiri, Link Productive berfokus pada pengembangan solusi digital dan peningkatan
-                  produktivitas ramah lingkungan. Melalui <strong className="text-on-surface">Program Inkubator Bisnis Terintegrasi</strong>,
-                  kami mendampingi perajin barang daur ulang, pegiat lingkungan, dan startup hijau agar mandiri, kompetitif, dan berkelanjutan.
+                  produktivitas. Melalui <strong className="text-on-surface">Program Inkubator Bisnis Terintegrasi</strong>,
+                  kami mendampingi perusahaan, pemerintah, perguruan tinggi, dan lembaga pembangunan dalam menciptakan
+                  serta mengembangkan usaha daur ulang dan startup yang mandiri, kompetitif, dan berkelanjutan.
                 </p>
                 <p>
                   Program ini tidak hanya menaikkan kapasitas bisnis peserta, tetapi juga menargetkan dampak ekonomi,
-                  sosial, dan lingkungan yang terukur melalui pendekatan <strong className="text-on-surface">SDGs dan SROI (Social Return on Investment)</strong>.
+                  sosial, dan lingkungan yang terukur melalui pendekatan <strong className="text-on-surface">SDGs dan SROI</strong>.
                 </p>
               </div>
               <div className="space-y-4">
                 <p>
-                  Namun perjalanan kami di lapangan membuka mata pada realitas yang menantang: banyak limbah dan barang bekas
-                  potensial yang belum diolah secara maksimal karena keterbatasan akses pasar dan infrastruktur digital.
+                  Namun perjalanan kami di lapangan membuka mata pada realitas yang menantang: Indonesia — khususnya
+                  daerah Cilegon — memiliki usaha daur ulang lokal berbakat dengan produk luar biasa.
                 </p>
                 <p>
-                  Sayangnya, para perajin daur ulang seringkali menghadapi kendala operasional seperti pengelolaan transaksi
-                  dan pengiriman yang memakan waktu.
+                  Sayangnya, mayoritas dari mereka menghadapi kendala yang sama:{" "}
+                  <strong className="text-on-surface">keterbatasan akses pasar</strong> dan{" "}
+                  <strong className="text-on-surface">minimnya infrastruktur digital</strong> yang ramah bagi pelaku usaha kecil.
                 </p>
                 <p>
                   Daurly hadir sebagai jawaban — platform <strong className="text-on-surface">titip jual (konsinyasi)</strong> yang
-                  menghubungkan produk daur ulang kreatif dengan pembeli yang menghargai kualitas, keunikan, dan kelestarian lingkungan. Kami urus penjualan,
-                  pembayaran, dan pengiriman, agar perajin bisa fokus pada karya terbaiknya.
+                  menghubungkan karya daur ulang dengan pembeli yang menghargai kualitas dan keaslian. Kami urus penjualan,
+                  pembayaran, dan pengiriman, agar pelaku usaha bisa fokus pada produk terbaiknya.
                 </p>
               </div>
             </div>

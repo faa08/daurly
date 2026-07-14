@@ -13,10 +13,14 @@ import {
   ShieldCheck,
   Tag,
   MessageSquare,
+  Share2,
+  CheckCircle,
+  Copy,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
 import Footer from "@/components/Footer";
+import EcoImpactDetails from "@/components/EcoImpactDetails";
 import { productService, Product } from "@/backend/productService";
 import { storeNameToSlug, type Seller } from "@/backend/sellerService";
 import { authService } from "@/backend/authService";
@@ -35,6 +39,7 @@ import {
   hasSelectedVariantPrice,
   isVisualVariantGroup,
   getSelectedVariantImage,
+  getVariantPriceBounds,
 } from "@/lib/productVariants";
 import { useCustomerService } from "@/components/CustomerServiceProvider";
 
@@ -70,7 +75,7 @@ interface Review {
 function getProductDescription(product: Product): string {
   const desc = product.desc?.trim();
   if (desc) return desc;
-  return `${product.nama_produk} adalah produk daur ulang kreatif dari Daurly. Setiap pembelian mendukung perajin ramah lingkungan dan ekonomi hijau Indonesia.`;
+  return `${product.nama_produk} adalah produk daur ulang dari Daurly. Setiap pembelian mendukung pengrajin dan pelaku usaha lokal Indonesia.`;
 }
 
 export default function ProductDetailPage() {
@@ -85,6 +90,13 @@ export default function ProductDetailPage() {
   const [addingCart, setAddingCart] = useState(false);
   const [activeVariants, setActiveVariants] = useState<{ [key: number]: number }>({});
   const [qty, setQty] = useState(1);
+  const [currentUser, setCurrentUser] = useState<ReturnType<typeof authService.getCurrentUser>>(null);
+  const [copiedText, setCopiedText] = useState(false);
+  const [copiedCleanText, setCopiedCleanText] = useState(false);
+  const [copiedAffText, setCopiedAffText] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [bottomSheetAction, setBottomSheetAction] = useState<"cart" | "buy">("cart");
 
   const [activeImg, setActiveImg] = useState(0);
   const [activeColor, setActiveColor] = useState(0);
@@ -122,7 +134,7 @@ export default function ProductDetailPage() {
             id_seller: found.id_seller,
             nama_produk: found.nama_produk,
             sku: found.sku || "",
-            category: found.category || "UMKM",
+            category: found.category || "Daur Ulang",
             categorySlug: found.categorySlug,
             slug: found.slug,
             harga: found.harga,
@@ -182,6 +194,7 @@ export default function ProductDetailPage() {
           setSimilarProducts(similar.map((p) => productToCard(p, stats[p.id_produk])));
 
           const user = authService.getCurrentUser();
+          setCurrentUser(user);
           const isPlaceholderEnv =
             !process.env.NEXT_PUBLIC_SUPABASE_URL ||
             process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
@@ -246,6 +259,73 @@ export default function ProductDetailPage() {
       }
     }
   }, [product, activeVariants]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleShareProduct = () => {
+    if (!product) return;
+    const base = window.location.origin;
+    const shareUrl = currentUser?.is_affiliate
+      ? `${base}/produk/${product.slug}?ref=${currentUser.affiliate_code}`
+      : `${base}/produk/${product.slug}`;
+
+    navigator.clipboard.writeText(shareUrl);
+    setCopiedText(true);
+    setTimeout(() => setCopiedText(false), 2000);
+  };
+
+  const handleShareProductClean = () => {
+    if (!product) return;
+    const base = window.location.origin;
+    const shareUrl = `${base}/produk/${product.slug}`;
+    navigator.clipboard.writeText(shareUrl);
+    setCopiedCleanText(true);
+    setTimeout(() => setCopiedCleanText(false), 2000);
+  };
+
+  const handleShareProductAffiliate = () => {
+    if (!product || !currentUser?.affiliate_code) return;
+    const base = window.location.origin;
+    const shareUrl = `${base}/produk/${product.slug}?ref=${currentUser.affiliate_code}`;
+    navigator.clipboard.writeText(shareUrl);
+    setCopiedAffText(true);
+    setTimeout(() => setCopiedAffText(false), 2000);
+  };
+
+  const handleNativeShare = () => {
+    if (!product) return;
+    const base = window.location.origin;
+    const shareUrl = currentUser?.is_affiliate
+      ? `${base}/produk/${product.slug}?ref=${currentUser.affiliate_code}`
+      : `${base}/produk/${product.slug}`;
+
+    const shareData = {
+      title: product.nama_produk,
+      text: `Lihat produk ${product.nama_produk} ini di Daurly!`,
+      url: shareUrl,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      navigator.share(shareData).catch((err) => console.log("Share failed", err));
+    } else {
+      const text = encodeURIComponent(`Lihat produk ${product.nama_produk} ini di Daurly! ${shareUrl}`);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+    }
+  };
+
+  const handleCtaClick = (action: "cart" | "buy") => {
+    if (isMobile) {
+      setBottomSheetAction(action);
+      setIsBottomSheetOpen(true);
+    } else {
+      handleAddToCart(action === "buy");
+    }
+  };
 
   const handleAddToCart = async (redirectToCheckout = false) => {
     if (!product) return;
@@ -330,14 +410,17 @@ export default function ProductDetailPage() {
   const productDescription = product ? getProductDescription(product) : "";
   const galleryImages = product ? getGalleryImages(product, activeVariants) : [];
   const selectedStock = product ? getSelectedVariantStock(product, activeVariants) : 0;
+  const { min: minPrice, max: maxPrice } = product ? getVariantPriceBounds(product) : { min: 0, max: 0 };
   const displayPrice =
     product && product.variants?.length
-      ? hasSelectedVariantPrice(product, activeVariants)
-        ? formatPrice(getSelectedVariantPrice(product, activeVariants))
-        : formatVariantPriceRange(product, formatPrice)
+      ? formatPrice(minPrice)
       : product
         ? formatPrice(product.harga)
         : "Rp 125.000";
+
+  const selectedVariantPrice = product
+    ? formatPrice(getSelectedVariantPrice(product, activeVariants))
+    : "Rp 125.000";
 
   const handleVariantSelect = (groupIndex: number, optionIndex: number) => {
     const next = { ...activeVariants, [groupIndex]: optionIndex };
@@ -352,14 +435,16 @@ export default function ProductDetailPage() {
     return (
       <>
         <Navbar />
-        <SearchBar />
+        <div className="responsive-hide-desktop">
+          <SearchBar />
+        </div>
         <main style={{ background: "#FCFCFA", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
             <div style={{
               width: 40,
               height: 40,
               border: "3px solid #EAE5E0",
-              borderTop: "3px solid #1D4ED8",
+              borderTop: "3px solid #16A34A",
               borderRadius: "50%",
               animation: "spin 1s linear infinite"
             }} />
@@ -380,7 +465,9 @@ export default function ProductDetailPage() {
   return (
     <>
       <Navbar />
-      <SearchBar />
+      <div className="responsive-hide-desktop">
+        <SearchBar />
+      </div>
 
       {/* Main content area */}
       <main className="pd-main">
@@ -405,7 +492,7 @@ export default function ProductDetailPage() {
             {/* Left: Image Gallery */}
             <div className="pd-images">
               {/* Main Image */}
-              <div className="pd-main-img">
+              <div className="pd-main-img" style={{ position: "relative" }}>
                 <img
                   src={
                     product
@@ -415,6 +502,70 @@ export default function ProductDetailPage() {
                   alt={product ? product.nama_produk : "Mangkuk Keramik Motif Batik"}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
+
+                {/* Floating Share Bar (Shopee Style) */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 12,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "rgba(255, 255, 255, 0.95)",
+                    padding: "6px 12px",
+                    borderRadius: "20px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    zIndex: 20,
+                  }}
+                >
+                  <button
+                    onClick={handleNativeShare}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#16A34A",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      padding: 2,
+                    }}
+                    title="Bagikan"
+                  >
+                    <Share2 size={15} />
+                  </button>
+                  <div style={{ width: 1, height: 14, background: "#EAE5E0" }} />
+                  <button
+                    onClick={handleShareProductClean}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: copiedCleanText ? "#15803D" : "#5C5550",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      padding: 2,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {copiedCleanText ? (
+                      <>
+                        <CheckCircle size={13} className="text-green-600" />
+                        <span>Disalin!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={13} />
+                        <span>Salin Link</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
                 {((product && galleryImages.length > 1) || (!product && THUMBNAILS.length > 1)) && (
                   <>
                     <button
@@ -515,203 +666,208 @@ export default function ProductDetailPage() {
               {/* Divider */}
               <div style={{ height: 1, background: "#EAE5E0" }} />
 
-              {/* Varian ala marketplace */}
-              {product?.variants && product.variants.length > 0 ? (
-                product.variants.map((v, vIdx) => {
-                  const isVisual = isVisualVariantGroup(product, vIdx);
-                  return (
-                  <div key={vIdx} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0, textTransform: "uppercase" }}>
-                      {v.label}
-                    </p>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 8,
-                        maxHeight: isVisual && v.options.length > 6 ? 220 : undefined,
-                        overflowY: isVisual && v.options.length > 6 ? "auto" : undefined,
-                        paddingRight: isVisual && v.options.length > 6 ? 4 : 0,
-                      }}
-                    >
-                      {v.options.map((opt, optIdx) => {
-                        const isSelected = (activeVariants[vIdx] ?? 0) === optIdx;
-                        const showThumb = Boolean(opt.image?.trim());
-
-                        const isCombinationOutOfStock = product
-                          ? (product.variantInventory?.length
-                            ? getSelectedVariantStock(product, { ...activeVariants, [vIdx]: optIdx }) === 0
-                            : product.stok === 0)
-                          : false;
-
-                        const isOptionCompletelyOutOfStock = product
-                          ? (product.variantInventory?.length
-                            ? !product.variantInventory.some((entry) => entry.picks[vIdx] === optIdx && entry.stock > 0)
-                            : product.stok === 0)
-                          : false;
-
-                        return (
-                          <button
-                            key={optIdx}
-                            type="button"
-                            disabled={isOptionCompletelyOutOfStock}
-                            onClick={() => handleVariantSelect(vIdx, optIdx)}
-                            style={{
-                              display: "flex",
-                              flexDirection: showThumb ? "column" : "row",
-                              alignItems: "center",
-                              justifyContent: showThumb ? "flex-start" : "center",
-                              gap: showThumb ? 4 : 8,
-                              minHeight: showThumb ? 88 : 40,
-                              width: showThumb ? 72 : undefined,
-                              padding: showThumb ? "6px 6px 8px" : "0 14px",
-                              borderRadius: 4,
-                              border: isSelected
-                                ? "1.5px solid #1D4ED8"
-                                : isCombinationOutOfStock
-                                  ? "1px dashed #D5CFC9"
-                                  : "1px solid #D5CFC9",
-                              fontSize: showThumb ? "0.625rem" : "0.8125rem",
-                              fontWeight: 600,
-                              color: isSelected
-                                ? "#1D4ED8"
-                                : isCombinationOutOfStock
-                                  ? "#A19993"
-                                  : "#1F1B18",
-                              background: isSelected
-                                ? "#EFF6FF"
-                                : isCombinationOutOfStock
-                                  ? "#F5F3F0"
-                                  : "white",
-                              cursor: isOptionCompletelyOutOfStock ? "not-allowed" : "pointer",
-                              opacity: isOptionCompletelyOutOfStock ? 0.45 : (isCombinationOutOfStock && !isSelected ? 0.6 : 1),
-                              transition: "all 0.15s",
-                              fontFamily: "inherit",
-                              textAlign: "center",
-                            }}
-                          >
-                            {showThumb ? (
-                              <img
-                                src={opt.image}
-                                alt={opt.name}
-                                style={{
-                                  width: 56,
-                                  height: 56,
-                                  objectFit: "cover",
-                                  borderRadius: 2,
-                                  flexShrink: 0,
-                                }}
-                              />
-                            ) : null}
-                            <span style={{ lineHeight: 1.2, wordBreak: "break-word" }}>{opt.name}</span>
-                            {!showThumb && opt.price != null && opt.price > 0 ? (
-                              <span style={{ fontSize: "0.6875rem", color: "#8E8680", fontWeight: 500 }}>
-                                {formatPrice(opt.price)}
-                              </span>
-                            ) : null}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  );
-                })
-              ) : !product ? (
+              {/* Varian & Jumlah (hanya tampil di desktop) */}
+              {!isMobile && (
                 <>
-                  {/* Color Picker */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>Warna Pilihan</p>
-                    <div style={{ display: "flex", gap: 10 }}>
-                      {COLORS.map((c, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setActiveColor(i)}
-                          title={c.name}
+                  {/* Varian ala marketplace */}
+                  {product?.variants && product.variants.length > 0 ? (
+                    product.variants.map((v, vIdx) => {
+                      const isVisual = isVisualVariantGroup(product, vIdx);
+                      return (
+                      <div key={vIdx} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0, textTransform: "uppercase" }}>
+                          {v.label}
+                        </p>
+                        <div
                           style={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: "50%",
-                            background: c.hex,
-                            border: "2px solid transparent",
-                            cursor: "pointer",
-                            outline: "none",
-                            boxShadow: activeColor === i ? `0 0 0 3px white, 0 0 0 5px #1D4ED8` : "none",
-                            transition: "transform 0.15s, box-shadow 0.15s",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 8,
+                            maxHeight: isVisual && v.options.length > 6 ? 220 : undefined,
+                            overflowY: isVisual && v.options.length > 6 ? "auto" : undefined,
+                            paddingRight: isVisual && v.options.length > 6 ? 4 : 0,
                           }}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                        >
+                          {v.options.map((opt, optIdx) => {
+                            const isSelected = (activeVariants[vIdx] ?? 0) === optIdx;
+                            const showThumb = Boolean(opt.image?.trim());
 
-                  {/* Size Picker */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>Ukuran (Diameter)</p>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      {SIZES.map((s, i) => (
+                            const isCombinationOutOfStock = product
+                              ? (product.variantInventory?.length
+                                ? getSelectedVariantStock(product, { ...activeVariants, [vIdx]: optIdx }) === 0
+                                : product.stok === 0)
+                              : false;
+
+                            const isOptionCompletelyOutOfStock = product
+                              ? (product.variantInventory?.length
+                                ? !product.variantInventory.some((entry) => entry.picks[vIdx] === optIdx && entry.stock > 0)
+                                : product.stok === 0)
+                              : false;
+
+                            return (
+                              <button
+                                key={optIdx}
+                                type="button"
+                                disabled={isOptionCompletelyOutOfStock}
+                                onClick={() => handleVariantSelect(vIdx, optIdx)}
+                                style={{
+                                  display: "flex",
+                                  flexDirection: showThumb ? "column" : "row",
+                                  alignItems: "center",
+                                  justifyContent: showThumb ? "flex-start" : "center",
+                                  gap: showThumb ? 4 : 8,
+                                  minHeight: showThumb ? 88 : 40,
+                                  width: showThumb ? 72 : undefined,
+                                  padding: showThumb ? "6px 6px 8px" : "0 14px",
+                                  borderRadius: 4,
+                                  border: isSelected
+                                    ? "1.5px solid #16A34A"
+                                    : isCombinationOutOfStock
+                                      ? "1px dashed #D5CFC9"
+                                      : "1px solid #D5CFC9",
+                                  fontSize: showThumb ? "0.625rem" : "0.8125rem",
+                                  fontWeight: 600,
+                                  color: isSelected
+                                    ? "#16A34A"
+                                    : isCombinationOutOfStock
+                                      ? "#A19993"
+                                      : "#1F1B18",
+                                  background: isSelected
+                                    ? "#F0FDF4"
+                                    : isCombinationOutOfStock
+                                      ? "#F5F3F0"
+                                      : "white",
+                                  cursor: isOptionCompletelyOutOfStock ? "not-allowed" : "pointer",
+                                  opacity: isOptionCompletelyOutOfStock ? 0.45 : (isCombinationOutOfStock && !isSelected ? 0.6 : 1),
+                                  transition: "all 0.15s",
+                                  fontFamily: "inherit",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {showThumb ? (
+                                  <img
+                                    src={opt.image}
+                                    alt={opt.name}
+                                    style={{
+                                      width: 56,
+                                      height: 56,
+                                      objectFit: "cover",
+                                      borderRadius: 2,
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                ) : null}
+                                <span style={{ lineHeight: 1.2, wordBreak: "break-word" }}>{opt.name}</span>
+                                {!showThumb && opt.price != null && opt.price > 0 ? (
+                                  <span style={{ fontSize: "0.6875rem", color: "#8E8680", fontWeight: 500 }}>
+                                    {formatPrice(opt.price)}
+                                  </span>
+                                ) : null}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      );
+                    })
+                  ) : !product ? (
+                    <>
+                      {/* Color Picker */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>Warna Pilihan</p>
+                        <div style={{ display: "flex", gap: 10 }}>
+                          {COLORS.map((c, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setActiveColor(i)}
+                              title={c.name}
+                              style={{
+                                width: 28,
+                                height: 28,
+                                borderRadius: "50%",
+                                background: c.hex,
+                                border: "2px solid transparent",
+                                cursor: "pointer",
+                                outline: "none",
+                                boxShadow: activeColor === i ? `0 0 0 3px white, 0 0 0 5px #16A34A` : "none",
+                                transition: "transform 0.15s, box-shadow 0.15s",
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Size Picker */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0 }}>Ukuran (Diameter)</p>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          {SIZES.map((s, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setActiveSize(i)}
+                              style={{
+                                height: 34,
+                                padding: "0 16px",
+                                borderRadius: 6,
+                                border: activeSize === i ? "1.5px solid #16A34A" : "1.5px solid #D5CFC9",
+                                fontSize: "0.8125rem",
+                                fontWeight: 600,
+                                color: activeSize === i ? "#16A34A" : "#5C5550",
+                                background: activeSize === i ? "#F0FDF4" : "white",
+                                cursor: "pointer",
+                                transition: "all 0.15s",
+                                fontFamily: "inherit",
+                              }}
+                            >{s}</button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
+
+                  {/* Jumlah */}
+                  {product && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                      <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550" }}>Jumlah</span>
+                      <div style={{ display: "flex", alignItems: "center", border: "1px solid #D5CFC9", borderRadius: 4, overflow: "hidden" }}>
                         <button
-                          key={i}
-                          onClick={() => setActiveSize(i)}
+                          type="button"
+                          onClick={() => setQty((q) => Math.max(1, q - 1))}
                           style={{
-                            height: 34,
-                            padding: "0 16px",
-                            borderRadius: 6,
-                            border: activeSize === i ? "1.5px solid #1D4ED8" : "1.5px solid #D5CFC9",
-                            fontSize: "0.8125rem",
-                            fontWeight: 600,
-                            color: activeSize === i ? "#1D4ED8" : "#5C5550",
-                            background: activeSize === i ? "#EFF6FF" : "white",
+                            width: 32,
+                            height: 32,
+                            border: "none",
+                            background: "#F5F3F0",
                             cursor: "pointer",
-                            transition: "all 0.15s",
-                            fontFamily: "inherit",
+                            fontSize: "1rem",
+                            color: "#5C5550",
                           }}
-                        >{s}</button>
-                      ))}
+                        >
+                          −
+                        </button>
+                        <span style={{ width: 40, textAlign: "center", fontSize: "0.875rem", fontWeight: 700 }}>{qty}</span>
+                        <button
+                          type="button"
+                          onClick={() => setQty((q) => Math.min(selectedStock || 99, q + 1))}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            border: "none",
+                            background: "#F5F3F0",
+                            cursor: "pointer",
+                            fontSize: "1rem",
+                            color: "#5C5550",
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span style={{ fontSize: "0.75rem", color: selectedStock > 0 ? "#16A34A" : "#DC2626", fontWeight: 600 }}>
+                        {selectedStock > 0 ? `Stok tersedia: ${selectedStock} unit` : "Stok habis untuk varian ini"}
+                      </span>
                     </div>
-                  </div>
+                  )}
                 </>
-              ) : null}
-
-              {/* Jumlah */}
-              {product && (
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550" }}>Jumlah</span>
-                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #D5CFC9", borderRadius: 4, overflow: "hidden" }}>
-                    <button
-                      type="button"
-                      onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        border: "none",
-                        background: "#F5F3F0",
-                        cursor: "pointer",
-                        fontSize: "1rem",
-                        color: "#5C5550",
-                      }}
-                    >
-                      −
-                    </button>
-                    <span style={{ width: 40, textAlign: "center", fontSize: "0.875rem", fontWeight: 700 }}>{qty}</span>
-                    <button
-                      type="button"
-                      onClick={() => setQty((q) => Math.min(selectedStock || 99, q + 1))}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        border: "none",
-                        background: "#F5F3F0",
-                        cursor: "pointer",
-                        fontSize: "1rem",
-                        color: "#5C5550",
-                      }}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <span style={{ fontSize: "0.75rem", color: selectedStock > 0 ? "#16A34A" : "#DC2626", fontWeight: 600 }}>
-                    {selectedStock > 0 ? `Stok tersedia: ${selectedStock} unit` : "Stok habis untuk varian ini"}
-                  </span>
-                </div>
               )}
 
               {/* CTA Buttons */}
@@ -732,7 +888,7 @@ export default function ProductDetailPage() {
                 </button>
                 <button
                   id="add-to-cart"
-                  onClick={() => handleAddToCart(false)}
+                  onClick={() => handleCtaClick("cart")}
                   disabled={addingCart}
                   className="pd-btn-cart"
                   type="button"
@@ -747,7 +903,7 @@ export default function ProductDetailPage() {
                 </button>
                 <button
                   id="buy-now"
-                  onClick={() => handleAddToCart(true)}
+                  onClick={() => handleCtaClick("buy")}
                   disabled={addingCart}
                   className="pd-btn-buy"
                   type="button"
@@ -772,6 +928,11 @@ export default function ProductDetailPage() {
                   {productDescription || "—"}
                 </p>
               </div>
+
+              {/* Eco Impact & Material Breakdown */}
+              {product && (
+                <EcoImpactDetails bahan={product.bahan} berat={product.berat} />
+              )}
 
               {/* Review Form — hanya jika pesanan selesai & belum diulas */}
               <div style={{ background: "white", border: "1px solid #EAE5E0", borderRadius: 12, padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -872,9 +1033,9 @@ export default function ProductDetailPage() {
 
                         {reviewUploadProgress !== null && reviewUploadProgress < 100 && (
                           <div style={{ width: "100%", textAlign: "center" }}>
-                            <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#1D4ED8", margin: "0 0 6px" }}>Mengunggah Foto: {reviewUploadProgress}%</p>
+                            <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#16A34A", margin: "0 0 6px" }}>Mengunggah Foto: {reviewUploadProgress}%</p>
                             <div style={{ width: "100%", height: 6, background: "#EAE5E0", borderRadius: 3, overflow: "hidden" }}>
-                              <div style={{ width: `${reviewUploadProgress}%`, height: "100%", background: "#1D4ED8", transition: "width 0.1s" }} />
+                              <div style={{ width: `${reviewUploadProgress}%`, height: "100%", background: "#16A34A", transition: "width 0.1s" }} />
                             </div>
                           </div>
                         )}
@@ -899,7 +1060,7 @@ export default function ProductDetailPage() {
                       disabled={reviewUploadProgress !== null && reviewUploadProgress < 100}
                       style={{
                         height: 40,
-                        background: (reviewUploadProgress !== null && reviewUploadProgress < 100) ? "#D5CFC9" : "#1D4ED8",
+                        background: (reviewUploadProgress !== null && reviewUploadProgress < 100) ? "#D5CFC9" : "#16A34A",
                         color: "white",
                         borderRadius: 8,
                         fontSize: "0.8125rem",
@@ -921,7 +1082,7 @@ export default function ProductDetailPage() {
                   <div style={{ padding: "16px 20px", background: "#F5F3F0", borderRadius: 8, border: "1px solid #EAE5E0" }}>
                     <p style={{ fontSize: "0.75rem", color: "#5C5550", margin: 0, fontWeight: 600 }}>
                       Beli dan selesaikan pesanan untuk memberikan ulasan. Buka{" "}
-                      <Link href="/account/orders" style={{ color: "#1D4ED8", fontWeight: 700 }}>Pesanan Saya</Link>{" "}
+                      <Link href="/account/orders" style={{ color: "#16A34A", fontWeight: 700 }}>Pesanan Saya</Link>{" "}
                       → tab Selesai.
                     </p>
                   </div>
@@ -939,7 +1100,7 @@ export default function ProductDetailPage() {
                     <div key={rev.id} style={{ display: "flex", gap: 14, borderBottom: "1px solid #F5F3F0", paddingBottom: 16 }}>
                       <div style={{
                         width: 40, height: 40, borderRadius: "50%",
-                        background: rev.avatar === "SR" ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #1D4ED8, #1E40AF)",
+                        background: rev.avatar === "SR" ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #16A34A, #15803D)",
                         color: "white", fontSize: "0.875rem", fontWeight: 800,
                         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                       }}>{rev.avatar}</div>
@@ -988,7 +1149,7 @@ export default function ProductDetailPage() {
                   )}
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18", margin: 0 }}>
-                      {seller?.nm_store || "Mitra Perajin"}
+                      {seller?.nm_store || "Toko Daur Ulang"}
                     </p>
                     <p style={{ fontSize: "0.75rem", color: "#8E8680", marginTop: 2, margin: "2px 0 0 0" }}>
                       {seller?.addr
@@ -998,8 +1159,8 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
                 {seller?.is_verified !== false && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", fontWeight: 700, color: "#1D4ED8" }}>
-                    <ShieldCheck size={14} color="#1D4ED8" />
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", fontWeight: 700, color: "#16A34A" }}>
+                    <ShieldCheck size={14} color="#16A34A" />
                     <span>Pelapak Terverifikasi</span>
                   </div>
                 )}
@@ -1029,12 +1190,12 @@ export default function ProductDetailPage() {
               {/* Tentang Toko */}
               <div style={{ background: "white", border: "1px solid #EAE5E0", borderRadius: 12, padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.875rem", fontWeight: 800, color: "#1F1B18" }}>
-                  <Tag size={14} color="#1D4ED8" />
+                  <Tag size={14} color="#16A34A" />
                   <span>Tentang Toko</span>
                 </div>
                 <p style={{ fontSize: "0.8125rem", color: "#5C5550", lineHeight: 1.6, margin: 0 }}>
                   {seller?.deskripsi?.trim()
-                    || "Toko mitra perajin di Daurly — produk daur ulang kreatif, ramah lingkungan, dan upcycled."}
+                    || "Toko mitra daur ulang di Daurly — produk asli buatan pengrajin dan pelaku usaha lokal Indonesia."}
                 </p>
                 {seller?.no_telp && (
                   <p style={{ fontSize: "0.75rem", color: "#8E8680", margin: 0 }}>
@@ -1079,6 +1240,220 @@ export default function ProductDetailPage() {
 
         </div>
       </main>
+
+      {/* BOTTOM SHEET FOR MOBILE VARIANTS */}
+      {isMobile && isBottomSheetOpen && product && (
+        <>
+          {/* Keyframe injection for slideUp and fadeIn */}
+          <style>{`
+            @keyframes slideUp {
+              from { transform: translateY(100%); }
+              to { transform: translateY(0); }
+            }
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            .bottom-sheet-backdrop {
+              position: fixed;
+              inset: 0;
+              background: rgba(0, 0, 0, 0.6);
+              z-index: 1000;
+              display: flex;
+              align-items: flex-end;
+              animation: fadeIn 0.25s ease-out;
+            }
+            .bottom-sheet-container {
+              width: 100%;
+              max-height: 80vh;
+              background: white;
+              border-top-left-radius: 16px;
+              border-top-right-radius: 16px;
+              padding: 20px;
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+              box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+              animation: slideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            }
+            .bottom-sheet-content {
+              overflow-y: auto;
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+              padding-bottom: 16px;
+            }
+          `}</style>
+
+          <div className="bottom-sheet-backdrop" onClick={() => setIsBottomSheetOpen(false)}>
+            <div className="bottom-sheet-container" onClick={(e) => e.stopPropagation()}>
+              
+              {/* Header: Product details summary */}
+              <div style={{ display: "flex", gap: 16, borderBottom: "1px solid #EAE5E0", paddingBottom: 16 }}>
+                <div style={{ width: 120, height: 120, borderRadius: 12, overflow: "hidden", border: "1px solid #EAE5E0", flexShrink: 0 }}>
+                  <img
+                    src={
+                      galleryImages[activeImg] || galleryImages[0] || product.img || THUMBNAILS[0]
+                    }
+                    alt={product.nama_produk}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </div>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <span style={{ fontSize: "1.125rem", fontWeight: 800, color: "#16A34A" }}>
+                    {selectedVariantPrice}
+                  </span>
+                  <span style={{ fontSize: "0.75rem", color: "#8E8680", marginTop: 4 }}>
+                    Stok: {selectedStock}
+                  </span>
+                  {product.variants && product.variants.length > 0 && getSelectedVariantLabel(product, activeVariants) && (
+                    <span style={{ fontSize: "0.75rem", color: "#5C5550", marginTop: 2 }}>
+                      Pilihan: <strong>{getSelectedVariantLabel(product, activeVariants)}</strong>
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => setIsBottomSheetOpen(false)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: "1.5rem",
+                    fontWeight: "bold",
+                    color: "#A19993",
+                    cursor: "pointer",
+                    padding: 4,
+                    alignSelf: "flex-start",
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              {/* Scrollable Content: Variants & Quantity */}
+              <div className="bottom-sheet-content">
+                {product.variants && product.variants.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {product.variants.map((v, vIdx) => {
+                      const isVisual = isVisualVariantGroup(product, vIdx);
+                      return (
+                        <div key={vIdx} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          <p style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", margin: 0, textTransform: "uppercase" }}>
+                            {v.label}
+                          </p>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                            {v.options.map((opt, optIdx) => {
+                              const isSelected = (activeVariants[vIdx] ?? 0) === optIdx;
+                              const showThumb = Boolean(opt.image?.trim());
+                              
+                              const isCombinationOutOfStock = product.variantInventory?.length
+                                ? getSelectedVariantStock(product, { ...activeVariants, [vIdx]: optIdx }) === 0
+                                : product.stok === 0;
+
+                              const isOptionCompletelyOutOfStock = product.variantInventory?.length
+                                ? !product.variantInventory.some((entry) => entry.picks[vIdx] === optIdx && entry.stock > 0)
+                                : product.stok === 0;
+
+                              return (
+                                <button
+                                  key={optIdx}
+                                  type="button"
+                                  disabled={isOptionCompletelyOutOfStock}
+                                  onClick={() => handleVariantSelect(vIdx, optIdx)}
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: showThumb ? "column" : "row",
+                                    alignItems: "center",
+                                    justifyContent: showThumb ? "flex-start" : "center",
+                                    gap: showThumb ? 4 : 8,
+                                    minHeight: showThumb ? 80 : 36,
+                                    width: showThumb ? 68 : undefined,
+                                    padding: showThumb ? "4px 4px 6px" : "0 12px",
+                                    borderRadius: 6,
+                                    border: isSelected
+                                      ? "1.5px solid #16A34A"
+                                      : isCombinationOutOfStock
+                                        ? "1px dashed #D5CFC9"
+                                        : "1px solid #D5CFC9",
+                                    fontSize: showThumb ? "0.625rem" : "0.75rem",
+                                    fontWeight: 600,
+                                    color: isSelected ? "#16A34A" : isCombinationOutOfStock ? "#A19993" : "#1F1B18",
+                                    background: isSelected ? "#F0FDF4" : isCombinationOutOfStock ? "#F5F3F0" : "white",
+                                    cursor: isOptionCompletelyOutOfStock ? "not-allowed" : "pointer",
+                                    opacity: isOptionCompletelyOutOfStock ? 0.45 : (isCombinationOutOfStock && !isSelected ? 0.6 : 1),
+                                    transition: "all 0.15s",
+                                    fontFamily: "inherit",
+                                  }}
+                                >
+                                  {showThumb && (
+                                    <img
+                                      src={opt.image}
+                                      alt={opt.name}
+                                      style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 2, flexShrink: 0 }}
+                                    />
+                                  )}
+                                  <span>{opt.name}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Quantity Selector inside Sheet */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginTop: 8 }}>
+                  <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#5C5550", flex: 1 }}>Jumlah</span>
+                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #D5CFC9", borderRadius: 4, overflow: "hidden" }}>
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => Math.max(1, q - 1))}
+                      style={{ width: 32, height: 32, border: "none", background: "#F5F3F0", cursor: "pointer", fontSize: "1rem", color: "#5C5550" }}
+                    >
+                      −
+                    </button>
+                    <span style={{ width: 40, textAlign: "center", fontSize: "0.875rem", fontWeight: 700 }}>{qty}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => Math.min(selectedStock || 99, q + 1))}
+                      style={{ width: 32, height: 32, border: "none", background: "#F5F3F0", cursor: "pointer", fontSize: "1rem", color: "#5C5550" }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button: Confirm */}
+              <button
+                onClick={async () => {
+                  setIsBottomSheetOpen(false);
+                  await handleAddToCart(bottomSheetAction === "buy");
+                }}
+                disabled={addingCart || selectedStock === 0}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  background: selectedStock === 0 ? "#A19993" : "#4C1D95",
+                  color: "white",
+                  fontSize: "0.9375rem",
+                  fontWeight: 700,
+                  borderRadius: 12,
+                  border: "none",
+                  cursor: selectedStock === 0 ? "not-allowed" : "pointer",
+                  transition: "all 0.15s",
+                  boxShadow: "0 4px 12px rgba(76, 29, 149, 0.2)",
+                }}
+              >
+                {addingCart ? "Memproses..." : selectedStock === 0 ? "Stok Habis" : bottomSheetAction === "buy" ? "Beli Sekarang" : "Masukkan Keranjang"}
+              </button>
+
+            </div>
+          </div>
+        </>
+      )}
 
       <Footer />
     </>

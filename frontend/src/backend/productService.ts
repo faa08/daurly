@@ -236,7 +236,7 @@ function resolveProductImages(cover_img?: string | null, img?: string | null): {
 const mapDbRowToProduct = (p: Record<string, unknown>): Product => {
   const rawKategori = Array.isArray(p.kategori) ? p.kategori[0] : p.kategori;
   const cat = rawKategori as { id_kategori?: string; nama_kategori?: string } | null | undefined;
-  const catName = cat?.nama_kategori || "UMKM Lokal";
+  const catName = cat?.nama_kategori || "Daur Ulang Lokal";
   const catSlug = cat?.nama_kategori ? slugify(cat.nama_kategori) : "kerajinan";
 
   const rawSeller = Array.isArray(p.seller) ? p.seller[0] : p.seller;
@@ -269,7 +269,7 @@ const mapDbRowToProduct = (p: Record<string, unknown>): Product => {
     images,
     desc: (p.desc as string) || "",
     created_at: (p.created_at as string) || new Date().toISOString(),
-    nama_brand: seller?.nm_store || "UMKM Lokal",
+    nama_brand: seller?.nm_store || "Daur Ulang Lokal",
     kode_produk: `PRD-${idProduk.substring(0, 8).toUpperCase()}`,
     berat: Number(p.berat) || 0,
     bahan: (p.bahan as string) || undefined,
@@ -291,15 +291,15 @@ const logSupabaseError = (label: string, error: { message?: string; details?: st
 
 export const productService = {
   // Get all categories
-  async getCategories(): Promise<{ id_kategori: string; nama_kategori: string }[]> {
+  async getCategories(includeArchived = false): Promise<{ id_kategori: string; nama_kategori: string; is_active?: boolean }[]> {
     console.log("Calling productService.getCategories");
 
     if (isPlaceholder()) {
       return [
-        { id_kategori: "cat-1", nama_kategori: "Fashion Pria" },
-        { id_kategori: "cat-2", nama_kategori: "Tekstil" },
-        { id_kategori: "cat-3", nama_kategori: "Aksesoris" },
-        { id_kategori: "cat-4", nama_kategori: "Kuliner" }
+        { id_kategori: "cat-1", nama_kategori: "Fashion Pria", is_active: true },
+        { id_kategori: "cat-2", nama_kategori: "Tekstil", is_active: true },
+        { id_kategori: "cat-3", nama_kategori: "Aksesoris", is_active: true },
+        { id_kategori: "cat-4", nama_kategori: "Kuliner", is_active: true }
       ];
     }
 
@@ -316,11 +316,15 @@ export const productService = {
 
       if (!data || data.length === 0) {
         return [
-          { id_kategori: "cat-1", nama_kategori: "Fashion Pria" },
-          { id_kategori: "cat-2", nama_kategori: "Tekstil" },
-          { id_kategori: "cat-3", nama_kategori: "Aksesoris" },
-          { id_kategori: "cat-4", nama_kategori: "Kuliner" }
+          { id_kategori: "cat-1", nama_kategori: "Fashion Pria", is_active: true },
+          { id_kategori: "cat-2", nama_kategori: "Tekstil", is_active: true },
+          { id_kategori: "cat-3", nama_kategori: "Aksesoris", is_active: true },
+          { id_kategori: "cat-4", nama_kategori: "Kuliner", is_active: true }
         ];
+      }
+
+      if (!includeArchived && data.length > 0 && "is_active" in data[0]) {
+        return data.filter((c: any) => c.is_active !== false);
       }
 
       return data;
@@ -454,7 +458,7 @@ export const productService = {
     const finalKodeProduk = kode_produk || `PRD-${generatedId.substr(0, 8).toUpperCase()}`;
 
     // Resolve category name from id_kategori
-    let catName = "UMKM Lokal";
+    let catName = "Daur Ulang Lokal";
     if (id_kategori) {
       const mockCats = [
         { id_kategori: "cat-1", nama_kategori: "Fashion Pria" },
@@ -521,7 +525,7 @@ export const productService = {
       images: images,
       desc: desc || "Deskripsi produk baru",
       created_at: new Date().toISOString(),
-      nama_brand: nama_brand || "UMKM Lokal",
+      nama_brand: nama_brand || "Daur Ulang Lokal",
       kode_produk: finalKodeProduk,
       berat: extras?.berat || 0,
       bahan: extras?.bahan,
@@ -547,7 +551,7 @@ export const productService = {
 
     try {
       const { data: sellerRow, error: sellerError } = await supabase
-        .from("seller")
+        .from("v_sellers_public")
         .select("id_seller")
         .eq("id_seller", sellerId)
         .maybeSingle();
@@ -622,7 +626,7 @@ export const productService = {
         const products = JSON.parse(stored) as Product[];
         const idx = products.findIndex(p => p.id_produk === id_produk);
         if (idx !== -1) {
-          let catName = "UMKM Lokal";
+          let catName = "Daur Ulang Lokal";
           if (id_kategori) {
             const mockCats = [
               { id_kategori: "cat-1", nama_kategori: "Fashion Pria" },
@@ -830,7 +834,7 @@ export const productService = {
           ...mapped,
           seller: {
             id_seller: item.id_seller,
-            nm_store: "Toko Mitra UMKM",
+            nm_store: "Toko mitra daur ulang",
             logo_toko: "",
             is_verified: true,
           },
@@ -1085,8 +1089,8 @@ export const productService = {
         .slice(0, limit)
         .map((p) => ({
           name: p.nama_produk,
-          category: p.category || "UMKM",
-          slug: p.categorySlug || slugify(p.category || "umkm"),
+          category: p.category || "Daur Ulang",
+          slug: p.categorySlug || slugify(p.category || "daur-ulang"),
           link: `/produk/${p.slug || p.id_produk}`,
           type: "product" as const,
         }));
@@ -1115,7 +1119,7 @@ export const productService = {
       }
 
       const { data: stores } = await supabase
-        .from("seller")
+        .from("v_sellers_public")
         .select("nm_store")
         .eq("is_verified", true)
         .ilike("nm_store", pattern)
@@ -1155,8 +1159,8 @@ export const productService = {
       for (const p of hydrated) {
         suggestions.push({
           name: p.nama_produk,
-          category: p.category || "UMKM",
-          slug: p.categorySlug || slugify(p.category || "umkm"),
+          category: p.category || "Daur Ulang",
+          slug: p.categorySlug || slugify(p.category || "daur-ulang"),
           link: `/produk/${p.slug || p.id_produk}`,
           type: "product",
         });

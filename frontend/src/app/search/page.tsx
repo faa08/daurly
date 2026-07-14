@@ -107,13 +107,16 @@ function SearchContent() {
     return 0;
   });
 
-  const visibleFilterCategories = CATEGORIES.filter(
-    (cat) => cat === "Semua" || products.some((p) => p.category === cat)
-  );
+  const uniqueCats = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
+  uniqueCats.sort();
+  const visibleFilterCategories = ["Semua", ...uniqueCats];
 
   return (
     <>
-      <Navbar /><SearchBar />
+      <Navbar searchQuery={query} />
+      <div className="responsive-hide-desktop">
+        <SearchBar query={query} />
+      </div>
       <main style={{ background: "#FCFCFA", minHeight: "70vh", paddingBottom: 72 }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
           <nav style={{ display: "flex", alignItems: "center", gap: 6, padding: "16px 0 24px", fontSize: "0.8rem", color: C.textMuted }}>
@@ -216,10 +219,46 @@ function SearchContent() {
               </div>
               <div style={{ marginBottom: 24 }}>
                 <h4 style={{ fontSize: "0.8125rem", fontWeight: 800, color: C.textSec, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Rentang Harga</h4>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {["Min", "Max"].map((label, i) => (
-                    <input key={label} type="number" placeholder={label} value={i === 0 ? minPrice : maxPrice} onChange={(e) => i === 0 ? setMinPrice(e.target.value) : setMaxPrice(e.target.value)} style={{ flex: 1, height: 36, border: `1.5px solid ${C.borderStrong}`, borderRadius: 6, padding: "0 10px", fontSize: "0.8125rem", color: C.text, outline: "none", fontFamily: "inherit" }} />
-                  ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    style={{
+                      flex: 1,
+                      width: "100%",
+                      minWidth: 0,
+                      height: 36,
+                      border: `1.5px solid ${C.borderStrong}`,
+                      borderRadius: 6,
+                      padding: "0 10px",
+                      fontSize: "0.8125rem",
+                      color: C.text,
+                      outline: "none",
+                      fontFamily: "inherit"
+                    }}
+                  />
+                  <span style={{ color: C.textMuted, fontSize: "0.875rem" }}>-</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    style={{
+                      flex: 1,
+                      width: "100%",
+                      minWidth: 0,
+                      height: 36,
+                      border: `1.5px solid ${C.borderStrong}`,
+                      borderRadius: 6,
+                      padding: "0 10px",
+                      fontSize: "0.8125rem",
+                      color: C.text,
+                      outline: "none",
+                      fontFamily: "inherit"
+                    }}
+                  />
                 </div>
               </div>
               <div>

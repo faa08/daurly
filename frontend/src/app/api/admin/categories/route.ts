@@ -51,6 +51,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
+    if (action === "archive") {
+      const { id } = body;
+      if (!id) {
+        return NextResponse.json({ error: "ID kategori wajib diisi" }, { status: 400 });
+      }
+      const { error: updateErr } = await supabaseAdmin
+        .from("kategori")
+        .update({ is_active: false })
+        .eq("id_kategori", id);
+      if (updateErr) throw updateErr;
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === "restore") {
+      const { id } = body;
+      if (!id) {
+        return NextResponse.json({ error: "ID kategori wajib diisi" }, { status: 400 });
+      }
+      const { error: updateErr } = await supabaseAdmin
+        .from("kategori")
+        .update({ is_active: true })
+        .eq("id_kategori", id);
+      if (updateErr) throw updateErr;
+      return NextResponse.json({ success: true });
+    }
+
     if (action === "delete") {
       const { id } = body;
       if (!id) {

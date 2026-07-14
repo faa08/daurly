@@ -14,7 +14,9 @@ import {
   ShoppingCart, 
   Grid,
   ArrowUpDown,
-  ShoppingBag
+  ShoppingBag,
+  Scissors,
+  Gem
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
@@ -39,15 +41,17 @@ const C = {
   textMuted: "#8E8680",
 };
 
-// Available categories mapping
-const CATEGORIES_LIST = [
-  { id: "all", name: "Semua Kategori", slug: "", icon: <Grid size={16} /> },
-  { id: "kuliner", name: "Kuliner", slug: "kuliner", icon: <Utensils size={16} /> },
-  { id: "fashion", name: "Fashion", slug: "fashion", icon: <Shirt size={16} /> },
-  { id: "kerajinan", name: "Kerajinan", slug: "kerajinan", icon: <Paintbrush size={16} /> },
-  { id: "jasa", name: "Jasa", slug: "jasa", icon: <Wrench size={16} /> },
-  { id: "kecantikan", name: "Kecantikan", slug: "kecantikan", icon: <Sparkles size={16} /> },
-];
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
+};
 
 function formatPrice(p: number) {
   return `Rp ${p.toLocaleString("id-ID")}`;
@@ -59,9 +63,22 @@ export default function CategoryPage({ params }: { params: Promise<{ slug?: stri
   const activeSlug = resolvedParams.slug?.[0] || "";
 
   const [products, setProducts] = useState<any[]>([]);
+  const [dbCategories, setDbCategories] = useState<{ id_kategori: string; nama_kategori: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("terpopuler");
   const [categoryHero, setCategoryHero] = useState<SiteBanner | null>(null);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const cats = await productService.getCategories();
+        setDbCategories(cats);
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      }
+    }
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     fetchCategoryHero(activeSlug).then(setCategoryHero);
@@ -90,6 +107,51 @@ export default function CategoryPage({ params }: { params: Promise<{ slug?: stri
     }
     loadProducts();
   }, []);
+
+  const getIconForCategory = (name: string) => {
+    const lower = name.toLowerCase();
+    if (lower.includes("kuliner") || lower.includes("makan") || lower.includes("minum") || lower.includes("food") || lower.includes("kue") || lower.includes("roti")) {
+      return <Utensils size={16} />;
+    }
+    if (lower.includes("tekstil") || lower.includes("kain") || lower.includes("sprei") || lower.includes("bantal")) {
+      return <Scissors size={16} />;
+    }
+    if (lower.includes("aksesoris")) {
+      return <Gem size={16} />;
+    }
+    if (lower.includes("fashion") || lower.includes("baju") || lower.includes("pakaian") || lower.includes("celana") || lower.includes("hijab") || lower.includes("sepatu") || lower.includes("tas")) {
+      return <Shirt size={16} />;
+    }
+    if (lower.includes("kerajinan") || lower.includes("kriya") || lower.includes("seni") || lower.includes("art") || lower.includes("craft") || lower.includes("kayu") || lower.includes("lukis") || lower.includes("rajut")) {
+      return <Paintbrush size={16} />;
+    }
+    if (lower.includes("jasa") || lower.includes("servis") || lower.includes("service") || lower.includes("perbaikan") || lower.includes("sewa")) {
+      return <Wrench size={16} />;
+    }
+    if (lower.includes("kecantikan") || lower.includes("beauty") || lower.includes("kosmetik") || lower.includes("salon") || lower.includes("skincare") || lower.includes("makeup")) {
+      return <Sparkles size={16} />;
+    }
+    return <Grid size={16} />;
+  };
+
+  const CATEGORIES_LIST = dbCategories.length > 0
+    ? [
+        { id: "all", name: "Semua Kategori", slug: "", icon: <Grid size={16} /> },
+        ...dbCategories.map((c) => ({
+          id: c.id_kategori,
+          name: c.nama_kategori,
+          slug: slugify(c.nama_kategori),
+          icon: getIconForCategory(c.nama_kategori),
+        })),
+      ]
+    : [
+        { id: "all", name: "Semua Kategori", slug: "", icon: <Grid size={16} /> },
+        { id: "kuliner", name: "Kuliner", slug: "kuliner", icon: <Utensils size={16} /> },
+        { id: "fashion", name: "Fashion", slug: "fashion", icon: <Shirt size={16} /> },
+        { id: "kerajinan", name: "Kerajinan", slug: "kerajinan", icon: <Paintbrush size={16} /> },
+        { id: "jasa", name: "Jasa", slug: "jasa", icon: <Wrench size={16} /> },
+        { id: "kecantikan", name: "Kecantikan", slug: "kecantikan", icon: <Sparkles size={16} /> },
+      ];
 
   // Find active category
   const currentCategory = CATEGORIES_LIST.find(c => c.slug === activeSlug) || CATEGORIES_LIST[0];
@@ -126,7 +188,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug?: stri
   return (
     <div style={{ background: "#FCFCFA", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Navbar />
-      <SearchBar />
+      <div className="responsive-hide-desktop">
+        <SearchBar />
+      </div>
 
       {/* Main Container */}
       <main style={{ flex: 1, paddingBottom: 60 }}>
@@ -192,10 +256,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug?: stri
                       }}
                       className="category-sidebar-link"
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span style={{ color: isActive ? C.primary : C.textMuted }}>{cat.icon}</span>
-                        <span>{cat.name}</span>
-                      </div>
+                      <span style={{ textTransform: "capitalize" }}>{cat.name}</span>
                       <span style={{
                         fontSize: "0.75rem",
                         background: isActive ? C.primary : "#F1ECE8",

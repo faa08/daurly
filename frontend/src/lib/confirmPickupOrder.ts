@@ -55,6 +55,9 @@ export async function confirmPickupOrder(
     .eq("id_order", orderId);
   if (shipErr) throw shipErr;
 
+  const { settleOrderBalances } = await import("@/lib/settleOrderBalances");
+  await settleOrderBalances(admin, orderId);
+
   if (order.id_user) {
     await admin.from("notifikasi").insert({
       id_user: order.id_user,

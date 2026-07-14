@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -40,7 +40,7 @@ function PaymentContent() {
   if (loading) {
     return (
       <main style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Loader2 size={32} color="#FF6F00" className="animate-spin" />
+        <Loader2 size={32} color="#16A34A" className="animate-spin" />
       </main>
     );
   }
@@ -69,7 +69,7 @@ function PaymentContent() {
         textAlign: "center"
       }}>
         <span style={{
-          fontSize: "0.65rem", fontWeight: 800, color: "white", background: "#FF6F00",
+          fontSize: "0.65rem", fontWeight: 800, color: "white", background: "#16A34A",
           padding: "4px 8px", borderRadius: 4, letterSpacing: "0.05em", textTransform: "uppercase",
         }}>
           Metode E-Wallet (QRIS)
@@ -86,7 +86,7 @@ function PaymentContent() {
           <p style={{ fontSize: "0.75rem", color: "#7C2D12", margin: "0 0 4px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Total Pembayaran
           </p>
-          <p style={{ fontSize: "1.75rem", fontWeight: 800, color: "#FF6F00", margin: 0 }}>
+          <p style={{ fontSize: "1.75rem", fontWeight: 800, color: "#16A34A", margin: 0 }}>
             Rp {totalBill.toLocaleString("id-ID")}
           </p>
           {orderIdDisplay && (
@@ -98,15 +98,15 @@ function PaymentContent() {
 
         {/* Info Box untuk Chat Admin */}
         <div style={{
-          background: "#EFF6FF", borderRadius: 12, border: "1.5px solid #BFDBFE",
+          background: "#F0FDF4", borderRadius: 12, border: "1.5px solid #BFDBFE",
           padding: 20, marginBottom: 24, textAlign: "left", display: "flex", gap: 12, alignItems: "flex-start"
         }}>
-          <Clock size={20} color="#1D4ED8" style={{ flexShrink: 0, marginTop: 2 }} />
+          <Clock size={20} color="#16A34A" style={{ flexShrink: 0, marginTop: 2 }} />
           <div>
             <p style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#1E3A8A", margin: "0 0 4px" }}>
               Meminta QR Code dari Admin
             </p>
-            <p style={{ fontSize: "0.75rem", color: "#1E40AF", margin: 0, lineHeight: 1.4 }}>
+            <p style={{ fontSize: "0.75rem", color: "#15803D", margin: 0, lineHeight: 1.4 }}>
               Untuk meminimalkan kesalahan, pembayaran Anda akan diproses secara manual. Silakan klik salah satu tombol di bawah untuk meminta Kode QRIS kepada Admin di chat aplikasi atau via WhatsApp dengan menyebutkan <b>Kode Referensi</b> pesanan Anda.
             </p>
           </div>
@@ -122,7 +122,7 @@ function PaymentContent() {
             }}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              height: 48, background: "#1D4ED8", color: "white", borderRadius: 8,
+              height: 48, background: "#16A34A", color: "white", borderRadius: 8,
               fontWeight: 800, fontSize: "0.875rem", textDecoration: "none",
               transition: "opacity 0.2s"
             }}
@@ -190,7 +190,7 @@ export default function CheckoutPaymentPage() {
       <Navbar />
       <Suspense fallback={
         <main style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Loader2 size={32} color="#1D4ED8" className="animate-spin" />
+          <Loader2 size={32} color="#16A34A" className="animate-spin" />
         </main>
       }>
         <PaymentContent />

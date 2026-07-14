@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
@@ -98,7 +98,7 @@ export default function ToastProvider({ children }: { children: React.ReactNode 
           
           let bgColor = "rgba(255, 255, 255, 0.9)";
           let borderColor = "#EAE5E0";
-          let iconColor = "#1D4ED8";
+          let iconColor = "#16A34A";
           let title = "Informasi";
           let IconComponent = Info;
 

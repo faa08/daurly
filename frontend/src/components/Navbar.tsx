@@ -25,6 +25,7 @@ import { useCustomerService } from "@/components/CustomerServiceProvider";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useLogoutConfirm } from "@/hooks/useLogoutConfirm";
 import type { NotificationItem } from "@/backend/notificationService";
+import SearchBar from "@/components/SearchBar";
 
 type Notification = NotificationItem;
 
@@ -123,6 +124,13 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
           </Link>
         </div>
 
+        {/* Middle: Integrated Search Bar (Desktop) */}
+        {!hideCartAndChat && (
+          <div className="nav-search-container-desktop">
+            <SearchBar query={searchQuery} setQuery={setSearchQuery} />
+          </div>
+        )}
+
         {/* Right: Actions */}
         <div className="nav-actions-right">
           {!hideCartAndChat && (
@@ -131,6 +139,13 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
                 <ShoppingCart size={18} className="nav-icon-orange" />
                 <span className="nav-text-hide-sm">Keranjang</span>
               </Link>
+
+              {currentUser?.is_affiliate && (
+                <Link href="/affiliate" className="nav-cart-btn" id="affiliate-nav-btn">
+                  <Share2 size={18} className="nav-icon-orange" />
+                  <span className="nav-text-hide-sm">Affiliate Center</span>
+                </Link>
+              )}
 
               <button
                 type="button"
@@ -285,12 +300,12 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
                     </Link>
 
                     <Link
-                      href="/account/affiliate"
+                      href="/affiliate"
                       onClick={() => setIsProfileOpen(false)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <Share2 className="w-4 h-4 text-gray-400" />
-                      <span>Program Affiliate</span>
+                      <span>Affiliate Center</span>
                     </Link>
 
 
@@ -376,12 +391,12 @@ export default function Navbar({ searchQuery, setSearchQuery, hideCartAndChat = 
               </Link>
 
               <Link
-                href="/account/affiliate"
+                href="/affiliate"
                 onClick={() => setIsProfileOpen(false)}
                 className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold text-[#5C5550] hover:bg-gray-50 transition-colors border border-gray-100/50"
               >
                 <Share2 className="w-5 h-5 text-[#8E8680]" />
-                <span>Program Affiliate</span>
+                <span>Affiliate Center</span>
               </Link>
 
 

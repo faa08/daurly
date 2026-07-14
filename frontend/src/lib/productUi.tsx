@@ -119,7 +119,7 @@ export function productToCard(
     name: p.nama_produk,
     price: p.harga,
     image: resolveProductImageSrc({ img: p.img }),
-    category: p.category || p.nama_brand || "UMKM Lokal",
+    category: p.category || p.nama_brand || "Daur Ulang Lokal",
     rating: stats?.rating ?? 0,
     sold: stats?.sold ?? 0,
     reviewCount: stats?.reviewCount ?? 0,

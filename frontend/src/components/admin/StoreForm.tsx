@@ -247,7 +247,7 @@ export default function StoreForm({
       subtitle={
         mode === "new"
           ? "Toko baru akan langsung aktif setelah disimpan."
-          : "Perbarui informasi toko mitra UMKM."
+          : "Perbarui informasi toko mitra Daur Ulang."
       }
       backHref="/admin/stores"
       onBack={goBack}
@@ -264,7 +264,7 @@ export default function StoreForm({
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
             placeholder="contoh: Griya Keramik Kasongan"
-            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs text-[#1F1B18]"
+            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs text-[#1F1B18]"
           />
         </div>
 
@@ -278,7 +278,7 @@ export default function StoreForm({
             value={form.ownerName}
             onChange={(e) => set("ownerName", e.target.value)}
             placeholder="Nama lengkap pemilik toko"
-            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs text-[#1F1B18]"
+            className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs text-[#1F1B18]"
           />
         </div>
 
@@ -290,7 +290,7 @@ export default function StoreForm({
                 value={form.desc}
                 onChange={(e) => set("desc", e.target.value)}
                 rows={3}
-                className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs text-[#1F1B18] resize-none"
+                className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs text-[#1F1B18] resize-none"
               />
             </div>
 
@@ -300,7 +300,7 @@ export default function StoreForm({
                 type="text"
                 value={form.addr}
                 onChange={(e) => set("addr", e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs text-[#1F1B18]"
+                className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs text-[#1F1B18]"
               />
             </div>
 
@@ -310,7 +310,7 @@ export default function StoreForm({
                 type="text"
                 value={form.phone}
                 onChange={(e) => set("phone", e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs text-[#1F1B18]"
+                className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs text-[#1F1B18]"
               />
             </div>
 
@@ -319,7 +319,7 @@ export default function StoreForm({
               <select
                 value={form.status}
                 onChange={(e) => set("status", e.target.value as "Aktif" | "Nonaktif")}
-                className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] text-xs text-[#1F1B18]"
+                className="w-full px-3.5 py-2.5 border border-[#D5CFC9] rounded-lg bg-[#F5F3F0] focus:outline-none focus:ring-1 focus:ring-[#16A34A] focus:border-[#16A34A] text-xs text-[#1F1B18]"
               >
                 <option value="Aktif">Aktif</option>
                 <option value="Nonaktif">Nonaktif</option>
@@ -346,7 +346,7 @@ export default function StoreForm({
               </button>
             </div>
           )}
-          <label className="flex items-center justify-center gap-2 w-full h-10 border-2 border-dashed border-[#D5CFC9] rounded-lg cursor-pointer hover:border-[#1D4ED8] hover:bg-blue-50/30 transition text-[#8E8680] hover:text-[#1D4ED8]">
+          <label className="flex items-center justify-center gap-2 w-full h-10 border-2 border-dashed border-[#D5CFC9] rounded-lg cursor-pointer hover:border-[#16A34A] hover:bg-blue-50/30 transition text-[#8E8680] hover:text-[#16A34A]">
             <span className="material-symbols-outlined text-[18px]">upload</span>
             <span className="text-xs font-semibold">
               {uploadProgress !== null && uploadProgress < 100
@@ -374,7 +374,7 @@ export default function StoreForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2 bg-[#1D4ED8] text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition flex items-center gap-1.5 disabled:opacity-60"
+            className="px-5 py-2 bg-[#16A34A] text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition flex items-center gap-1.5 disabled:opacity-60"
           >
             <span className="material-symbols-outlined text-[16px]">
               {mode === "new" ? "add" : "save"}

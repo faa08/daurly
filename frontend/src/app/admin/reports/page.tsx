@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { adminService } from "@/backend/adminService";
@@ -117,7 +117,7 @@ export default function AdminReportsPage() {
         <div>
           <h2 className="font-headline text-3xl font-bold text-[#1F1B18]">Laporan & Analitik</h2>
           <p className="font-body text-body-md text-[#5C5550] mt-1">
-            Pantau performa ekosistem UMKM dan pertumbuhan pendapatan secara real-time.
+            Pantau performa ekosistem Daur Ulang dan pertumbuhan pendapatan secara real-time.
           </p>
         </div>
         <div className="flex items-center gap-3 bg-white p-1.5 rounded-xl shadow-sm border border-[#EAE5E0]">
@@ -127,7 +127,7 @@ export default function AdminReportsPage() {
           </div>
           <button 
             onClick={() => alert("Mengekspor data analitik...")}
-            className="px-4 py-2 bg-[#1D4ED8] text-white font-bold text-xs rounded hover:bg-blue-700 transition flex items-center gap-2"
+            className="px-4 py-2 bg-[#16A34A] text-white font-bold text-xs rounded hover:bg-blue-700 transition flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[16px]">download</span>
             Export Data
@@ -147,7 +147,7 @@ export default function AdminReportsPage() {
             <>
               <div className="flex justify-between items-start text-[#5C5550]">
                 <p className="text-xs uppercase font-bold tracking-wider">Total Pendapatan</p>
-                <span className="material-symbols-outlined text-[#1D4ED8] text-[20px]">payments</span>
+                <span className="material-symbols-outlined text-[#16A34A] text-[20px]">payments</span>
               </div>
               <h3 className="font-headline text-2xl font-extrabold text-[#1F1B18]">
                 Rp {stats.totalRevenue.toLocaleString("id-ID")}
@@ -166,13 +166,13 @@ export default function AdminReportsPage() {
           ) : (
             <>
               <div className="flex justify-between items-start text-[#5C5550]">
-                <p className="text-xs uppercase font-bold tracking-wider">UMKM Aktif</p>
-                <span className="material-symbols-outlined text-[#1D4ED8] text-[20px]">store</span>
+                <p className="text-xs uppercase font-bold tracking-wider">Daur Ulang Aktif</p>
+                <span className="material-symbols-outlined text-[#16A34A] text-[20px]">store</span>
               </div>
               <h3 className="font-headline text-2xl font-extrabold text-[#1F1B18]">
                 {stats.activeSellers}
               </h3>
-              <p className="text-[10px] text-[#8E8680]">UMKM terdaftar & terhubung</p>
+              <p className="text-[10px] text-[#8E8680]">Daur Ulang terdaftar & terhubung</p>
             </>
           )}
         </div>
@@ -187,7 +187,7 @@ export default function AdminReportsPage() {
             <>
               <div className="flex justify-between items-start text-[#5C5550]">
                 <p className="text-xs uppercase font-bold tracking-wider">Total Transaksi</p>
-                <span className="material-symbols-outlined text-[#1D4ED8] text-[20px]">shopping_cart</span>
+                <span className="material-symbols-outlined text-[#16A34A] text-[20px]">shopping_cart</span>
               </div>
               <h3 className="font-headline text-2xl font-extrabold text-[#1F1B18]">
                 {stats.totalOrders}
@@ -207,7 +207,7 @@ export default function AdminReportsPage() {
             <>
               <div className="flex justify-between items-start text-[#5C5550]">
                 <p className="text-xs uppercase font-bold tracking-wider">Kepuasan Pelanggan</p>
-                <span className="material-symbols-outlined text-[#1D4ED8] text-[20px]">star</span>
+                <span className="material-symbols-outlined text-[#16A34A] text-[20px]">star</span>
               </div>
               <h3 className="font-headline text-2xl font-extrabold text-[#1F1B18]">
                 {stats.customerRating > 0 ? `${stats.customerRating}/5.0` : "-"}
@@ -256,7 +256,7 @@ export default function AdminReportsPage() {
                       </div>
                     )}
                     <div 
-                      className={`w-full rounded-t-sm transition duration-200 ${hoveredBarIndex === i ? "bg-[#1D4ED8] brightness-95" : "bg-[#1D4ED8]/20 border-t-2 border-[#1D4ED8]"}`}
+                      className={`w-full rounded-t-sm transition duration-200 ${hoveredBarIndex === i ? "bg-[#16A34A] brightness-95" : "bg-[#16A34A]/20 border-t-2 border-[#16A34A]"}`}
                       style={{ height: bar.height }}
                     ></div>
                     <span className="absolute -bottom-5 text-[10px] text-[#8E8680] font-bold mt-1">{bar.label}</span>
@@ -286,7 +286,7 @@ export default function AdminReportsPage() {
                 <h5 className="text-sm font-bold text-[#1F1B18]">Data Penjualan Kategori</h5>
                 <div className="space-y-1.5 text-xs text-[#5C5550] text-left mt-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 bg-[#1D4ED8] rounded-full" />
+                    <div className="w-2.5 h-2.5 bg-[#16A34A] rounded-full" />
                     <span>Fashion Pria (65%)</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -308,7 +308,7 @@ export default function AdminReportsPage() {
       <section className="bg-white border border-[#EAE5E0] rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
         <div className="p-6 flex justify-between items-center bg-[#F5F3F0]/40 border-b border-[#EAE5E0]">
           <div>
-            <h4 className="font-headline font-bold text-lg text-[#1F1B18]">UMKM Berprestasi</h4>
+            <h4 className="font-headline font-bold text-lg text-[#1F1B18]">Daur Ulang Berprestasi</h4>
             <p className="font-body text-xs text-[#5C5550]">Peringkat berdasarkan omzet tertinggi bulan ini</p>
           </div>
         </div>
@@ -317,7 +317,7 @@ export default function AdminReportsPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#F5F3F0] border-b border-[#EAE5E0] text-[#5C5550]">
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Toko UMKM</th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Toko Daur Ulang</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Kategori Utama</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Total Pesanan</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Omzet</th>
@@ -373,7 +373,7 @@ export default function AdminReportsPage() {
                     </td>
                     <td className="px-6 py-4 text-xs text-[#5C5550] font-semibold">{store.kategori}</td>
                     <td className="px-6 py-4 text-xs text-[#1F1B18] font-semibold">{store.pesanan}</td>
-                    <td className="px-6 py-4 font-bold text-sm text-[#1D4ED8]">Rp {store.omzet.toLocaleString("id-ID")}</td>
+                    <td className="px-6 py-4 font-bold text-sm text-[#16A34A]">Rp {store.omzet.toLocaleString("id-ID")}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1 text-xs">
                         <span className="material-symbols-outlined text-[16px] text-orange-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>

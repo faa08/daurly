@@ -11,6 +11,13 @@ export type UsersRow = {
   role?: string | null;
   created_at?: string | null;
   tanggal_lahir?: string | null;
+  is_affiliate?: boolean | null;
+  affiliate_code?: string | null;
+  affiliate_status?: string | null;
+  affiliate_phone?: string | null;
+  affiliate_social?: string | null;
+  affiliate_nik?: string | null;
+  affiliate_ktp_name?: string | null;
 };
 
 export function resolveRole(row: UsersRow): User["role"] {
@@ -40,5 +47,12 @@ export function mapRowToUser(row: UsersRow): User {
     role: resolveRole(row),
     created_at: row.created_at || new Date().toISOString(),
     tanggal_lahir: row.tanggal_lahir || undefined,
+    is_affiliate: row.is_affiliate ?? false,
+    affiliate_code: row.affiliate_code || undefined,
+    affiliate_status: (row.affiliate_status as User["affiliate_status"]) || "none",
+    affiliate_phone: row.affiliate_phone || undefined,
+    affiliate_social: row.affiliate_social || undefined,
+    affiliate_nik: row.affiliate_nik || undefined,
+    affiliate_ktp_name: row.affiliate_ktp_name || undefined,
   };
 }

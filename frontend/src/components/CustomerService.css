@@ -1,4 +1,4 @@
-/* Customer Service Widget */
+﻿/* Customer Service Widget */
 .cs-fab {
   position: fixed;
   bottom: 24px;
@@ -309,12 +309,12 @@
 }
 
 .cs-mode-tab:hover {
-  color: #1D4ED8;
+  color: #16A34A;
 }
 
 .cs-mode-tab--active {
-  color: #1D4ED8;
-  border-bottom-color: #1D4ED8;
+  color: #16A34A;
+  border-bottom-color: #16A34A;
   background: #FFFFFF;
 }
 
@@ -384,7 +384,7 @@
 }
 
 .cs-admin-login-icon {
-  color: #1D4ED8;
+  color: #16A34A;
   margin-bottom: 8px;
 }
 

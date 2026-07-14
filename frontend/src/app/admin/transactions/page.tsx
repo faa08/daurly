@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import { adminService } from "@/backend/adminService";
@@ -125,7 +125,7 @@ export default function AdminTransactionsPage() {
           // Fallback if no order items are found in the DB
           reportItems.push({
             tanggal: formatIndonesianDate(t.createdRaw, "short"),
-            namaBarang: `Produk ${t.storeName || "Toko UMKM"}`,
+            namaBarang: `Produk ${t.storeName || "Toko Daur Ulang"}`,
             keteranganBarang: `Pembeli: ${buyerName} (ORD-${orderShort})`,
             qty: 1,
             hargaSatuan: t.amount,
@@ -177,7 +177,7 @@ export default function AdminTransactionsPage() {
       }
 
       // Store Title
-      const storeName = selectedStoreFilter === "all" ? "DAURLY" : selectedStoreFilter;
+      const storeName = selectedStoreFilter === "all" ? "Daurly" : selectedStoreFilter;
 
       if (format === "excel") {
         // Excel download using ExcelJS
@@ -551,7 +551,7 @@ export default function AdminTransactionsPage() {
         return {
           label: "Diproses",
           badge: "bg-blue-50 text-blue-700 border border-blue-200",
-          dot: "bg-blue-600"
+          dot: "bg-primary-dark"
         };
       case "dikirim":
         return {
@@ -594,7 +594,7 @@ export default function AdminTransactionsPage() {
         <div>
           <h2 className="font-headline text-3xl font-bold text-on-surface">Transaksi</h2>
           <p className="font-body text-body-md text-[#3E3834] mt-1">
-            Kelola dan pantau semua aliran transaksi UMKM secara real-time.
+            Kelola dan pantau semua aliran transaksi Daur Ulang secara real-time.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -792,7 +792,7 @@ export default function AdminTransactionsPage() {
                       <td className="px-6 py-4 text-xs text-[#3E3834]">{t.date}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center text-primary font-bold text-xs">
+                          <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-primary font-bold text-xs">
                             {t.avatar}
                           </div>
                           <div className="flex flex-col">
@@ -932,7 +932,7 @@ export default function AdminTransactionsPage() {
                       <p className="text-[10px] uppercase font-bold text-[#8E8680] tracking-wider border-b border-[#F5F3F0] pb-1.5 flex items-center gap-1.5">
                         <span className="material-symbols-outlined text-[16px]">storefront</span> Informasi Toko
                       </p>
-                      <p className="font-bold text-sm text-on-surface">{detailData.seller?.nm_store || "Toko UMKM"}</p>
+                      <p className="font-bold text-sm text-on-surface">{detailData.seller?.nm_store || "Toko Daur Ulang"}</p>
                       <p className="text-[#8E8680]">{detailData.seller?.email || "-"}</p>
                       <p className="text-[#8E8680]">{detailData.seller?.no_telp || "-"}</p>
                     </div>

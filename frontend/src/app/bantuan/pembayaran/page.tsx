@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { ChevronRight, CreditCard, Store, MapPin, ShieldCheck } from "lucide-react";
@@ -33,7 +33,7 @@ export default function PembayaranPage() {
                 {opt.id === "digital" ? (
                   <CreditCard size={22} className="text-primary" />
                 ) : (
-                  <Store size={22} className="text-orange-600" />
+                  <Store size={22} className="text-emerald-600" />
                 )}
                 <h2 className="text-lg font-extrabold text-on-surface">{opt.name}</h2>
               </div>
@@ -51,7 +51,7 @@ export default function PembayaranPage() {
                   <li>Konfirmasi alamat pickup (waktu baca 10 detik).</li>
                   <li>Bayar & ambil barang di lokasi toko.</li>
                   <li className="flex gap-1.5 items-start list-none -ml-0">
-                    <MapPin size={14} className="shrink-0 mt-0.5 text-orange-600" />
+                    <MapPin size={14} className="shrink-0 mt-0.5 text-emerald-600" />
                     <span>{PICKUP_STORE_ADDRESS}</span>
                   </li>
                 </ul>

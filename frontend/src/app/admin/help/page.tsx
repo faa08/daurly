@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { authService } from "@/backend/authService";
@@ -147,7 +147,7 @@ export default function AdminHelpPage() {
             </div>
           </div>
 
-          <div className="bg-[#EFF6FF] p-4 rounded-lg text-xs text-[#1E40AF] font-medium leading-relaxed mt-4">
+          <div className="bg-[#F0FDF4] p-4 rounded-lg text-xs text-[#15803D] font-medium leading-relaxed mt-4">
             <strong>Catatan Keamanan:</strong> Jangan pernah membagikan kata sandi root server atau API private key kepada siapapun.
           </div>
         </section>

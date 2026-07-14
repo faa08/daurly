@@ -1037,7 +1037,7 @@ VALUES (
     'admin_pelum',
     'admin123',
     'admin@linkproductive.com',
-    'Administrator Pelataran UMKM',
+    'Administrator Daurly & Daur Ulang',
     'admin'
 )
 ON CONFLICT (email) DO UPDATE SET
