@@ -140,7 +140,7 @@ export default function EkonomiSirkularPage() {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#818CF8] to-[#38BDF8]">Menyelamatkan Bumi.</span>
               </h1>
               <p className="text-lg md:text-xl text-slate-300 leading-relaxed max-w-3xl mx-auto mb-10 font-light">
-                Tinggalkan gaya hidup kuno "Beli, Pakai, Buang". Mari beralih ke sistem di mana tidak ada barang yang berujung menjadi sampah, dan setiap material memiliki kehidupan kedua.
+                Tinggalkan gaya hidup kuno &quot;Beli, Pakai, Buang&quot;. Mari beralih ke sistem di mana tidak ada barang yang berujung menjadi sampah, dan setiap material memiliki kehidupan kedua.
               </p>
               <button onClick={() => window.scrollTo({top: 600, behavior: 'smooth'})} className="inline-flex items-center justify-center bg-[#4F46E5] text-white font-bold px-8 py-4 rounded-2xl hover:bg-[#4338CA] hover:-translate-y-1 transition-all shadow-xl shadow-indigo-900/30 gap-2">
                 Pelajari Konsepnya <ArrowRight size={18} />

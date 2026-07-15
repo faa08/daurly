@@ -145,7 +145,7 @@ export default function CaraMembuatKomposPage() {
               </div>
               <h1 className="text-5xl md:text-7xl font-extrabold mb-8 leading-[1.1] tracking-tight">
                 Ubah Sisa Makanan<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A78BFA] to-[#8B5CF6]">Jadi "Emas Hitam"</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A78BFA] to-[#8B5CF6]">Jadi &quot;Emas Hitam&quot;</span>
               </h1>
               <p className="text-lg md:text-xl text-white/70 leading-relaxed max-w-2xl mx-auto mb-10 font-light">
                 Jangan biarkan sisa makanan berujung di TPA. Sulap daun kering dan kulit buahmu menjadi pupuk kompos alami yang kaya nutrisi langsung dari rumah.
