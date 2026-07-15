@@ -28,8 +28,8 @@ function mapApiError(err: unknown, isGroq: boolean): string {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAuth(request);
-  if (!auth.ok) return auth.response;
+  // Guest users are allowed to use the AI Customer Service
+  // Context is optionally passed from the client
 
   const groqKey = process.env.GROQ_API_KEY?.trim();
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
