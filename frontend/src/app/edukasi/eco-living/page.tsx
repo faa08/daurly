@@ -126,7 +126,7 @@ export default function EcoLivingPage() {
         <section className="py-20">
           <div className="max-w-[1000px] mx-auto px-6">
             <div className="bg-gradient-to-br from-[#111827] to-[#0F172A] rounded-[3rem] p-8 md:p-16 text-white shadow-xl">
-              <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-center">4 Jebakan "Greenwashing" Pemula</h2>
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-center">4 Jebakan &quot;Greenwashing&quot; Pemula</h2>
               <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto text-lg">Jangan sampai niat baikmu justru merusak lingkungan karena terjebak tren konsumerisme.</p>
               
               <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">

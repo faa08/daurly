@@ -23,11 +23,11 @@ export default function ModernHero() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F0FDF4] border border-[#4ADE80]/30 text-[#15803D] font-medium text-sm w-fit">
             <Leaf size={16} />
-            <span>Indonesia's First Circular Economy Platform</span>
+            <span>Indonesia&apos;s First Circular Economy Platform</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1F1B18] leading-tight tracking-tight">
-            Building Indonesia's <br className="hidden md:block" />
+            Building Indonesia&apos;s <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#16A34A] to-[#14B8A6]">
               Circular Economy
             </span>{" "}

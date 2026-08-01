@@ -237,7 +237,7 @@ export default function NilaiJualSampahPage() {
         {/* Checklist */}
         <section className="py-20 bg-white border-y border-surface-container">
           <div className="max-w-[800px] mx-auto px-6">
-            <h2 className="text-3xl font-extrabold text-on-surface mb-4 text-center">Persiapan Membuka "Lapak" di Rumah</h2>
+            <h2 className="text-3xl font-extrabold text-on-surface mb-4 text-center">Persiapan Membuka &quot;Lapak&quot; di Rumah</h2>
             <p className="text-secondary mb-10 text-center">Centang jika kamu sudah menyiapkan hal-hal ini.</p>
             
             <div className="bg-white border-2 border-surface-container rounded-3xl p-8 shadow-sm">

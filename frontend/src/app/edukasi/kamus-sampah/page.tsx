@@ -157,7 +157,7 @@ export default function KamusSampahPage() {
                     <FileQuestion className="text-gray-400" size={40} />
                   </div>
                   <h3 className="text-2xl font-extrabold text-on-surface mb-2">Barang Tidak Ditemukan</h3>
-                  <p className="text-secondary max-w-md mx-auto">Kami terus memperbarui database kamus ini. Coba gunakan kata kunci yang lebih umum (contoh: "botol", bukan "botol aqua").</p>
+                  <p className="text-secondary max-w-md mx-auto">Kami terus memperbarui database kamus ini. Coba gunakan kata kunci yang lebih umum (contoh: &quot;botol&quot;, bukan &quot;botol aqua&quot;).</p>
                 </div>
               )}
             </div>
