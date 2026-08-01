@@ -29,7 +29,7 @@ export default function SustainabilityCalculator() {
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, delay: 0.1 }}
+            viewport={{ once: true }} transition={{ delay: 0.1 }}
             className="text-[#5C5550]"
           >
             Lihat seberapa besar kontribusi Anda terhadap lingkungan dan masyarakat melalui pembelian produk Daurly.

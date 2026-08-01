@@ -19,7 +19,7 @@ export default function GreenStatisticsInfographic() {
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, delay: 0.1 }}
+            viewport={{ once: true }} transition={{ delay: 0.1 }}
             className="text-[#5C5550]"
           >
             Satu keputusan kecil Anda menghasilkan rantai kebaikan yang luar biasa.

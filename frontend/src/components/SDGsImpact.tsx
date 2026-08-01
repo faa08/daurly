@@ -29,7 +29,7 @@ export default function SDGsImpact() {
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, delay: 0.1 }}
+            viewport={{ once: true }} transition={{ delay: 0.1 }}
             className="text-[#5C5550] max-w-2xl mx-auto"
           >
             Setiap aksi di Daurly berkontribusi langsung pada pencapaian Tujuan Pembangunan Berkelanjutan (SDGs).
