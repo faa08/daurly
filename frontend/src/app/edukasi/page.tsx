@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Leaf, Trash2, Recycle, ArrowRight, BookOpen } from "lucide-react";
+import { ChevronRight, Leaf, Trash2, Recycle, ArrowRight, BookOpen, DollarSign, Search, BadgeInfo, Globe, Hammer } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -26,6 +26,51 @@ const ARTICLES = [
     desc: "Pelajari bagaimana membeli produk daur ulang membantu melestarikan bumi.",
     color: "text-purple-600 bg-purple-100",
     link: "/edukasi/ekonomi-sirkular",
+  },
+];
+
+const OTHER_TOPICS = [
+  {
+    icon: <DollarSign size={24} />,
+    title: "Nilai Jual Sampah",
+    desc: "Pelajari kisaran harga berbagai jenis sampah yang masih memiliki nilai ekonomi seperti plastik, kardus, logam, aluminium, dan minyak jelantah.",
+    color: "text-emerald-600 bg-emerald-100",
+    link: "/edukasi/nilai-jual-sampah",
+  },
+  {
+    icon: <Search size={24} />,
+    title: "Kamus Sampah",
+    desc: "Cari tahu apakah suatu barang dapat didaur ulang, termasuk kategori sampahnya, serta cara pembuangan yang benar.",
+    color: "text-cyan-600 bg-cyan-100",
+    link: "/edukasi/kamus-sampah",
+  },
+  {
+    icon: <BadgeInfo size={24} />,
+    title: "Mengenal Kode Plastik",
+    desc: "Pahami arti simbol plastik nomor 1 hingga 7 beserta contoh produk dan tingkat kemudahan untuk didaur ulang.",
+    color: "text-amber-600 bg-amber-100",
+    link: "/edukasi/mengenal-kode-plastik",
+  },
+  {
+    icon: <Globe size={24} />,
+    title: "Fakta Sampah Indonesia",
+    desc: "Temukan data dan fakta menarik mengenai produksi sampah, tingkat daur ulang, serta dampaknya terhadap lingkungan.",
+    color: "text-indigo-600 bg-indigo-100",
+    link: "/edukasi/fakta-sampah-indonesia",
+  },
+  {
+    icon: <Leaf size={24} />,
+    title: "Eco Living",
+    desc: "Kumpulan kebiasaan sederhana yang dapat dilakukan setiap hari untuk mengurangi sampah dan menjaga lingkungan.",
+    color: "text-teal-600 bg-teal-100",
+    link: "/edukasi/eco-living",
+  },
+  {
+    icon: <Hammer size={24} />,
+    title: "DIY Barang Bekas",
+    desc: "Inspirasi mengubah barang bekas menjadi produk yang bermanfaat dan bernilai guna melalui berbagai tutorial kreatif.",
+    color: "text-rose-600 bg-rose-100",
+    link: "/edukasi/diy-barang-bekas",
   },
 ];
 
@@ -76,6 +121,27 @@ export default function EdukasiPage() {
                   </div>
                   <h3 className="text-lg font-extrabold text-on-surface mb-3 group-hover:text-primary transition">{article.title}</h3>
                   <p className="text-sm text-secondary leading-relaxed flex-1">{article.desc}</p>
+                  <div className="mt-6 flex items-center gap-2 text-primary font-bold text-sm">
+                    Baca Selengkapnya <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* More Learning Topics */}
+          <div>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-extrabold text-on-surface">More Learning Topics</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {OTHER_TOPICS.map((topic, idx) => (
+                <Link href={topic.link} key={idx} className="bg-white border border-surface-container rounded-2xl p-6 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col h-full group block">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${topic.color}`}>
+                    {topic.icon}
+                  </div>
+                  <h3 className="text-lg font-extrabold text-on-surface mb-3 group-hover:text-primary transition">{topic.title}</h3>
+                  <p className="text-sm text-secondary leading-relaxed flex-1">{topic.desc}</p>
                   <div className="mt-6 flex items-center gap-2 text-primary font-bold text-sm">
                     Baca Selengkapnya <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </div>

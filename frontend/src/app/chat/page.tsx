@@ -12,8 +12,10 @@ function ChatPageContent() {
   return (
     <div className="h-dvh flex flex-col bg-surface overflow-hidden">
       <Navbar hideCartAndChat />
-      <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <CustomerServiceChat fullPage initialMode={initialMode} />
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-[#F5F3F0] md:p-6 items-center">
+        <div className="w-full h-full max-w-3xl flex flex-col bg-white md:rounded-2xl md:shadow-xl md:border md:border-[#EAE5E0] overflow-hidden">
+          <CustomerServiceChat fullPage initialMode={initialMode} />
+        </div>
       </main>
     </div>
   );
