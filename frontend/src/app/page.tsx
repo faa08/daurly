@@ -83,6 +83,13 @@ export default function HomePage() {
             </div>
             <span className="quick-link-text">Edukasi</span>
           </Link>
+
+          <Link href="/news" className="quick-link-item">
+            <div className="quick-link-icon-box">
+              <span className="material-symbols-outlined">newspaper</span>
+            </div>
+            <span className="quick-link-text">News</span>
+          </Link>
         </div>
 
 

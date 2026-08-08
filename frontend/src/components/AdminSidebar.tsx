@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -43,6 +43,7 @@ export default function AdminSidebar({
     { name: "Manajemen Produk", href: "/admin/products", icon: "inventory_2" },
     { name: "Kategori Produk", href: "/admin/categories", icon: "category" },
     { name: "Banner & Hero", href: "/admin/banners", icon: "view_carousel" },
+    { name: "Manajemen Berita", href: "/admin/news", icon: "newspaper" },
     { name: "Pesanan", href: "/admin/orders", icon: "shopping_bag" },
     { name: "Pusat Chat", href: "/admin/chat", icon: "forum" },
     { name: "Pengiriman", href: "/admin/pengiriman", icon: "local_shipping" },
