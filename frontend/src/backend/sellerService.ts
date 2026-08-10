@@ -1,4 +1,4 @@
-﻿import { supabase } from "./supabase";
+import { supabase } from "./supabase";
 import { productService } from "./productService";
 import { apiFetch } from "@/lib/api-client";
 
@@ -83,7 +83,7 @@ function formatDbError(err: unknown, fallback: string): string {
   return msg;
 }
 
-/** Slug URL toko dari nama toko — dipakai di /toko/[slug] */
+/** Slug URL toko dari nama toko � dipakai di /toko/[slug] */
 export function storeNameToSlug(nm_store: string): string {
   return nm_store
     .toLowerCase()
@@ -94,7 +94,7 @@ export function storeNameToSlug(nm_store: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-/** Email unik per toko — hindari bentrok UNIQUE constraint di users/seller */
+/** Email unik per toko � hindari bentrok UNIQUE constraint di users/seller */
 export function generateStoreEmail(storeName: string): string {
   const slug =
     storeName
@@ -307,7 +307,7 @@ export const sellerService = {
     try {
       const pattern = `%${q.replace(/[%_\\]/g, "\\$&")}%`;
       const { data, error } = await supabase
-        .from("v_sellers_public")
+        .from("seller")
         .select(`*`)
         .eq("is_verified", true)
         .or(`nm_store.ilike.${pattern},deskripsi.ilike.${pattern}`)
@@ -346,7 +346,7 @@ export const sellerService = {
 
       if (isUuid) {
         const { data, error } = await supabase
-          .from("v_sellers_public")
+          .from("seller")
           .select("*")
           .eq("id_seller", idOrSlug)
           .maybeSingle();
@@ -359,7 +359,7 @@ export const sellerService = {
       // so we cannot reliably reverse it via SQL. Instead, fetch all sellers and
       // compare slugs client-side using the same function.
       const { data: allSellers, error } = await supabase
-        .from("v_sellers_public")
+        .from("seller")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -471,7 +471,7 @@ export const sellerService = {
     }
 
     try {
-      // Langsung ke Supabase (anon key) — jalan jika RLS users/seller sudah dimatikan
+      // Langsung ke Supabase (anon key) � jalan jika RLS users/seller sudah dimatikan
       return await createStoreDirect(
         nm_store,
         email,
@@ -665,7 +665,7 @@ export const sellerService = {
         supabase.from("produk").select("id_produk", { count: "exact", head: true }).eq("id_seller", sellerId),
         supabase.from("ikut_toko").select("*", { count: "exact", head: true }).eq("id_seller", sellerId),
         supabase.from("review_toko").select("rating").eq("id_seller", sellerId),
-        supabase.from("v_sellers_public").select("created_at").eq("id_seller", sellerId).maybeSingle(),
+        supabase.from("seller").select("created_at").eq("id_seller", sellerId).maybeSingle(),
         supabase.from("order").select("id_order").eq("id_seller", sellerId).eq("stat_order", "selesai"),
       ]);
 

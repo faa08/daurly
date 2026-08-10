@@ -551,7 +551,7 @@ export const productService = {
 
     try {
       const { data: sellerRow, error: sellerError } = await supabase
-        .from("v_sellers_public")
+        .from("seller")
         .select("id_seller")
         .eq("id_seller", sellerId)
         .maybeSingle();
@@ -1119,7 +1119,7 @@ export const productService = {
       }
 
       const { data: stores } = await supabase
-        .from("v_sellers_public")
+        .from("seller")
         .select("nm_store")
         .eq("is_verified", true)
         .ilike("nm_store", pattern)
