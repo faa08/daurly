@@ -490,6 +490,7 @@
   max-width: 650px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -2578,13 +2579,7 @@
   display: none;
 }
 
-.account-sidebar-drawer {
-  /* desktop: normal grid column */
-}
 
-.nav-text-hide-sm {
-  /* visible by default */
-}
 
 @media (max-width: 900px) {
   .checkout-grid,
