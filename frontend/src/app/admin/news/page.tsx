@@ -28,6 +28,7 @@ export default function AdminNewsPage() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   
   const [isUploading, setIsUploading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const fetchNews = async () => {
     if (isPlaceholder()) {
@@ -74,6 +75,20 @@ export default function AdminNewsPage() {
     if (!formJudul.trim()) return;
 
     if (isPlaceholder()) {
+      if (editingId) {
+        setNewsList(newsList.map(n => n.id === editingId ? {
+          ...n,
+          judul: formJudul.trim(),
+          penulis: formPenulis.trim(),
+          ringkasan: formRingkasan.trim(),
+          konten: formKonten,
+          image_urls: imageFiles.length > 0 ? imageFiles.map(f => URL.createObjectURL(f)) : n.image_urls,
+        } : n));
+        resetForm();
+        alert("Berita berhasil diperbarui (Mode Uji Coba)!");
+        return;
+      }
+
       const newNews = {
         // eslint-disable-next-line react-hooks/purity
         id: `news-${Date.now()}`,
@@ -116,25 +131,46 @@ export default function AdminNewsPage() {
         }
       }
 
-      const { error } = await supabase
-        .from("berita")
-        .insert([{
+      if (editingId) {
+        const updateData: any = {
           judul: formJudul.trim(),
           penulis: formPenulis.trim() || null,
           ringkasan: formRingkasan.trim() || null,
           konten: formKonten,
-          image_urls: finalImageUrls.length > 0 ? finalImageUrls : null,
-          status: "Published"
-        }]);
+        };
+        
+        if (finalImageUrls.length > 0) {
+          updateData.image_urls = finalImageUrls;
+        }
 
-      if (error) throw error;
+        const { error } = await supabase
+          .from("berita")
+          .update(updateData)
+          .eq("id", editingId);
 
-      alert("Berita berhasil ditambahkan!");
+        if (error) throw error;
+        alert("Berita berhasil diperbarui!");
+      } else {
+        const { error } = await supabase
+          .from("berita")
+          .insert([{
+            judul: formJudul.trim(),
+            penulis: formPenulis.trim() || null,
+            ringkasan: formRingkasan.trim() || null,
+            konten: formKonten,
+            image_urls: finalImageUrls.length > 0 ? finalImageUrls : null,
+            status: "Published"
+          }]);
+
+        if (error) throw error;
+        alert("Berita berhasil ditambahkan!");
+      }
+
       resetForm();
       fetchNews();
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Gagal menambah berita");
+      alert(err.message || "Gagal menyimpan berita");
     } finally {
       setIsUploading(false);
     }
@@ -169,6 +205,18 @@ export default function AdminNewsPage() {
     setFormKonten("");
     setImageFiles([]);
     setShowAddForm(false);
+    setEditingId(null);
+  };
+
+  const handleEditClick = (news: any) => {
+    setFormJudul(news.judul || "");
+    setFormPenulis(news.penulis || "");
+    setFormRingkasan(news.ringkasan || "");
+    setFormKonten(news.konten || "");
+    setImageFiles([]);
+    setEditingId(news.id);
+    setShowAddForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const modules = {
@@ -195,17 +243,23 @@ export default function AdminNewsPage() {
           <p className="text-[#645F5B] mt-1">Kelola artikel, berita, dan dokumentasi untuk platform DaurlY.</p>
         </div>
         <button
-          onClick={() => setShowAddForm(!showAddForm)}
+          onClick={() => {
+            if (showAddForm) {
+              resetForm();
+            } else {
+              setShowAddForm(true);
+            }
+          }}
           className="bg-[#2D7A4D] hover:bg-[#23633E] text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors font-medium shadow-sm"
         >
-          <span className="material-symbols-outlined text-lg">add</span>
-          Tambah Berita
+          <span className="material-symbols-outlined text-lg">{showAddForm ? 'close' : 'add'}</span>
+          {showAddForm ? 'Batal' : 'Tambah Berita'}
         </button>
       </div>
 
       {showAddForm && (
         <form onSubmit={handleAdd} className="bg-white p-6 rounded-2xl shadow-sm border border-[#E9E5E1] mb-6">
-          <h2 className="text-xl font-bold text-[#1F1B18] mb-4">Tambah Berita Baru</h2>
+          <h2 className="text-xl font-bold text-[#1F1B18] mb-4">{editingId ? 'Edit Berita' : 'Tambah Berita Baru'}</h2>
           <div className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-[#1F1B18] mb-1">Judul Berita</label>
@@ -294,7 +348,7 @@ export default function AdminNewsPage() {
                     Menyimpan...
                   </>
                 ) : (
-                  "Simpan Berita"
+                  editingId ? "Perbarui Berita" : "Simpan Berita"
                 )}
               </button>
             </div>
@@ -361,7 +415,10 @@ export default function AdminNewsPage() {
                       {new Date(news.created_at).toLocaleDateString('id-ID')}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
-                      <button className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-colors">
+                      <button 
+                        onClick={() => handleEditClick(news)}
+                        className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
                         <span className="material-symbols-outlined text-[20px]">edit</span>
                       </button>
                       <button

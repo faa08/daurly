@@ -9,13 +9,65 @@ import {
   type SiteBanner,
 } from "@/backend/bannerService";
 
+import { supabase } from "@/backend/supabase";
+
 export default function HeroBanner() {
   const [slides, setSlides] = useState<SiteBanner[]>([]);
   const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    fetchHomeHeroSlides().then((rows) => setSlides(rows));
+    async function loadData() {
+      const dbSlides = await fetchHomeHeroSlides();
+      
+      try {
+        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        
+        // Cek apakah pakai placeholder (tidak ada url supabase)
+        const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+        
+        if (!isPlaceholder) {
+          const { data: newsData, error } = await supabase
+            .from("berita")
+            .select("*")
+            .gte("created_at", yesterday)
+            .order("created_at", { ascending: false })
+            .limit(1);
+            
+          if (!error && newsData && newsData.length > 0) {
+            const news = newsData[0];
+            const newsSlide: SiteBanner = {
+              id_banner: `news-${news.id}`,
+              banner_kind: "home_hero",
+              category_slug: "",
+              badge: "BERITA TERBARU",
+              title_line1: news.judul,
+              title_line2: null,
+              description: news.ringkasan || "Simak berita terbaru kami di portal berita DaurlY.",
+              button_text: "Baca Selengkapnya",
+              button_link: `/news/${news.id}`,
+              image_url: (news.image_urls && news.image_urls.length > 0) ? news.image_urls[0] : "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=1200&auto=format&fit=crop",
+              image_position: "center",
+              sort_order: 1,
+              is_active: true
+            };
+            
+            // Insert into second position (index 1) if possible
+            if (dbSlides.length >= 1) {
+              dbSlides.splice(1, 0, newsSlide);
+            } else {
+              dbSlides.push(newsSlide);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Gagal memuat berita terbaru untuk banner:", err);
+      }
+      
+      setSlides(dbSlides);
+    }
+    
+    loadData();
   }, []);
 
   const nextSlide = useCallback(() => {
@@ -122,6 +174,10 @@ export default function HeroBanner() {
                         maxWidth: "480px",
                         margin: "4px 0 8px 0",
                         lineHeight: "1.5",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden"
                       }}
                     >
                       {slide.description}

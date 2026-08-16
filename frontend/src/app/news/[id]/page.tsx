@@ -162,9 +162,12 @@ export default function NewsDetailPage() {
           </div>
 
           {/* Konten Berita - Rich Text */}
-          <div className="prose prose-lg prose-green max-w-none mb-12 text-[#3E3834] leading-relaxed">
+          <div className="prose prose-lg prose-green max-w-none mb-12 text-[#3E3834] leading-relaxed overflow-hidden break-words">
             {news.konten ? (
-              <div dangerouslySetInnerHTML={{ __html: news.konten }} />
+              <div 
+                dangerouslySetInnerHTML={{ __html: news.konten }} 
+                className="w-full max-w-full [&>*]:max-w-full [&_img]:max-w-full [&_p]:whitespace-pre-wrap [&_p]:break-words"
+              />
             ) : (
               <p className="italic text-gray-500">Tidak ada konten untuk berita ini.</p>
             )}
